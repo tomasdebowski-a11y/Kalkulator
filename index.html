@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bolus">
+<title>Bolus</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d21;--mu:#6b7280;--ac:#0f766e;--wa:#b45309;--er:#b91c1c;--bd:#e3e6ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--bd:#2a3038}}
+:root[data-theme="dark"]{--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--bd:#2a3038}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mu);margin-bottom:4px}
+input{width:100%;font-size:22px;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+.r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big{font-size:56px;font-weight:700;color:var(--ac);line-height:1}
+.big small{font-size:20px;font-weight:500;color:var(--mu)}
+.bk div{display:flex;justify-content:space-between;font-size:14px;color:var(--mu);padding:2px 0}
+.w{color:var(--wa);font-weight:600;font-size:14px;margin-top:8px}
+.e{color:var(--er);font-weight:600;font-size:14px;margin-top:8px}
+button{font-size:16px;padding:12px;border:0;border-radius:10px;background:var(--ac);color:#000;font-weight:600;width:100%;margin-top:10px}
+button.s{background:transparent;color:var(--er);border:1px solid var(--bd);width:auto;padding:4px 10px;margin:0;font-size:13px}
+summary{font-weight:600;cursor:pointer}
+.l{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--bd);font-size:14px}
+.f{font-size:12px;color:var(--mu);text-align:center;margin:8px 0}
+h1{font-size:18px;margin:0 0 12px}
+</style>
+</head>
+<body>
+<main>
+<h1>Bolusový kalkulátor</h1>
+
+<div class="c">
+  <div class="r">
+    <div><label for="bg">Glykémie (mmol/l)</label><input id="bg" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="cb">Sacharidy (g)</label><input id="cb" type="number" inputmode="decimal" step="any"></div>
+  </div>
+</div>
+
+<div class="c">
+  <label>Doporučený bolus</label>
+  <div class="big"><span id="tot">–</span> <small>j.</small></div>
+  <div class="bk" id="bk" style="margin-top:10px"></div>
+  <div id="msg"></div>
+</div>
+
+<div class="c">
+  <label for="dose">Aplikováno (j.)</label>
+  <input id="dose" type="number" inputmode="decimal" step="any">
+  <button id="log">Zapsat dávku</button>
+</div>
+
+<div class="c">
+  <details open><summary>Aktivní inzulin (IOB): <span id="iob">0</span> j.</summary>
+  <div id="hist" style="margin-top:8px"></div></details>
+</div>
+
+<div class="c">
+  <details><summary>Nastavení</summary>
+  <div class="r" style="margin-top:10px">
+    <div><label for="icr">Poměr (g na 1 j.)</label><input id="icr" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="isf">Citlivost (mmol/l na 1 j.)</label><input id="isf" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="target">Cílová glykémie</label><input id="target" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="dia">Doba účinku (h)</label><input id="dia" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="step">Krok dávky (j.)</label><input id="step" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="max">Maximální bolus (j.)</label><input id="max" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="low">Hranice hypo</label><input id="low" type="number" inputmode="decimal" step="any"></div>
+  </div>
+  <p class="f" style="text-align:left">Předvyplněné hodnoty jsou jen vzorové. Zadej svoje podle diabetologa.</p>
+  </details>
+</div>
+
+<p class="f">Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Před aplikací dávku vždy zkontroluj.</p>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const DEF={icr:10,isf:2.5,target:6,dia:4,step:0.5,max:15,low:4};
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let S=Object.assign({},DEF,load('bc_s',{}));
+let L=load('bc_l',[]);
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?null:v};
+const fmt=x=>String(+x.toFixed(2)).replace('.',',');
+
+function iob(){
+  const now=Date.now();
+  L=L.filter(d=>(now-d.t)/36e5<S.dia);
+  return L.reduce((s,d)=>s+d.u*(1-((now-d.t)/36e5)/S.dia),0);
+}
+
+function calc(){
+  const bg=num('bg'),cb=num('cb')||0;
+  const I=iob();
+  $('iob').textContent=fmt(I);
+  const bk=$('bk'),msg=$('msg');
+  bk.innerHTML='';msg.innerHTML='';
+  if(bg===null&&!cb){$('tot').textContent='–';return}
+  const carb=cb/S.icr;
+  const corr=bg!==null?(bg-S.target)/S.isf:0;
+  let raw=carb+corr-I;
+  const warn=[];
+  if(bg!==null&&bg<S.low){raw=0;warn.push(['e','Nízká glykémie: nejdřív řeš hypo, bolus se nedoporučuje.'])}
+  raw=Math.max(0,raw);
+  let rec=Math.round(raw/S.step)*S.step;
+  if(rec>S.max){rec=S.max;warn.push(['w','Překročen maximální bolus, dávka omezena na '+fmt(S.max)+' j.'])}
+  if(I>0&&carb+corr>0&&raw===0&&!warn.length)warn.push(['w','Aktivní inzulin pokrývá potřebu.'])
+  $('tot').textContent=fmt(rec);
+  [['Na sacharidy',carb],['Korekce',corr],['Aktivní inzulin (IOB)',-I],['Před zaokrouhlením',raw]].forEach(([a,b])=>{
+    const d=document.createElement('div');
+    d.innerHTML='<span>'+a+'</span><span>'+(b>0&&a!=='Před zaokrouhlením'?'+':'')+fmt(b)+' j.</span>';
+    bk.appendChild(d);
+  });
+  warn.forEach(([c,t])=>{const d=document.createElement('div');d.className=c;d.textContent=t;msg.appendChild(d)});
+  if(document.activeElement!==$('dose'))$('dose').value=rec;
+}
+
+function hist(){
+  const h=$('hist');h.innerHTML='';
+  if(!L.length){h.innerHTML='<div class="f" style="text-align:left">Žádná aktivní dávka.</div>';return}
+  L.slice().reverse().forEach(d=>{
+    const t=new Date(d.t),el=document.createElement('div');el.className='l';
+    el.innerHTML='<span>'+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0')+' · '+fmt(d.u)+' j.</span>';
+    const b=document.createElement('button');b.className='s';b.textContent='Smazat';
+    b.onclick=()=>{L=L.filter(x=>x!==d);save('bc_l',L);hist();calc()};
+    el.appendChild(b);h.appendChild(el);
+  });
+}
+
+$('log').onclick=()=>{
+  const u=num('dose');
+  if(!u||u<=0)return;
+  L.push({t:Date.now(),u});save('bc_l',L);
+  $('bg').value='';$('cb').value='';$('dose').value='';
+  hist();calc();
+};
+
+Object.keys(DEF).forEach(k=>{
+  $(k).value=S[k];
+  $(k).addEventListener('input',()=>{
+    const v=num(k);
+    if(v!==null&&v>0){S[k]=v;save('bc_s',S);calc()}
+  });
+});
+$('bg').addEventListener('input',()=>{$('dose').value='';calc()});
+$('cb').addEventListener('input',()=>{$('dose').value='';calc()});
+setInterval(()=>{hist();calc()},60000);
+hist();calc();
+</script>
+</body>
+</html>
