@@ -3,13 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Bolus">
 <title>Bolus</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bolus">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d21;--mu:#6b7280;--ac:#0f766e;--wa:#b45309;--er:#b91c1c;--bd:#e3e6ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--bd:#2a3038}}
-:root[data-theme="dark"]{--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--bd:#2a3038}
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d21;--mu:#6b7280;--ac:#0f766e;--wa:#b45309;--er:#b91c1c;--io:#1d4ed8;--bd:#e3e6ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--io:#60a5fa;--bd:#2a3038}}
+:root[data-theme="dark"]{--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--io:#60a5fa;--bd:#2a3038}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 main{max-width:480px;margin:0 auto;padding:16px}
@@ -28,6 +31,31 @@ summary{font-weight:600;cursor:pointer}
 .l{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--bd);font-size:14px}
 .f{font-size:12px;color:var(--mu);text-align:center;margin:8px 0}
 h1{font-size:18px;margin:0 0 12px}
+.bl{display:grid;grid-template-columns:1.45fr 1fr 1fr 36px;gap:6px;align-items:center;margin-top:6px}
+.bl span{font-size:12px;color:var(--mu)}
+.bl input{font-size:17px;padding:8px 6px;min-width:0;height:42px}
+.bl.on input{border-color:var(--ac);border-width:2px}
+.bl button.s{padding:0;width:36px;height:42px;font-size:20px}
+.bl button:disabled{opacity:.35}
+input.bad{border-color:var(--er)!important}
+button.g{background:transparent;color:var(--ac);border:1px solid var(--bd)}
+.bi{font-size:13px;color:var(--mu);margin-top:8px}
+.c select{width:100%;font-size:17px;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+.iob{font-size:30px;font-weight:700;color:var(--mu);margin-left:4px;white-space:nowrap}
+.iob.on{color:var(--io)}
+.bk div.io{color:var(--io);font-weight:700;font-size:15px}
+.dh{font-weight:600;font-size:14px;margin-top:14px;padding-bottom:4px}
+.ac{font-size:12px;color:var(--mu)}
+.bx{border:1px solid var(--bd);border-radius:12px;padding:8px;margin-top:8px}
+.bx.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.bx .t{display:grid;grid-template-columns:1fr 1fr 36px;gap:6px;align-items:end}
+.bx .v{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.bx label{font-size:12px;margin:0}
+.bx input{font-size:17px;padding:8px 6px;min-width:0;height:42px;margin-top:2px}
+.bx button.s{padding:0;width:36px;height:42px;font-size:20px}
+[hidden]{display:none!important}
+.sw{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--tx);margin:14px 0 6px}
+.sw input{width:24px;height:24px;flex:none;padding:0;accent-color:var(--ac)}
 </style>
 </head>
 <body>
@@ -44,7 +72,8 @@ h1{font-size:18px;margin:0 0 12px}
 <div class="c">
   <label>Doporučený bolus</label>
   <div class="big"><span id="tot">–</span> <small>j.</small></div>
-  <div class="bk" id="bk" style="margin-top:10px"></div>
+  <div class="bi" id="blk"></div>
+  <div class="bk" id="bk" style="margin-top:6px"></div>
   <div id="msg"></div>
 </div>
 
@@ -55,15 +84,35 @@ h1{font-size:18px;margin:0 0 12px}
 </div>
 
 <div class="c">
-  <details open><summary>Aktivní inzulin (IOB): <span id="iob">0</span> j.</summary>
+  <details open><summary>Aktivní inzulin (IOB): <span class="iob"><span id="iob">0</span> j.</span></summary>
   <div id="hist" style="margin-top:8px"></div></details>
 </div>
 
 <div class="c">
+  <details><summary>Deník (<span id="dcount">0</span>)</summary>
+  <div id="diary" style="margin-top:4px"></div>
+  <button id="dmore" class="g" hidden>Zobrazit starší dny</button>
+  <label for="dper" style="margin-top:14px">Období pro PDF</label>
+  <select id="dper"><option value="14">Posledních 14 dní</option><option value="30" selected>Posledních 30 dní</option><option value="90">Posledních 90 dní</option><option value="0">Vše</option></select>
+  <button id="dpdf" class="g">Exportovat PDF</button>
+  <button id="dexp" class="g">Exportovat CSV (vše)</button>
+  <p class="f" style="text-align:left">Záznam vznikne při každém „Zapsat dávku". Záznamy jsou uložené jen v tomto telefonu a při odebrání aplikace z plochy se smažou, proto si je občas exportuj.</p>
+  </details>
+</div>
+
+<div class="c">
   <details><summary>Nastavení</summary>
-  <div class="r" style="margin-top:10px">
+  <div class="r" id="simple" style="margin-top:10px">
     <div><label for="icr">Poměr (g na 1 j.)</label><input id="icr" type="number" inputmode="decimal" step="any"></div>
     <div><label for="isf">Citlivost (mmol/l na 1 j.)</label><input id="isf" type="number" inputmode="decimal" step="any"></div>
+  </div>
+  <label class="sw"><input type="checkbox" id="ub"> Používat časové bloky</label>
+  <div id="blkbox">
+  <div id="bls"></div>
+  <button id="addb" class="g">Přidat blok</button>
+  <p class="f" style="text-align:left">V čase bloku platí jeho poměr a citlivost. Mimo bloky platí základní poměr a citlivost nahoře. Blok může jít přes půlnoc (např. 22:00–6:00). Bloky se nesmí překrývat. Zvýrazněný blok platí právě teď.</p>
+  </div>
+  <div class="r" style="margin-top:10px">
     <div><label for="target">Cílová glykémie</label><input id="target" type="number" inputmode="decimal" step="any"></div>
     <div><label for="dia">Doba účinku (h)</label><input id="dia" type="number" inputmode="decimal" step="any"></div>
     <div><label for="step">Krok dávky (j.)</label><input id="step" type="number" inputmode="decimal" step="any"></div>
@@ -75,6 +124,7 @@ h1{font-size:18px;margin:0 0 12px}
 </div>
 
 <p class="f">Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f">Verze 1.6</p>
 </main>
 
 <script>
@@ -83,8 +133,37 @@ const DEF={icr:10,isf:2.5,target:6,dia:4,step:0.5,max:15,low:4};
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 let S=Object.assign({},DEF,load('bc_s',{}));
+// Časové bloky od–do: m = začátek, e = konec (minuty od půlnoci; blok může jít přes půlnoc).
+// Bloky jsou volitelné. Mimo bloky platí základní poměr a citlivost (S.icr, S.isf).
+const okn=x=>Number.isInteger(x)&&x>=0&&x<1440;
+if(!Array.isArray(S.blocks))S.blocks=[];
+S.blocks=S.blocks.filter(b=>b&&okn(b.m)&&b.icr>0&&b.isf>0);
+if(S.blocks.some(b=>!okn(b.e))){
+  // Převod ze starší verze, kde měl blok jen začátek: konec = začátek dalšího bloku.
+  S.blocks.sort((x,y)=>x.m-y.m);
+  if(S.blocks.length<2){
+    if(S.blocks.length&&S.useBlocks!==false){S.icr=S.blocks[0].icr;S.isf=S.blocks[0].isf}
+    S.blocks=[];S.useBlocks=false;
+  }else{
+    S.blocks.forEach((b,i)=>{b.e=S.blocks[(i+1)%S.blocks.length].m});
+    if(typeof S.useBlocks!=='boolean')S.useBlocks=true;
+  }
+}
+if(typeof S.useBlocks!=='boolean')S.useBlocks=false;
 let L=load('bc_l',[]);
-const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?null:v};
+const pv=x=>{const v=parseFloat(String(x).replace(',','.'));return isNaN(v)?null:v};
+const num=id=>pv($(id).value);
+const hm=(m,p)=>(p?String(Math.floor(m/60)).padStart(2,'0'):Math.floor(m/60))+':'+String(m%60).padStart(2,'0');
+const inb=(b,m)=>b.m<b.e?(m>=b.m&&m<b.e):(m>=b.m||m<b.e);
+// Blok platný v čase m (minuty od půlnoci), nebo null, když čas žádný blok nepokrývá.
+const at=m=>S.blocks.find(b=>inb(b,m))||null;
+const segs=b=>b.m<b.e?[[b.m,b.e]]:[[b.m,1440],[0,b.e]];
+const ov=(a,b)=>segs(a).some(([s1,e1])=>segs(b).some(([s2,e2])=>s1<e2&&s2<e1));
+function cur(){
+  if(!S.useBlocks)return null;
+  const n=new Date();return at(n.getHours()*60+n.getMinutes());
+}
+const rows=new Map();
 const fmt=x=>String(+x.toFixed(2)).replace('.',',');
 
 function iob(){
@@ -96,12 +175,20 @@ function iob(){
 function calc(){
   const bg=num('bg'),cb=num('cb')||0;
   const I=iob();
-  $('iob').textContent=fmt(I);
+  $('iob').textContent=fmt(I);$('iob').parentNode.classList.toggle('on',I>=0.005);
   const bk=$('bk'),msg=$('msg');
   bk.innerHTML='';msg.innerHTML='';
+  const B=cur(),V=B||S;
+  rows.forEach((row,b)=>row.classList.toggle('on',b===B));
+  $('blk').textContent=(B?'Blok '+hm(B.m)+'–'+hm(B.e):(S.useBlocks&&S.blocks.length?'Mimo bloky, základní hodnoty':'Celý den'))+' · poměr '+fmt(V.icr)+' g/j. · citlivost '+fmt(V.isf)+' mmol/l';
+  if(S.useBlocks&&document.querySelector('#bls .bad')){
+    $('tot').textContent='–';$('dose').value='';
+    const d=document.createElement('div');d.className='e';d.textContent='Oprav neplatnou hodnotu v časových blocích v Nastavení.';msg.appendChild(d);
+    return;
+  }
   if(bg===null&&!cb){$('tot').textContent='–';return}
-  const carb=cb/S.icr;
-  const corr=bg!==null?(bg-S.target)/S.isf:0;
+  const carb=cb/V.icr;
+  const corr=bg!==null?(bg-S.target)/V.isf:0;
   let raw=carb+corr-I;
   const warn=[];
   if(bg!==null&&bg<S.low){raw=0;warn.push(['e','Nízká glykémie: nejdřív řeš hypo, bolus se nedoporučuje.'])}
@@ -113,6 +200,7 @@ function calc(){
   [['Na sacharidy',carb],['Korekce',corr],['Aktivní inzulin (IOB)',-I],['Před zaokrouhlením',raw]].forEach(([a,b])=>{
     const d=document.createElement('div');
     d.innerHTML='<span>'+a+'</span><span>'+(b>0&&a!=='Před zaokrouhlením'?'+':'')+fmt(b)+' j.</span>';
+    if(a==='Aktivní inzulin (IOB)'&&I>=0.005)d.className='io';
     bk.appendChild(d);
   });
   warn.forEach(([c,t])=>{const d=document.createElement('div');d.className=c;d.textContent=t;msg.appendChild(d)});
@@ -126,17 +214,228 @@ function hist(){
     const t=new Date(d.t),el=document.createElement('div');el.className='l';
     el.innerHTML='<span>'+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0')+' · '+fmt(d.u)+' j.</span>';
     const b=document.createElement('button');b.className='s';b.textContent='Smazat';
-    b.onclick=()=>{L=L.filter(x=>x!==d);save('bc_l',L);hist();calc()};
+    b.onclick=()=>{L=L.filter(x=>x!==d);save('bc_l',L);hist();calc();dDel(d.t)};
     el.appendChild(b);h.appendChild(el);
   });
 }
 
+// ===== Deník: jen čte a ukládá záznamy, do výpočtu dávky nezasahuje. Chyba v deníku kalkulátor nezastaví. =====
+let D=[];try{D=load('bc_d',[]);if(!Array.isArray(D))D=[]}catch(e){D=[]}
+let dAll=false;
+const DN=['Ne','Po','Út','St','Čt','Pá','So'];
+const p2=x=>String(x).padStart(2,'0');
+function dAdd(r){try{D.push(r);save('bc_d',D);dRender()}catch(e){}}
+function dDel(t){try{D=D.filter(r=>r.t!==t);save('bc_d',D);dRender()}catch(e){}}
+function dRender(){try{
+  const box=$('diary');box.innerHTML='';
+  $('dcount').textContent=D.length;
+  if(!D.length){$('dmore').hidden=true;const e=document.createElement('div');e.className='f';e.style.textAlign='left';e.textContent='Zatím žádný záznam.';box.appendChild(e);return}
+  const days=new Map();
+  D.slice().sort((a,b)=>b.t-a.t).forEach(r=>{
+    const d=new Date(r.t),k=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+    if(!days.has(k))days.set(k,[]);days.get(k).push(r);
+  });
+  let n=0;
+  for(const rs of days.values()){
+    if(!dAll&&n>=7)break;n++;
+    const d=new Date(rs[0].t);
+    const ins=rs.reduce((s,r)=>s+(r.u||0),0),cb=rs.reduce((s,r)=>s+(r.cb||0),0);
+    const h=document.createElement('div');h.className='dh';
+    h.textContent=DN[d.getDay()]+' '+d.getDate()+'. '+(d.getMonth()+1)+'. · inzulin '+fmt(ins)+' j. · sacharidy '+fmt(cb)+' g';
+    box.appendChild(h);
+    rs.forEach(r=>{
+      const t=new Date(r.t),el=document.createElement('div');el.className='l';
+      const sp=document.createElement('span');
+      sp.textContent=t.getHours()+':'+p2(t.getMinutes())+' · glyk. '+(r.bg==null?'–':fmt(r.bg))+' · '+fmt(r.cb||0)+' g · '+fmt(r.u)+' j.';
+      el.appendChild(sp);
+      if(L.some(x=>x.t===r.t)){
+        // Ještě aktivní dávka se maže v Aktivním inzulinu, aby deník neměnil IOB.
+        const a=document.createElement('span');a.className='ac';a.textContent='aktivní';el.appendChild(a);
+      }else{
+        const b=document.createElement('button');b.className='s';b.textContent='Smazat';
+        b.onclick=()=>{if(confirm('Smazat záznam z deníku?'))dDel(r.t)};
+        el.appendChild(b);
+      }
+      box.appendChild(el);
+    });
+  }
+  $('dmore').hidden=dAll||days.size<=7;
+}catch(e){}}
+function dCsv(){
+  const f=x=>x==null?'':String(+(+x).toFixed(2)).replace('.',',');
+  const rows=[['Datum','Čas','Glykémie (mmol/l)','Sacharidy (g)','Aplikováno (j.)','Doporučeno (j.)']];
+  D.slice().sort((a,b)=>a.t-b.t).forEach(r=>{
+    const d=new Date(r.t);
+    rows.push([d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear(),p2(d.getHours())+':'+p2(d.getMinutes()),f(r.bg),f(r.cb),f(r.u),f(r.rec)]);
+  });
+  return '\ufeff'+rows.map(r=>r.join(';')).join('\r\n')+'\r\n';
+}
+$('dmore').onclick=()=>{dAll=true;dRender()};
+// PDF bez knihoven a bez internetu: stránky se vykreslí na plátno a vloží do PDF jako obrázky (kvůli češtině).
+function dPdf(days){
+  const recs=D.filter(r=>r&&typeof r.t==='number'&&r.u>0&&(!days||r.t>=Date.now()-days*864e5)).sort((x,y)=>x.t-y.t);
+  if(!recs.length)return null;
+  const W=1240,H=1754,M=90,X=[M,300,520,760,1000],F='"Helvetica Neue",Helvetica,Arial,sans-serif';
+  const f=x=>x==null?'–':fmt(+x);
+  const dt=d=>d.getDate()+'. '+(d.getMonth()+1)+'. '+d.getFullYear();
+  const groups=[];let key=null,g=null;
+  recs.forEach(r=>{const d=new Date(r.t),k=d.toDateString();if(k!==key){key=k;g={d,rs:[]};groups.push(g)}g.rs.push(r)});
+  const pages=[];let pg=null,y=0;
+  const np=()=>{pg=[];pages.push(pg);y=pages.length===1?250:110};
+  np();
+  groups.forEach(g=>{
+    if(y+52+30+34>H-110)np();
+    const ins=g.rs.reduce((s,r)=>s+(r.u||0),0),cb=g.rs.reduce((s,r)=>s+(r.cb||0),0);
+    pg.push({k:'d',y,t:DN[g.d.getDay()]+' '+dt(g.d),s:'inzulin '+fmt(ins)+' j. · sacharidy '+fmt(cb)+' g'});y+=52;
+    pg.push({k:'h',y});y+=30;
+    g.rs.forEach(r=>{
+      if(y+34>H-110){np();pg.push({k:'h',y});y+=30}
+      const t=new Date(r.t);
+      pg.push({k:'r',y,c:[t.getHours()+':'+p2(t.getMinutes()),f(r.bg),f(r.cb||0),f(r.u),f(r.rec)]});y+=34;
+    });
+    y+=14;
+  });
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const c=cv.getContext('2d');
+  const HD=['Čas','Glykémie (mmol/l)','Sacharidy (g)','Aplikováno (j.)','Doporučeno (j.)'];
+  const imgs=pages.map((p,i)=>{
+    c.fillStyle='#fff';c.fillRect(0,0,W,H);c.textBaseline='middle';c.textAlign='left';
+    if(i===0){
+      c.fillStyle='#111';c.font='bold 40px '+F;c.fillText('Bolusový deník',M,110);
+      c.fillStyle='#444';c.font='22px '+F;
+      c.fillText('Období: '+dt(new Date(recs[0].t))+' – '+dt(new Date(recs[recs.length-1].t))+' · záznamů: '+recs.length,M,160);
+      c.fillText('Vytvořeno: '+dt(new Date()),M,194);
+      c.fillStyle='#bbb';c.fillRect(M,222,W-2*M,2);
+    }
+    p.forEach(o=>{
+      if(o.k==='d'){
+        c.fillStyle='#e8f1ef';c.fillRect(M-14,o.y,W-2*M+28,40);
+        c.fillStyle='#111';c.font='bold 22px '+F;c.textAlign='left';c.fillText(o.t,M,o.y+21);
+        c.fillStyle='#333';c.font='20px '+F;c.textAlign='right';c.fillText(o.s,W-M,o.y+21);c.textAlign='left';
+      }else if(o.k==='h'){
+        c.fillStyle='#666';c.font='17px '+F;HD.forEach((t,j)=>c.fillText(t,X[j],o.y+15));
+      }else{
+        c.fillStyle='#111';c.font='21px '+F;o.c.forEach((t,j)=>c.fillText(t,X[j],o.y+17));
+        c.fillStyle='#e5e5e5';c.fillRect(M,o.y+33,W-2*M,1);
+      }
+    });
+    c.fillStyle='#777';c.font='16px '+F;
+    c.fillText('Bolusový kalkulátor · osobní záznamy',M,H-60);
+    c.textAlign='right';c.fillText('Strana '+(i+1)+'/'+pages.length,W-M,H-60);
+    const bin=atob(cv.toDataURL('image/jpeg',0.9).split(',')[1]),u=new Uint8Array(bin.length);
+    for(let j=0;j<bin.length;j++)u[j]=bin.charCodeAt(j);
+    return u;
+  });
+  const enc=new TextEncoder(),parts=[],offs=[];let pos=0;
+  const put=x=>{const u=typeof x==='string'?enc.encode(x):x;parts.push(u);pos+=u.length};
+  const obj=(n,body)=>{offs[n]=pos;put(n+' 0 obj\n');body();put('\nendobj\n')};
+  put('%PDF-1.4\n');
+  const n=imgs.length;
+  obj(1,()=>put('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2,()=>put('<< /Type /Pages /Count '+n+' /Kids ['+imgs.map((_,i)=>(3+3*i)+' 0 R').join(' ')+'] >>'));
+  imgs.forEach((im,i)=>{
+    const a=3+3*i,cs='q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+    obj(a,()=>put('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 '+(a+2)+' 0 R >> >> /Contents '+(a+1)+' 0 R >>'));
+    obj(a+1,()=>put('<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream'));
+    obj(a+2,()=>{put('<< /Type /XObject /Subtype /Image /Width '+W+' /Height '+H+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.length+' >>\nstream\n');put(im);put('\nendstream')});
+  });
+  const xr=pos,cnt=3+3*n;
+  put('xref\n0 '+cnt+'\n0000000000 65535 f \n');
+  for(let k=1;k<cnt;k++)put(String(offs[k]).padStart(10,'0')+' 00000 n \n');
+  put('trailer\n<< /Size '+cnt+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF\n');
+  return new Blob(parts,{type:'application/pdf'});
+}
+async function dShare(file){
+  if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Bolusový deník'});return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=file.name;document.body.appendChild(a);a.click();a.remove();
+}
+const dName=ext=>{const n=new Date();return 'bolus-denik-'+n.getFullYear()+'-'+p2(n.getMonth()+1)+'-'+p2(n.getDate())+'.'+ext};
+$('dexp').onclick=async()=>{
+  try{
+    if(!D.length){alert('Deník je prázdný.');return}
+    await dShare(new File([dCsv()],dName('csv'),{type:'text/csv'}));
+  }catch(e){if(e&&e.name!=='AbortError')alert('Export se nepodařil.')}
+};
+$('dpdf').onclick=async()=>{
+  try{
+    const blob=dPdf(+$('dper').value);
+    if(!blob){alert('V tomto období není žádný záznam.');return}
+    await dShare(new File([blob],dName('pdf'),{type:'application/pdf'}));
+  }catch(e){if(e&&e.name!=='AbortError')alert('Export se nepodařil.')}
+};
+
+function rb(){
+  const box=$('bls');box.innerHTML='';rows.clear();
+  S.blocks.sort((x,y)=>x.m-y.m);
+  if(!S.blocks.length)box.innerHTML='<div class="f" style="text-align:left">Zatím žádný blok. Celý den platí základní hodnoty.</div>';
+  S.blocks.forEach(b=>{
+    const row=document.createElement('div');row.className='bx';rows.set(b,row);
+    const top=document.createElement('div');top.className='t';
+    const bot=document.createElement('div');bot.className='v';
+    [['m','Od'],['e','Do']].forEach(([k,lab])=>{
+      const l=document.createElement('label');l.textContent=lab;
+      const t=document.createElement('input');t.type='time';t.value=hm(b[k],1);
+      t.addEventListener('change',()=>{
+        const p=/^(\d\d):(\d\d)/.exec(t.value),v=p?(+p[1])*60+(+p[2]):null;
+        let err=null;
+        if(v===null||v>1439)err='';
+        else{
+          const c=Object.assign({},b);c[k]=v;
+          if(c.m===c.e)err='Začátek a konec bloku nesmí být stejný.';
+          else{const o=S.blocks.find(x=>x!==b&&ov(c,x));if(o)err='Čas se překrývá s blokem '+hm(o.m)+'–'+hm(o.e)+'.'}
+        }
+        if(err!==null){if(err)alert(err);t.value=hm(b[k],1);return}
+        b[k]=v;save('bc_s',S);rb();calc();
+      });
+      l.appendChild(t);top.appendChild(l);
+    });
+    const x=document.createElement('button');x.className='s';x.textContent='×';x.setAttribute('aria-label','Smazat blok');
+    x.onclick=()=>{
+      if(!confirm('Smazat blok '+hm(b.m)+'–'+hm(b.e)+'?'))return;
+      S.blocks=S.blocks.filter(y=>y!==b);save('bc_s',S);rb();calc();
+    };
+    top.appendChild(x);
+    [['icr','Poměr (g na 1 j.)'],['isf','Citlivost (mmol/l na 1 j.)']].forEach(([k,lab])=>{
+      const l=document.createElement('label');l.textContent=lab;
+      const i=document.createElement('input');i.type='number';i.inputMode='decimal';i.step='any';i.value=b[k];
+      i.addEventListener('input',()=>{
+        const v=pv(i.value);
+        if(v!==null&&v>0){b[k]=v;i.classList.remove('bad');save('bc_s',S)}else i.classList.add('bad');
+        calc();
+      });
+      l.appendChild(i);bot.appendChild(l);
+    });
+    row.appendChild(top);row.appendChild(bot);box.appendChild(row);
+  });
+}
+// Nový blok se vloží do volného času a převezme základní hodnoty, takže přidání samo výpočet nezmění.
+$('addb').onclick=()=>{
+  const B=S.blocks;let m=null,len=0;
+  if(!B.length){m=360;len=240}
+  else for(const b of B){
+    const st=b.e;
+    if(at(st))continue;
+    const d=Math.min(...B.map(x=>((x.m-st)%1440+1440)%1440));
+    if(d<=0)continue;
+    m=st;len=Math.min(d,240);break;
+  }
+  if(m===null){alert('Celý den je už pokrytý bloky.');return}
+  B.push({m,e:(m+len)%1440,icr:S.icr,isf:S.isf});save('bc_s',S);rb();calc();
+};
+function mode(){$('ub').checked=S.useBlocks;$('blkbox').hidden=!S.useBlocks}
+$('ub').addEventListener('change',()=>{
+  S.useBlocks=$('ub').checked;
+  save('bc_s',S);rb();mode();calc();
+});
+
 $('log').onclick=()=>{
   const u=num('dose');
   if(!u||u<=0)return;
-  L.push({t:Date.now(),u});save('bc_l',L);
+  const t=Date.now(),dbg=num('bg'),dcb=num('cb')||0,drec=pv($('tot').textContent);
+  L.push({t,u});save('bc_l',L);
   $('bg').value='';$('cb').value='';$('dose').value='';
   hist();calc();
+  dAdd({t,bg:dbg,cb:dcb,u,rec:drec});
 };
 
 Object.keys(DEF).forEach(k=>{
@@ -148,8 +447,9 @@ Object.keys(DEF).forEach(k=>{
 });
 $('bg').addEventListener('input',()=>{$('dose').value='';calc()});
 $('cb').addEventListener('input',()=>{$('dose').value='';calc()});
-setInterval(()=>{hist();calc()},60000);
-hist();calc();
+setInterval(()=>{hist();calc();dRender()},60000);
+rb();mode();hist();calc();dRender();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 </script>
 </body>
 </html>
