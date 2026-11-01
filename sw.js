@@ -1,6 +1,6 @@
 // Offline režim pro Bolusový kalkulátor
 // Při každé úpravě aplikace zvyšte číslo verze.
-const CACHE = 'bolus-v8';
+const CACHE = 'bolus-v9';
 const FILES = ['./', './index.html', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" data-th="mata">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,9 +9,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Bolus</title>
+<script>try{var t=(JSON.parse(localStorage.getItem("bc_s")||"{}").theme);if(t==="more"||t==="mata")document.documentElement.dataset.th=t}catch(e){}</script>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d21;--mu:#6b7280;--ac:#0f766e;--wa:#b45309;--er:#b91c1c;--ok:#15803d;--bd:#e3e6ea;--bas:#7c9cbf;--bol:#0f766e;--lo:#dc2626;--in:#16a34a;--hi:#f59e0b;box-sizing:border-box}
-@media (prefers-color-scheme:dark){:root{--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--ok:#4ade80;--bd:#2a3038;--bas:#6b8db3;--bol:#2dd4bf;--lo:#f87171;--in:#4ade80;--hi:#fbbf24}}
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d21;--mu:#6b7280;--ac:#0f766e;--wa:#b45309;--er:#b91c1c;--ok:#15803d;--bd:#e3e6ea;--bas:#7c9cbf;--bol:#0f766e;--lo:#dc2626;--in:#16a34a;--hi:#f59e0b;--glu:#be123c;--sac:#d97706;--sacT:#b45309;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root{--bg:#111418;--card:#1b1f25;--tx:#eceff3;--mu:#9aa3af;--ac:#2dd4bf;--wa:#fbbf24;--er:#f87171;--ok:#4ade80;--bd:#2a3038;--bas:#6b8db3;--bol:#2dd4bf;--lo:#f87171;--in:#4ade80;--hi:#fbbf24;--glu:#fb7185;--sac:#fbbf24;--sacT:#fbbf24}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px)}
 main{max-width:480px;margin:0 auto;padding:16px 16px calc(84px + env(safe-area-inset-bottom,0px))}
@@ -78,6 +79,28 @@ input.bad{border-color:var(--er)!important}
 .sw{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--tx);margin:14px 0 6px}
 .sw input{width:24px;height:24px;flex:none;padding:0;accent-color:var(--ac)}
 .bi{font-size:13px;color:var(--mu);margin-top:8px}
+.inp{padding:12px}
+.fld{border-radius:12px;padding:10px 10px 12px;border:1px solid transparent;min-width:0}
+.fld.g{background:color-mix(in srgb,var(--glu) 11%,var(--card));border-color:color-mix(in srgb,var(--glu) 35%,transparent)}
+.fld.s{background:color-mix(in srgb,var(--sac) 13%,var(--card));border-color:color-mix(in srgb,var(--sac) 40%,transparent)}
+.fld label{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:baseline;gap:4px}
+.fld.g label{color:var(--glu)}.fld.s label{color:var(--sacT)}
+.fld label small{font-weight:500;color:var(--mu);font-size:12px}
+.fld input{font-size:32px;font-weight:700;padding:8px 10px;height:62px;background:var(--card);border-color:transparent;text-align:center}
+.fld.g input:focus{outline:2px solid var(--glu)}.fld.s input:focus{outline:2px solid var(--sac)}
+.bolrow{display:flex;align-items:center;gap:10px}
+.st{width:44px;height:44px;flex:none;border-radius:50%;margin:0;padding:0;font-size:24px;line-height:1;background:var(--bg);color:var(--tx);border:1px solid var(--bd);font-weight:500}
+.adj{font-size:13px;color:var(--wa);margin-top:6px}
+.adj a{color:var(--ac);margin-left:6px}
+.wr{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.wr button{margin:0;min-height:56px;align-self:end;font-size:16px;line-height:1.15;padding:8px 10px}
+.wr button b{display:block;font-size:20px}
+.wr>div{display:flex;flex-direction:column;min-width:0}
+.wr input{flex:1;min-height:56px;font-size:15px;padding:6px 8px}
+.fld input::-webkit-inner-spin-button,.fld input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.fld input{-moz-appearance:textfield}
+.wr label{font-size:12px}
+@media (max-width:360px){.wr{grid-template-columns:1fr}.fld input{font-size:28px}.st{width:40px;height:40px}}
 .x{background:none;border:0;color:var(--mu);font-size:18px;width:auto;margin:0;padding:0 4px}
 .seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:12px}
 .seg button{background:none;color:var(--mu);margin:0;padding:8px;font-size:14px}
@@ -116,6 +139,50 @@ input.bad{border-color:var(--er)!important}
   #rep .sm{font-size:9pt;color:#444}
   #rep tr{break-inside:avoid}
 }
+
+/* ===== barevná témata (návrh) ===== */
+:root[data-th]{--grad:linear-gradient(135deg,var(--g1),var(--g2) 55%,var(--g3))}
+:root[data-th="more"]{--g1:#0f766e;--g2:#0e9f9a;--g3:#38bdf8;--ac:#0f766e;--bol:#0e9f9a;--bas:#6d8fd8;--bg:#f2f7f8;--tint:#e6f4f3}
+:root[data-th="svitani"]{--g1:#4338ca;--g2:#7c3aed;--g3:#db2777;--ac:#6d28d9;--bol:#7c3aed;--bas:#3b82f6;--bg:#f6f5fb;--tint:#efeafd}
+:root[data-th="les"]{--g1:#065f46;--g2:#059669;--g3:#a3c94a;--ac:#047857;--bol:#059669;--bas:#5b8def;--bg:#f4f7f2;--tint:#e7f3ec}
+:root[data-th] .hdr{margin:-16px -16px 14px;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 16px;background:var(--grad);color:#fff;border-radius:0 0 22px 22px}
+:root[data-th] .hdr h1{color:#fff;margin:0;font-size:20px;letter-spacing:.2px}
+:root[data-th] .hdr div{font-size:13px;opacity:.85}
+:root[data-th] .bolc{background:linear-gradient(160deg,var(--tint),var(--card) 70%);border-color:color-mix(in srgb,var(--g2) 25%,var(--bd))}
+:root[data-th] .bolc .big{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+:root[data-th] .bolc .big small{-webkit-text-fill-color:var(--mu)}
+:root[data-th] #logBol{background:var(--grad);color:#fff;box-shadow:0 6px 16px -8px var(--g2)}
+:root[data-th] #logBas{background:linear-gradient(135deg,color-mix(in srgb,var(--bas) 14%,var(--card)),color-mix(in srgb,var(--bas) 26%,var(--card)));border-color:color-mix(in srgb,var(--bas) 55%,transparent)!important;color:var(--tx)}
+:root[data-th] nav button.on{color:var(--ac)}
+:root[data-th] nav button.on span{filter:none}
+:root[data-th] .st{background:var(--tint);border-color:transparent;color:var(--ac)}
+
+/* pastelové varianty: jemné přechody, tmavý text na barvě, čísla v sytějším odstínu */
+:root[data-th="mata"]{--g1:#a7e8d8;--g2:#bfe3f5;--g3:#d6d9fb;--ac:#11806f;--bol:#2aa892;--bas:#7fa3e0;--bg:#f5f9f9;--tint:#e9f7f3;--on:#173b36;--num:#11806f;--rg1:#11806f;--rg2:#5fb8e8}
+:root[data-th="levandule"]{--g1:#c9c3f5;--g2:#dccbf2;--g3:#f6d7e3;--ac:#5b4fc4;--bol:#7d6fe0;--bas:#86a6e6;--bg:#f8f7fc;--tint:#efecfb;--on:#2d2858;--num:#5b4fc4;--rg1:#5b4fc4;--rg2:#d48ab0}
+:root[data-th="salvej"]{--g1:#c5dcc4;--g2:#dde6c8;--g3:#f2e6cf;--ac:#4f7a52;--bol:#6f9e6b;--bas:#8aa6d6;--bg:#f8f8f3;--tint:#edf3ea;--on:#26392a;--num:#4f7a52;--rg1:#4f7a52;--rg2:#c4a96b}
+:root[data-th="mata"] .hdr h1,:root[data-th="levandule"] .hdr h1,:root[data-th="salvej"] .hdr h1,
+:root[data-th="mata"] .hdr,:root[data-th="levandule"] .hdr,:root[data-th="salvej"] .hdr,
+:root[data-th="mata"] #logBol,:root[data-th="levandule"] #logBol,:root[data-th="salvej"] #logBol{color:var(--on)}
+:root[data-th="mata"] .bolc .big,:root[data-th="levandule"] .bolc .big,:root[data-th="salvej"] .bolc .big{background:none;color:var(--num);-webkit-text-fill-color:var(--num)}
+:root[data-th="mata"] #logBol,:root[data-th="levandule"] #logBol,:root[data-th="salvej"] #logBol{box-shadow:0 6px 16px -10px var(--ac)}
+:root[data-th="mata"] .ring #ag stop,:root[data-th="levandule"] .ring #ag stop{}
+
+@media (prefers-color-scheme:dark){:root[data-th="mata"]{--g1:#1f5f57;--g2:#2a5f7c;--g3:#3d4a7a;--ac:#5fd3bd;--bol:#4fc3ae;--bas:#7fa3e0;--bg:#0f1517;--tint:#16302c;--on:#e6f6f2;--num:#6fe0c8;--rg1:#5fd3bd;--rg2:#7cc4f0}}
+:root[data-th="mata"] #pdf,:root[data-th="mata"] #bak{background:var(--grad);color:var(--on);border:0}
+:root[data-th="mata"] .seg button.on{color:var(--ac)}
+:root[data-th="mata"] nav{background:color-mix(in srgb,var(--card) 92%,var(--g2))}
+.hyp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;padding:10px;border-radius:12px;background:color-mix(in srgb,var(--lo) 12%,var(--card))}
+.hyp span{font-size:14px;font-weight:600;color:var(--er);margin-right:4px}
+.okm{color:var(--ok);font-weight:600;font-size:14px;margin-top:8px}
+
+@media (prefers-color-scheme:dark){:root[data-th="more"]{--g1:#115e59;--g2:#0e6f80;--g3:#1d5d93;--ac:#2dd4bf;--bol:#2dd4bf;--bas:#7fa3e0;--bg:#0f1517;--tint:#132b2a}}
+@media (prefers-color-scheme:dark){:root[data-th="more"] .bolc .big{background:linear-gradient(135deg,#5eead4,#7dd3fc);-webkit-background-clip:text;background-clip:text}}
+:root[data-th="more"] #pdf,:root[data-th="more"] #bak{background:var(--grad);color:#fff;border:0}
+.thp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.thp button{margin:0;padding:10px;background:var(--card);color:var(--tx);border:2px solid var(--bd);border-radius:12px;font-weight:600;font-size:14px;text-align:left}
+.thp button i{display:block;height:34px;border-radius:8px;margin-bottom:8px}
+.thp button.on{border-color:var(--ac)}
 </style>
 </head>
 <body>
@@ -123,39 +190,37 @@ input.bad{border-color:var(--er)!important}
 
 <!-- ============ KALKULÁTOR ============ -->
 <section class="tab on" id="tCalc">
-<h1>Bolusový kalkulátor</h1>
-<div class="c">
+<div class="hdr"><h1>Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div></div>
+<div class="c inp">
   <div class="r">
-    <div><label for="bg">Glykémie (mmol/l)</label><input id="bg" type="number" inputmode="decimal" step="any"></div>
-    <div><label for="cb">Sacharidy (g)</label><input id="cb" type="number" inputmode="decimal" step="any"></div>
+    <div class="fld g"><label for="bg">Glykémie <small>mmol/l</small></label><input id="bg" type="number" inputmode="decimal" step="any" placeholder="–"></div>
+    <div class="fld s"><label for="cb">Sacharidy <small>g</small></label><input id="cb" type="number" inputmode="decimal" step="any" placeholder="–"></div>
   </div>
   <div class="chips" id="foods"></div>
 </div>
 
-<div class="c">
-  <label>Doporučený bolus</label>
-  <div class="big"><span id="tot">–</span> <small>j.</small></div>
+<div class="c bolc">
+  <label id="totLab">Doporučený bolus</label>
+  <div class="bolrow"><button class="st" id="minus" aria-label="Ubrat">−</button><div class="big" style="flex:1;text-align:center"><span id="tot">–</span> <small>j.</small></div><button class="st" id="plus" aria-label="Přidat">+</button></div>
+  <div class="adj" id="adj" hidden></div>
   <div class="bi" id="blk"></div>
   <div class="bk" id="bk" style="margin-top:10px"></div>
   <div id="msg"></div>
 </div>
 
 <div class="c">
-  <div class="r">
-    <div><label for="dose">Dávka (j.)</label><input id="dose" type="number" inputmode="decimal" step="any"></div>
+  <div class="wr">
+    <button id="logBol">Zapsat bolus<b id="logU">–</b></button>
     <div><label for="when">Čas aplikace</label><input id="when" type="datetime-local"></div>
   </div>
-  <div style="margin-top:10px"><label for="note">Poznámka (nepovinné)</label><input id="note" class="t" type="text" placeholder="např. sport, nemoc, pizza"></div>
   <p class="f" style="margin:6px 0 0" id="whenHint">Čas se doplňuje automaticky. Změnit ho můžeš klepnutím na pole.</p>
-  <div class="r">
-    <button id="logBol">Zapsat bolus</button>
-    <button id="logBas" class="b2">Zapsat bazál</button>
-  </div>
+  <div style="margin-top:8px"><label for="note">Poznámka (nepovinné)</label><input id="note" class="t" type="text" placeholder="např. sport, nemoc, pizza"></div>
+  <button id="logBas" class="o" style="margin-top:12px">Zapsat bazál…</button>
 </div>
 
 <div class="c">
   <div class="hero">
-    <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--bd)" stroke-width="12"/><circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="var(--bol)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 352"/></svg>
+    <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--bd)" stroke-width="12"/><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--rg1,var(--g1,var(--bol)))"/><stop offset="1" stop-color="var(--rg2,var(--g3,var(--bol)))"/></linearGradient></defs><circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="url(#ag)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 352"/></svg>
       <div class="v"><b id="iob">0</b><small>jednotek</small></div></div>
     <div class="hi">
       <div class="t1">Aktivní bolus (IOB)</div>
@@ -173,34 +238,20 @@ input.bad{border-color:var(--er)!important}
   <div class="lg"><span><i style="background:var(--bas)"></i>Bazál</span><span><i style="background:var(--bol)"></i>Bolus</span><span>působení inzulinu, −12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.0 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 2.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
 <section class="tab" id="tLog">
-<h1>Deník</h1>
-<div class="c">
-  <h2>Zapsat bez dávky</h2>
-  <div class="r">
-    <div><label for="lBg">Glykémie (mmol/l)</label><input id="lBg" type="number" inputmode="decimal" step="any"></div>
-    <div><label for="lCb">Sacharidy na hypo (g)</label><input id="lCb" type="number" inputmode="decimal" step="any"></div>
-  </div>
-  <div style="margin-top:10px"><label for="lWhen">Čas</label><input id="lWhen" type="datetime-local"></div>
-  <div style="margin-top:10px"><label for="lNote">Poznámka (nepovinné)</label><input id="lNote" class="t" type="text"></div>
-  <div class="r">
-    <button id="logBg" class="o">Zapsat glykémii</button>
-    <button id="logHypo" style="background:var(--lo);color:#fff">Léčba hypo</button>
-  </div>
-  <div class="chips" id="hypoChips"></div>
-</div>
-<div class="lg" style="margin:0 2px 4px"><span><i style="background:var(--bol);border-radius:50%"></i>Bolus</span><span><i style="background:var(--bas);border-radius:50%"></i>Bazál</span><span><i style="background:var(--mu);border-radius:50%"></i>Glykémie</span><span><i style="background:var(--lo);border-radius:50%"></i>Hypo</span></div>
+<div class="hdr"><h1>Deník</h1><div>Bolusy a bazál po dnech</div></div>
+<div class="lg" style="margin:0 2px 4px"><span><i style="background:var(--bol);border-radius:50%"></i>Bolus</span><span><i style="background:var(--bas);border-radius:50%"></i>Bazál</span><span><i style="background:var(--lo);border-radius:50%"></i>Hypo</span></div>
 <div id="diary"></div>
 <button id="more" class="o" style="display:none">Zobrazit starší</button>
 </section>
 
 <!-- ============ STATISTIKY ============ -->
 <section class="tab" id="tStat">
-<h1>Statistiky</h1>
+<div class="hdr"><h1>Statistiky</h1><div>Ze zapsaných hodnot</div></div>
 <div class="seg" id="per"><button data-d="7" class="on">7 dní</button><button data-d="14">14 dní</button><button data-d="30">30 dní</button></div>
 <div id="stats"></div>
 <div class="r">
@@ -212,7 +263,15 @@ input.bad{border-color:var(--er)!important}
 
 <!-- ============ NASTAVENÍ ============ -->
 <section class="tab" id="tSet">
-<h1>Nastavení</h1>
+<div class="hdr"><h1>Nastavení</h1><div>Inzuliny, výpočet, záloha</div></div>
+<div class="c">
+  <h2>Barvy</h2>
+  <div class="thp" id="thp">
+    <button data-v="mata"><i style="background:linear-gradient(135deg,#a7e8d8,#bfe3f5 55%,#d6d9fb)"></i>Máta a obloha</button>
+    <button data-v="more"><i style="background:linear-gradient(135deg,#0f766e,#0e9f9a 55%,#38bdf8)"></i>Moře</button>
+  </div>
+  <p class="f">Noční režim se zapíná automaticky podle nastavení telefonu.</p>
+</div>
 <div class="c">
   <h2>Inzuliny</h2>
   <label for="bins">Bolusový inzulin</label><select id="bins"></select>
@@ -345,7 +404,11 @@ function bolusIOB(at){return ofType('bolus').reduce((s,d)=>s+(d.t<=at?d.u*(1-MB.
 function actAt(at,ty){const M=ty==='bolus'?MB:MS;return ofType(ty).reduce((s,d)=>s+d.u*M.act(H(at-d.t)),0)}
 
 /* ---------- kalkulátor ---------- */
-let lastRec=null;
+let lastRec=null,adj=null;
+function shownDose(){return adj!=null?adj:lastRec}
+function updDose(){const v=shownDose();$('tot').textContent=v==null?'–':fmt(v);$('logU').textContent=v?fmt(v)+' j.':'–';$('logBol').disabled=!v;$('logBol').style.opacity=v?1:.45;
+  const a=$('adj');if(adj!=null&&lastRec!=null&&Math.abs(adj-lastRec)>1e-9){a.hidden=false;a.innerHTML='Upraveno ručně, návrh '+fmt(lastRec)+' j. <a href="#" id="adjR">vrátit</a>';$('adjR').onclick=e=>{e.preventDefault();adj=null;updDose()};$('totLab').textContent='Aplikovaná dávka'}else{a.hidden=true;$('totLab').textContent='Doporučený bolus'}}
+function step(d){const base=shownDose()||0;let v=Math.round((base+d*S.step)/S.step)*S.step;if(v<0)v=0;if(v>S.max){alert('Maximální bolus je '+fmt(S.max)+' j.');return}adj=v;updDose()}
 function calc(){
   const bg=num('bg'),cb=num('cb')||0,I=bolusIOB(Date.now());
   $('iob').textContent=fmt(I,1);iobVis(I);
@@ -353,8 +416,8 @@ function calc(){
   const B=curBlock(),V=B||S;
   rows.forEach((row,b)=>row.classList.toggle('on',b===B));
   $('blk').textContent=(B?'Blok '+hmm(B.m)+'–'+hmm(B.e):(S.useBlocks&&S.blocks.length?'Mimo bloky, základní hodnoty':'Celý den'))+' · poměr '+fmt(V.icr)+' g/j. · citlivost '+fmt(V.isf)+' mmol/l';
-  if(S.useBlocks&&document.querySelector('#bls .bad')){$('tot').textContent='–';$('dose').value='';msg.innerHTML='<div class="e">Oprav neplatnou hodnotu v časových blocích v Nastavení.</div>';return}
-  if(bg===null&&!cb){$('tot').textContent='–';return}
+  if(S.useBlocks&&document.querySelector('#bls .bad')){updDose();msg.innerHTML='<div class="e">Oprav neplatnou hodnotu v časových blocích v Nastavení.</div>';return}
+  if(bg===null&&!cb){updDose();return}
   const carb=cb/V.icr,corr=bg!==null?(bg-S.target)/V.isf:0;
   let raw=carb+corr-I;const warn=[];
   if(bg!==null&&bg<S.low){raw=0;warn.push(['e','Nízká glykémie: nejdřív řeš hypo, bolus se nedoporučuje.'])}
@@ -363,11 +426,13 @@ function calc(){
   let rec=Math.round(raw/S.step)*S.step;
   if(rec>S.max){rec=S.max;warn.push(['w','Překročen maximální bolus, dávka omezena na '+fmt(S.max)+' j.'])}
   if(I>0&&carb+corr>0&&raw===0&&!(bg!==null&&bg<S.low))warn.push(['w','Aktivní bolusový inzulin pokrývá potřebu.']);
-  lastRec=rec;$('tot').textContent=fmt(rec);
+  lastRec=rec;
   [['Na sacharidy',carb],['Korekce',corr],['Aktivní bolus (IOB)',-I],['Před zaokrouhlením',raw]].forEach(([a,b],i)=>{
     const d=document.createElement('div');d.innerHTML='<span>'+a+'</span><span>'+(b>0&&i<3?'+':'')+fmt(b)+' j.</span>';bk.appendChild(d)});
   warn.forEach(([c,t])=>{const d=document.createElement('div');d.className=c;d.textContent=t;msg.appendChild(d)});
-  if(document.activeElement!==$('dose'))$('dose').value=rec||'';
+  if(bg!==null&&bg<S.low){const h=document.createElement('div');h.className='hyp';h.innerHTML='<span>Zapsat léčbu hypo:</span>';
+    [10,15,20].forEach(g=>{const b=document.createElement('button');b.className='chip';b.textContent=g+' g';b.onclick=()=>logHypo(bg,g);h.appendChild(b)});msg.appendChild(h)}
+  updDose();
 }
 function iobVis(I){
   const now=Date.now(),act=I<0.05?[]:ofType('bolus').filter(d=>d.t<=now&&H(now-d.t)<MB.td);
@@ -412,7 +477,7 @@ function chart(){
   L.forEach(d=>{if((d.type==='bolus'||d.type==='basal')&&d.t>=t0&&d.t<=t1){g.fillStyle=d.type==='basal'?col('--bas'):col('--bol');g.beginPath();g.moveTo(X(d.t),Hh-pad.b);g.lineTo(X(d.t)-4,Hh-pad.b+6);g.lineTo(X(d.t)+4,Hh-pad.b+6);g.fill()}});
 }
 /* pole času: automaticky "teď", dokud ho uživatel nezmění */
-const TF=['when','lWhen'],edited={};
+const TF=['when'],edited={};
 const localStr=t=>{const d=new Date(t);d.setSeconds(0,0);return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,16)};
 function tickTimes(){TF.forEach(id=>{if(!edited[id]&&document.activeElement!==$(id))$(id).value=localStr(Date.now())});
   const h=$('whenHint');if(h)h.innerHTML=edited.when?'Čas je změněný ručně. <a href="#" id="nowBtn" style="color:var(--ac)">Nastavit na teď</a>':'Čas se doplňuje automaticky. Změnit ho můžeš klepnutím na pole.';
@@ -422,26 +487,29 @@ function resetTime(id){edited[id]=false;tickTimes()}
 function readTime(id){const now=Date.now();if(!edited[id])return now;const p=new Date($(id).value).getTime();if(isNaN(p))return now;
   if(p>now+5*6e4){alert('Čas nemůže být v budoucnosti.');return null}
   if(now-p>7*864e5&&!confirm('Zapsat záznam s datem '+dateCz(p)+' '+hhmm(p)+'?'))return null;return p}
+function logHypo(bg,g){const t=readTime('when');if(t===null)return;const e={id:uid(),t,type:'hypo',bg,carbs:g};const n=$('note').value.trim();if(n)e.note=n;
+  L.push(e);saveL();$('bg').value='';$('cb').value='';$('note').value='';adj=null;resetTime('when');refresh();
+  $('msg').innerHTML='<div class="okm">Léčba hypo '+g+' g zapsána do deníku. Za 15 minut glykémii zkontroluj.</div>'}
 function logDose(type){
-  const u=num('dose');if(!u||u<=0){alert('Zadej dávku.');return}
+  let u;
+  if(type==='bolus'){u=shownDose();if(!u||u<=0){alert('Není co zapsat. Zadej glykémii a sacharidy, nebo dávku nastav tlačítkem +.');return}}
+  else{const lb=ofType('basal').sort((a,b)=>b.t-a.t)[0];const r=prompt('Dávka bazálu (j.)',lb?String(lb.u).replace('.',','):'');if(r===null)return;u=parseFloat(r.replace(',','.'));if(!(u>0)){alert('Neplatná dávka.');return}}
   const t=readTime('when');if(t===null)return;
   const e={id:uid(),t,type,u};
   if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec}
   const n=$('note').value.trim();if(n)e.note=n;
   L.push(e);saveL();
   if(type==='bolus'){$('bg').value='';$('cb').value=''}
-  $('dose').value='';$('note').value='';resetTime('when');refresh();
+  adj=null;$('note').value='';resetTime('when');refresh();
 }
 function renderFoods(){
   const box=$('foods');box.innerHTML='';
   F.forEach(f=>{const b=document.createElement('button');b.className='chip';b.textContent=f.n+' · '+fmt(f.c,0)+' g';
-    b.onclick=()=>{$('cb').value=fmt((num('cb')||0)+f.c,1).replace(',','.');$('dose').value='';calc()};box.appendChild(b)});
+    b.onclick=()=>{$('cb').value=fmt((num('cb')||0)+f.c,1).replace(',','.');adj=null;calc()};box.appendChild(b)});
   const l=$('fList');l.innerHTML='';
   F.forEach((f,i)=>{const r=document.createElement('div');r.className='row';r.innerHTML='<span>'+esc(f.n)+' <span class="m">'+fmt(f.c,0)+' g</span></span>';
     const x=document.createElement('button');x.className='s';x.textContent='Smazat';x.onclick=()=>{F.splice(i,1);save('bc_f',F);renderFoods()};r.appendChild(x);l.appendChild(r)});
   if(!F.length)l.innerHTML='<div class="f">Zatím žádná uložená jídla.</div>';
-  const hc=$('hypoChips');hc.innerHTML='';
-  [10,15,20].forEach(g=>{const b=document.createElement('button');b.className='chip';b.textContent=g+' g';b.onclick=()=>{$('lCb').value=g};hc.appendChild(b)});
 }
 
 /* ---------- deník ---------- */
@@ -473,15 +541,6 @@ function renderDiary(){
   });
   if(!items.length)box.innerHTML='<div class="c f" style="margin-top:12px">V posledních '+showDays+' dnech nic.</div>';
   $('more').style.display=L.some(d=>d.t<from)?'block':'none';
-}
-function logOther(type){
-  const bg=num('lBg'),cb=num('lCb');
-  if(type==='bg'&&bg===null){alert('Zadej glykémii.');return}
-  if(type==='hypo'&&!cb&&bg===null){alert('Zadej sacharidy nebo glykémii.');return}
-  const t=readTime('lWhen');if(t===null)return;
-  const e={id:uid(),t,type};if(bg!==null)e.bg=bg;if(type==='hypo'&&cb)e.carbs=cb;
-  const n=$('lNote').value.trim();if(n)e.note=n;
-  L.push(e);saveL();['lBg','lCb','lNote'].forEach(i=>$(i).value='');resetTime('lWhen');refresh();
 }
 
 /* ---------- statistiky ---------- */
@@ -648,6 +707,7 @@ let cur='tCalc';
 function show(t){cur=t;document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0);refresh()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
 function refresh(){
+  const hs=$('hdrSub');if(hs)hs.textContent=(BOL[S.bins]||{}).sn+(S.basins!=='none'?' · '+(BAS[S.basins]||{}).sn:'');
   calc();basalInfo();
   if(cur==='tCalc')chart();
   if(cur==='tLog')renderDiary();
@@ -657,8 +717,6 @@ function refresh(){
 
 $('logBol').onclick=()=>logDose('bolus');
 $('logBas').onclick=()=>logDose('basal');
-$('logBg').onclick=()=>logOther('bg');
-$('logHypo').onclick=()=>logOther('hypo');
 $('more').onclick=()=>{showDays+=14;renderDiary()};
 document.querySelectorAll('#per button').forEach(b=>b.onclick=()=>{per=+b.dataset.d;document.querySelectorAll('#per button').forEach(x=>x.classList.toggle('on',x===b));renderStats()});
 $('pdf').onclick=()=>{buildReport();setTimeout(()=>window.print(),50)};
@@ -677,12 +735,15 @@ $('bins').onchange=()=>{S.bins=$('bins').value;S.dia=BOL[S.bins].td;$('dia').val
 $('basins').onchange=()=>{S.basins=$('basins').value;save('bc_s',S);rebuild();refresh()};
 Object.keys(DEF).forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{const v=num(k);if(v!==null&&v>0){if(k==='dia'&&v<2)return;S[k]=v;save('bc_s',S);if(k==='dia')rebuild();refresh()}})});
 $('name').value=S.name||'';$('name').oninput=()=>{S.name=$('name').value;save('bc_s',S)};
-$('bg').addEventListener('input',()=>{$('dose').value='';calc()});
-$('cb').addEventListener('input',()=>{$('dose').value='';calc()});
+$('bg').addEventListener('input',()=>{adj=null;calc()});
+$('cb').addEventListener('input',()=>{adj=null;calc()});
+$('minus').onclick=()=>step(-1);$('plus').onclick=()=>step(1);
 window.addEventListener('resize',()=>{if(cur==='tCalc')chart()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){tickTimes();refresh()}});
 setInterval(()=>{tickTimes();if(cur==='tCalc')refresh()},20000);
-rb();blMode();renderFoods();tickTimes();refresh();
+function applyTheme(){const t=S.theme==='more'?'more':'mata';document.documentElement.dataset.th=t;document.querySelectorAll('#thp button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));if(cur==='tCalc')chart()}
+document.querySelectorAll('#thp button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save('bc_s',S);applyTheme()});
+applyTheme();rb();blMode();renderFoods();tickTimes();refresh();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 </script>
 </body>
