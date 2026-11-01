@@ -20,7 +20,11 @@ main{max-width:480px;margin:0 auto;padding:16px 16px calc(84px + env(safe-area-i
 label{display:block;font-size:13px;color:var(--mu);margin-bottom:4px}
 input,select{width:100%;font-size:22px;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
 select,input.t{font-size:16px}
-input[type=datetime-local]{font-size:15px;padding:12px 8px}
+input[type=datetime-local]{font-size:16px;padding:12px 8px}
+button,a,input,select,label{touch-action:manipulation}
+.bigin{font:inherit;font-size:56px;font-weight:700;color:var(--num,var(--ac));background:transparent;border:0;border-bottom:2px dotted color-mix(in srgb,var(--ac) 45%,transparent);border-radius:0;padding:0;width:3.3ch;text-align:center;line-height:1;-webkit-text-fill-color:var(--num,var(--ac))}
+.bigin::placeholder{color:var(--mu);-webkit-text-fill-color:var(--mu);opacity:.45}
+.bigin:focus{outline:none;border-bottom:2px solid var(--ac);background:var(--tint,var(--bg));border-radius:8px 8px 0 0}
 .r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .big{font-size:56px;font-weight:700;color:var(--ac);line-height:1}
 .big small{font-size:20px;font-weight:500;color:var(--mu)}
@@ -96,7 +100,7 @@ input.bad{border-color:var(--er)!important}
 .wr button{margin:0;min-height:56px;align-self:end;font-size:16px;line-height:1.15;padding:8px 10px}
 .wr button b{display:block;font-size:20px}
 .wr>div{display:flex;flex-direction:column;min-width:0}
-.wr input{flex:1;min-height:56px;font-size:15px;padding:6px 8px}
+.wr input{flex:1;min-height:56px;font-size:16px;padding:6px 8px}
 .fld input::-webkit-inner-spin-button,.fld input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .fld input{-moz-appearance:textfield}
 .wr label{font-size:12px}
@@ -177,7 +181,7 @@ input.bad{border-color:var(--er)!important}
 .okm{color:var(--ok);font-weight:600;font-size:14px;margin-top:8px}
 
 @media (prefers-color-scheme:dark){:root[data-th="more"]{--g1:#115e59;--g2:#0e6f80;--g3:#1d5d93;--ac:#2dd4bf;--bol:#2dd4bf;--bas:#7fa3e0;--bg:#0f1517;--tint:#132b2a}}
-@media (prefers-color-scheme:dark){:root[data-th="more"] .bolc .big{background:linear-gradient(135deg,#5eead4,#7dd3fc);-webkit-background-clip:text;background-clip:text}}
+@media (prefers-color-scheme:dark){:root[data-th="more"]{--num:#5eead4}:root[data-th="more"] .bolc .big{background:linear-gradient(135deg,#5eead4,#7dd3fc);-webkit-background-clip:text;background-clip:text}}
 :root[data-th="more"] #pdf,:root[data-th="more"] #bak{background:var(--grad);color:#fff;border:0}
 .thp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .thp button{margin:0;padding:10px;background:var(--card);color:var(--tx);border:2px solid var(--bd);border-radius:12px;font-weight:600;font-size:14px;text-align:left}
@@ -201,7 +205,7 @@ input.bad{border-color:var(--er)!important}
 
 <div class="c bolc">
   <label id="totLab">Doporučený bolus</label>
-  <div class="bolrow"><button class="st" id="minus" aria-label="Ubrat">−</button><div class="big" style="flex:1;text-align:center"><span id="tot">–</span> <small>j.</small></div><button class="st" id="plus" aria-label="Přidat">+</button></div>
+  <div class="bolrow"><button class="st" id="minus" aria-label="Ubrat">−</button><div class="big" style="flex:1;text-align:center"><input id="tot" class="bigin" type="text" inputmode="decimal" enterkeyhint="done" aria-label="Dávka v jednotkách" value="–"> <small>j.</small></div><button class="st" id="plus" aria-label="Přidat">+</button></div>
   <div class="adj" id="adj" hidden></div>
   <div class="bi" id="blk"></div>
   <div class="bk" id="bk" style="margin-top:10px"></div>
@@ -238,7 +242,7 @@ input.bad{border-color:var(--er)!important}
   <div class="lg"><span><i style="background:var(--bas)"></i>Bazál</span><span><i style="background:var(--bol)"></i>Bolus</span><span>působení inzulinu, −12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 2.2 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -406,7 +410,7 @@ function actAt(at,ty){const M=ty==='bolus'?MB:MS;return ofType(ty).reduce((s,d)=
 /* ---------- kalkulátor ---------- */
 let lastRec=null,adj=null;
 function shownDose(){return adj!=null?adj:lastRec}
-function updDose(){const v=shownDose();$('tot').textContent=v==null?'–':fmt(v);$('logU').textContent=v?fmt(v)+' j.':'–';$('logBol').disabled=!v;$('logBol').style.opacity=v?1:.45;
+function updDose(){const v=shownDose();if(document.activeElement!==$('tot'))$('tot').value=v==null?'–':fmt(v);$('logU').textContent=v?fmt(v)+' j.':'–';$('logBol').disabled=!v;$('logBol').style.opacity=v?1:.45;
   const a=$('adj');if(adj!=null&&lastRec!=null&&Math.abs(adj-lastRec)>1e-9){a.hidden=false;a.innerHTML='Upraveno ručně, návrh '+fmt(lastRec)+' j. <a href="#" id="adjR">vrátit</a>';$('adjR').onclick=e=>{e.preventDefault();adj=null;updDose()};$('totLab').textContent='Aplikovaná dávka'}else{a.hidden=true;$('totLab').textContent='Doporučený bolus'}}
 function step(d){const base=shownDose()||0;let v=Math.round((base+d*S.step)/S.step)*S.step;if(v<0)v=0;if(v>S.max){alert('Maximální bolus je '+fmt(S.max)+' j.');return}adj=v;updDose()}
 function calc(){
@@ -737,6 +741,15 @@ Object.keys(DEF).forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{
 $('name').value=S.name||'';$('name').oninput=()=>{S.name=$('name').value;save('bc_s',S)};
 $('bg').addEventListener('input',()=>{adj=null;calc()});
 $('cb').addEventListener('input',()=>{adj=null;calc()});
+$('tot').addEventListener('focus',()=>{const t=$('tot');t.placeholder=t.value;t.value=''});
+function commitTot(){const t=$('tot'),r=t.value.trim();t.placeholder='';if(r===''){updDose();return}
+  let v=parseFloat(r.replace(',','.'));
+  if(isNaN(v)||v<0){alert('Neplatná dávka.');updDose();return}
+  const st=Math.round(v/S.step)*S.step;if(Math.abs(st-v)>1e-9){v=st;}
+  if(v>S.max){alert('Maximální bolus je '+fmt(S.max)+' j.');updDose();return}
+  adj=(lastRec!=null&&Math.abs(v-lastRec)<1e-9)?null:v;updDose()}
+$('tot').addEventListener('blur',commitTot);
+$('tot').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('tot').blur()}});
 $('minus').onclick=()=>step(-1);$('plus').onclick=()=>step(1);
 window.addEventListener('resize',()=>{if(cur==='tCalc')chart()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){tickTimes();refresh()}});
