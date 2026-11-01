@@ -242,7 +242,7 @@ input.bad{border-color:var(--er)!important}
   <div class="lg"><span><i style="background:var(--bas)"></i>Bazál</span><span><i style="background:var(--bol)"></i>Bolus</span><span>působení inzulinu, −12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.2 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 2.3 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -757,7 +757,12 @@ setInterval(()=>{tickTimes();if(cur==='tCalc')refresh()},20000);
 function applyTheme(){const t=S.theme==='more'?'more':'mata';document.documentElement.dataset.th=t;document.querySelectorAll('#thp button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));if(cur==='tCalc')chart()}
 document.querySelectorAll('#thp button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save('bc_s',S);applyTheme()});
 applyTheme();rb();blMode();renderFoods();tickTimes();refresh();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+if('serviceWorker' in navigator){
+  const had=!!navigator.serviceWorker.controller;let reloaded=false;
+  // Když se nainstaluje nová verze, stránka se jednou sama obnoví (jen pokud se zrovna nic nevyplňuje).
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||reloaded)return;const busy=['bg','cb','note','tot'].some(i=>{const el=$(i);return el&&(el===document.activeElement||(i!=='tot'&&el.value))});if(busy)return;reloaded=true;location.reload()});
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})})}
 </script>
 </body>
 </html>

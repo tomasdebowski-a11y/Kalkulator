@@ -1,6 +1,6 @@
 // Offline režim pro Bolusový kalkulátor
 // Při každé úpravě aplikace zvyšte číslo verze.
-const CACHE = 'bolus-v10';
+const CACHE = 'bolus-v11';
 const FILES = ['./', './index.html', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -21,7 +21,10 @@ self.addEventListener('fetch', e => {
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(e.request, { ignoreSearch: true });
-    const network = fetch(e.request).then(r => {
+    // Bez HTTP mezipaměti: vždy se zeptat GitHubu, jestli není nová verze (jinak až 10 min stará kopie).
+    const same = new URL(e.request.url).origin === self.location.origin;
+    const req = same ? new Request(e.request.url, { cache: 'no-cache', credentials: 'same-origin' }) : e.request;
+    const network = fetch(req).then(r => {
       if (r && r.ok) cache.put(e.request, r.clone());
       return r;
     });
