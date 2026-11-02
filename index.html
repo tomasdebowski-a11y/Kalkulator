@@ -52,7 +52,7 @@ h2{font-size:15px;margin:0 0 10px}
 .stat div{background:var(--bg);border-radius:10px;padding:8px 10px}
 .stat b{display:block;font-size:16px}
 .stat span{font-size:11px;color:var(--mu)}
-canvas{width:100%;height:110px;display:block;opacity:.8}
+canvas{width:100%;height:130px;display:block}
 .lg{display:flex;gap:14px;font-size:12px;color:var(--mu);margin-top:6px;flex-wrap:wrap}
 .lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -275,11 +275,46 @@ input.bad{border-color:var(--er)!important}
 .hdr{position:relative}
 .qiob,.qsick,.qmore{display:none}
 body.quick .qiob{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--tint);font-size:15px}
-body.quick .qiob b{font-size:20px;color:var(--bol)}
+body.quick .qiob b{font-size:20px;color:var(--bol);white-space:nowrap;margin-left:8px}
 body.quick .qsick{display:block;margin-top:8px;font-size:14px;font-weight:600;color:var(--ac)}
 body.quick .qmore{display:inline-block;width:auto;margin:8px 0 0;padding:4px 0;background:none;color:var(--mu);font-size:13px;font-weight:600;text-decoration:underline}
 body.quick #trend,body.quick #foods,body.quick .tg2,body.quick #blk,body.quick #whenHint,body.quick #noteBox,body.quick #iobCard,body.quick #tCalc>p.f{display:none!important}
 body.quick:not(.showbk) #bk{display:none}
+
+/* ===== Sledování ===== */
+body.watch nav,body.watch section.tab{display:none!important}
+body.watch #tWatch{display:block!important}
+#tWatch{display:none}
+.live{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 2px 12px}
+.live i{width:10px;height:10px;border-radius:50%;background:var(--in);box-shadow:0 0 0 0 var(--in);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--in) 60%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}
+.last{font-size:15px;line-height:1.35}
+.last b{font-size:18px}
+#wTl{width:100%;height:220px;display:block}
+.wlg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mu);margin-top:6px}
+.wlg i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px;border-radius:50%}
+
+.shareBadge{font-size:12px;opacity:.85}
+.wcard{display:flex;gap:8px;flex-wrap:wrap}
+.wcard button{flex:1;min-width:140px;margin:0}
+#qrBox{display:flex;justify-content:center;padding:14px;background:#fff;border-radius:12px;margin-top:10px}
+#qrBox[hidden]{display:none}
+.stx{font-size:13px;margin-top:8px}
+.stx.ok{color:var(--ok)}.stx.err{color:var(--er)}.stx.wait{color:var(--wa)}
+.wtop{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 12px}
+.wtop button{width:auto;margin:0;padding:6px 12px;font-size:14px}
+.wlist .row button{width:auto;margin:0}
+details.howto summary{font-size:14px;color:var(--ac)}
+details.howto ol{padding-left:20px;font-size:14px;line-height:1.5;margin:8px 0}
+details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(--bg);padding:8px;border-radius:8px}
+
+/* ===== Tlačítka zápisu: bolus hlavní, bazál nenápadný ===== */
+.wr{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+#logBol{min-height:74px!important;font-size:17px!important}
+#logBol b{font-size:25px;margin-top:2px}
+:root[data-th="mata"] #logBol,:root[data-th="more"] #logBol{box-shadow:0 10px 22px -10px var(--ac),0 0 0 1px color-mix(in srgb,var(--ac) 25%,transparent) inset}
+:root[data-th] #logBas,#logBas{display:block;width:auto!important;margin:18px 0 0 auto!important;padding:7px 14px!important;min-height:0!important;font-size:14px!important;font-weight:600!important;background:transparent!important;border:1px dashed color-mix(in srgb,var(--bas) 65%,transparent)!important;border-radius:999px!important;color:var(--bas)!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;font-family:inherit!important;text-shadow:none!important}
 </style>
 </head>
 <body>
@@ -287,7 +322,8 @@ body.quick:not(.showbk) #bk{display:none}
 
 <!-- ============ KALKULÁTOR ============ -->
 <section class="tab on" id="tCalc">
-<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div></div>
+<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div><button class="qbtn" id="qbtn" aria-pressed="false">⚡ Rychle</button></div>
+<div class="c" id="watchCard" hidden><div class="wcard" id="watchBtns"></div></div>
 <div class="c inp">
   <div class="r">
     <div class="fld g"><label for="bg">Glykémie <small>mmol/l</small></label><input id="bg" type="number" inputmode="decimal" step="any" placeholder="–"></div>
@@ -317,7 +353,7 @@ body.quick:not(.showbk) #bk{display:none}
   </div>
   <p class="f" style="margin:6px 0 0" id="whenHint">Čas se doplňuje automaticky. Změnit ho můžeš klepnutím na pole.</p>
   <div style="margin-top:8px" id="noteBox"><label for="note">Poznámka (nepovinné)</label><input id="note" class="t" type="text" placeholder="např. sport, nemoc, pizza"></div>
-  <button id="logBas" class="o" style="margin-top:12px">Zapsat bazál…</button>
+  <button id="logBas" class="o">＋ <span id="logBasT">Zapsat bazál</span>…</button>
 </div>
 
 <div class="c" id="iobCard">
@@ -337,10 +373,10 @@ body.quick:not(.showbk) #bk{display:none}
     <div><b id="basLast">–</b><span id="basNext">Poslední bazál</span></div>
   </div>
   <canvas id="ch"></canvas>
-  <div class="lg"><span><i style="background:var(--bas)"></i>Bazál</span><span><i style="background:var(--bol)"></i>Bolus</span><span>působení inzulinu, −12 h až +12 h</span></div>
+  <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.5 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 2.6 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -381,6 +417,8 @@ body.quick:not(.showbk) #bk{display:none}
   <label for="greet" style="margin-top:10px">Nadpis kalkulátoru</label>
   <input id="greet" class="t" type="text" maxlength="32" placeholder="Bolusový kalkulátor">
   <p class="f">Třeba „Ahoj, Ani 🌿“. Emoji vložíš z klávesnice.</p>
+  <label class="sw" style="margin-top:8px"><input type="checkbox" id="quickSet"> Rychlý režim</label>
+  <p class="f" style="margin-top:0">Na kalkulátoru jen glykémie, sacharidy, dávka a zápis. Přepnout jde i tlačítkem ⚡ v záhlaví.</p>
 </div>
 <div class="c">
   <h2>Inzuliny</h2>
@@ -431,6 +469,40 @@ body.quick:not(.showbk) #bk{display:none}
   <button id="fAdd" class="o">Přidat jídlo</button>
   <div id="fList" style="margin-top:8px"></div>
 </div>
+<div class="c" id="shareCard">
+  <h2>Sdílení s rodinou</h2>
+  <p class="f" style="margin-top:0">Rodina uvidí tvoje zápisy z kalkulátoru (dávky, sacharidy, glykémie u zápisů) za posledních 24 hodin. Data se šifrují přímo v telefonu, klíč je jen v odkazu pro rodinu.</p>
+  <label for="shDb">Adresa databáze</label>
+  <input id="shDb" class="t" type="url" placeholder="https://…firebasedatabase.app" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <label for="shName" style="margin-top:10px">Jméno, které rodina uvidí</label>
+  <input id="shName" class="t" type="text" maxlength="24" placeholder="např. Ani">
+  <label class="sw"><input type="checkbox" id="shOn"> Sdílet moje zápisy</label>
+  <div id="shTools" hidden>
+    <div class="r"><button id="shLink">Poslat odkaz rodině</button><button id="shQr" class="o">Ukázat QR kód</button></div>
+    <div id="qrBox" hidden></div>
+    <div class="stx" id="shStat"></div>
+    <button id="shNew" class="o" style="margin-top:12px">Zrušit staré odkazy a vytvořit nový</button>
+    <p class="f">Použij, když chceš někomu sledování odebrat. Starý odkaz přestane fungovat a novým se musí znovu připojit všichni, kdo sledují.</p>
+  </div>
+  <details class="howto"><summary>Návod: založení databáze (dělá se jednou)</summary>
+    <ol>
+      <li>Otevři <b>console.firebase.google.com</b> a přihlas se Google účtem.</li>
+      <li><b>Vytvořit projekt</b>, název třeba „kalkulator-sdileni“. Google Analytics vypni.</li>
+      <li>V levém menu <b>Sestavit → Realtime Database → Vytvořit databázi</b>. Umístění <b>Belgie (europe-west1)</b>, režim <b>uzamčený</b>.</li>
+      <li>Na kartě <b>Pravidla</b> vše smaž, vlož pravidla níže a dej <b>Publikovat</b>.</li>
+      <li>Na kartě <b>Data</b> zkopíruj adresu nahoře (končí na firebasedatabase.app) a vlož ji výš do pole Adresa databáze.</li>
+    </ol>
+    <pre id="rulesTxt"></pre>
+    <button id="rulesCopy" class="o" style="margin-top:6px">Zkopírovat pravidla</button>
+  </details>
+</div>
+<div class="c" id="watchSet">
+  <h2>Sleduji</h2>
+  <div class="wlist" id="wSetList"></div>
+  <p class="f">Sledování přidáš otevřením odkazu nebo QR kódu z telefonu toho, koho chceš sledovat, nebo vložením odkazu sem:</p>
+  <input id="wAdd" class="t" type="url" placeholder="vlož odkaz pro sledování" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <button id="wAddBtn" class="o">Přidat sledování</button>
+</div>
 <div class="c">
   <h2>Zpráva a záloha</h2>
   <label for="name">Jméno do zprávy (nepovinné)</label><input id="name" class="t" type="text">
@@ -439,9 +511,30 @@ body.quick:not(.showbk) #bk{display:none}
   <input id="rstFile" type="file" accept=".json,application/json" style="display:none">
 </div>
 </section>
+
+<section id="tWatch">
+<div class="hdr"><h1 id="wName">Sledování</h1><div id="wSub">Jen pro čtení</div></div>
+<div class="wtop"><div class="live" style="margin:0"><i id="wDot"></i><span id="wLive">Načítám…</span></div><button class="o" id="wBack">Zpět</button></div>
+<div class="c"><div class="last" id="wLast"></div></div>
+<div class="c">
+  <h2>Dnešní den</h2>
+  <canvas id="wTl"></canvas>
+  <div class="wlg"><span><i style="background:var(--in)"></i>Glykémie v rozmezí</span><span><i style="background:var(--hi)"></i>Vysoko</span><span><i style="background:var(--lo)"></i>Nízko</span><span><i style="background:var(--sac);border-radius:2px"></i>Sacharidy</span><span>▼ Bolus</span><span style="color:var(--bas)">▼ Bazál</span></div>
+</div>
+<div class="c">
+  <div class="hero">
+    <div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--bd)" stroke-width="12"/><circle id="wArc" cx="66" cy="66" r="56" fill="none" stroke="url(#ag)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 352"/></svg>
+      <div class="v"><b id="wIob">0</b><small>jednotek</small></div></div>
+    <div class="hi"><div class="t1">Aktivní bolus (IOB)</div><div class="t2" id="wEnd"></div><div id="wBas"></div></div>
+  </div>
+</div>
+<div class="c"><h2>Dnešní zápisy</h2><div id="wList"></div></div>
+<p class="f" style="text-align:center">Zobrazuje zápisy z dceřina kalkulátoru. Glykémie jsou hodnoty zadané v kalkulátoru, souvislou křivku ze senzoru ukazuje Dexcom Follow.</p>
+</section>
 </main>
 
 <svg width="0" height="0" style="position:absolute"><filter id="wc"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></svg>
+
 <nav>
   <button data-t="tCalc" class="on"><span>🧮</span>Kalkulátor</button>
   <button data-t="tLog"><span>📔</span>Deník</button>
@@ -468,7 +561,8 @@ const BAS={
 };
 const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let WATCH=false;
+function save(k,v){if(WATCH)return;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 let S=Object.assign({},DEF,{bins:'fiasp',basins:'toujeo',name:''},load('bc_s',{}));
 let L=load('bc_l',[]).map((d,i)=>Object.assign({type:'bolus',id:d.t+'_'+i},d));
 let F=load('bc_f',[]);
@@ -494,7 +588,7 @@ const rows=new Map();
     if(r.bg!=null&&e.bg==null)e.bg=r.bg;if(r.cb>0&&e.carbs==null)e.carbs=r.cb;if(r.rec!=null&&e.rec==null)e.rec=r.rec});
   saveL();save('bc_mig2',true);
 }catch(e){}})();
-const saveL=()=>save('bc_l',L);
+const saveL=()=>{save('bc_l',L);if(typeof shareSoon==='function')shareSoon()};
 const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?null:v};
 const fmt=(x,d=2)=>x==null||isNaN(x)?'–':String(+(+x).toFixed(d)).replace('.',',');
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -608,16 +702,25 @@ function chart(){
   const dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=Hh*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
   const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
   const now=Date.now(),t0=now-12*36e5,t1=now+12*36e5,N=145,pad={l:4,r:4,t:14,b:18};
-  const xs=[],bas=[],bol=[];
-  for(let i=0;i<N;i++){const t=t0+(t1-t0)*i/(N-1);xs.push(t);bas.push(S.basins==='none'?0:actAt(t,'basal'));bol.push(actAt(t,'bolus'))}
-  const ymax=Math.max(0.5,...xs.map((_,i)=>bas[i]+bol[i]))*1.15;
+  const xs=[];for(let i=0;i<N;i++)xs.push(t0+(t1-t0)*i/(N-1));
+  const bas=xs.map(t=>S.basins==='none'?0:actAt(t,'basal'));
+  const doses=ofType('bolus').filter(d=>d.t<t1&&d.t+MB.td*36e5>t0);
+  const curves=doses.map(d=>xs.map(t=>d.u*MB.act(H(t-d.t))));
+  const tot=xs.map((_,i)=>curves.reduce((a,c)=>a+c[i],0));
+  const ymax=Math.max(0.5,...bas,...tot)*1.15;
   const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=v=>Hh-pad.b-v/ymax*(Hh-pad.t-pad.b);
   g.font='11px system-ui';g.fillStyle=col('--mu');g.strokeStyle=col('--bd');g.lineWidth=1;
   g.beginPath();g.moveTo(pad.l,Y(0));g.lineTo(W-pad.r,Y(0));g.stroke();
   for(let k=-12;k<=12;k+=6){const t=now+k*36e5,tx=hhmm(t),w=g.measureText(tx).width;g.fillText(tx,Math.min(W-w,Math.max(0,X(t)-w/2)),Hh-4)}
-  function area(lo,hi,c){g.beginPath();xs.forEach((t,i)=>{const y=Y(hi[i]);i?g.lineTo(X(t),y):g.moveTo(X(t),y)});for(let i=N-1;i>=0;i--)g.lineTo(X(xs[i]),Y(lo[i]));g.closePath();g.globalAlpha=0.45;g.fillStyle=c;g.fill();g.globalAlpha=1}
-  area(xs.map(()=>0),bas,col('--bas'));area(bas,xs.map((_,i)=>bas[i]+bol[i]),col('--bol'));
-  g.strokeStyle=col('--mu');g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([]);
+  const path=v=>{g.beginPath();xs.forEach((t,i)=>{const y=Y(v[i]);i?g.lineTo(X(t),y):g.moveTo(X(t),y)})};
+  const fillTo0=(v,c,a)=>{path(v);g.lineTo(X(xs[N-1]),Y(0));g.lineTo(X(xs[0]),Y(0));g.closePath();g.globalAlpha=a;g.fillStyle=c;g.fill();g.globalAlpha=1};
+  // bazál v pozadí: jemná plocha a tenká čárkovaná linka
+  fillTo0(bas,col('--bas'),.16);path(bas);g.strokeStyle=col('--bas');g.globalAlpha=.55;g.setLineDash([4,3]);g.lineWidth=1.2;g.stroke();g.setLineDash([]);g.globalAlpha=1;
+  // součet bolusů: jemná tečkovaná linka (jak dávky navazují)
+  if(curves.length>1){path(tot);g.strokeStyle=col('--bol');g.globalAlpha=.6;g.setLineDash([1.5,3]);g.lineWidth=1.4;g.stroke();g.setLineDash([]);g.globalAlpha=1}
+  // jednotlivé bolusy v popředí: průhledné píky s obrysem
+  curves.forEach(c=>{fillTo0(c,col('--bol'),.28);path(c);g.strokeStyle=col('--bol');g.lineWidth=1.8;g.stroke()});
+  g.lineWidth=1;g.strokeStyle=col('--mu');g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([]);
   g.fillStyle=col('--mu');g.fillText('teď',X(now)+3,pad.t-3);
   L.forEach(d=>{if((d.type==='bolus'||d.type==='basal')&&d.t>=t0&&d.t<=t1){g.fillStyle=d.type==='basal'?col('--bas'):col('--bol');g.beginPath();g.moveTo(X(d.t),Hh-pad.b);g.lineTo(X(d.t)-4,Hh-pad.b+6);g.lineTo(X(d.t)+4,Hh-pad.b+6);g.fill()}});
 }
@@ -638,7 +741,7 @@ function logHypo(bg,g){const t=readTime('when');if(t===null)return;const e={id:u
 function logDose(type){
   let u;
   if(type==='bolus'){u=shownDose();if(!u||u<=0){alert('Není co zapsat. Zadej glykémii a sacharidy, nebo dávku nastav tlačítkem +.');return}}
-  else{const lb=ofType('basal').sort((a,b)=>b.t-a.t)[0];const r=prompt('Dávka bazálu (j.)',lb?String(lb.u).replace('.',','):'');if(r===null)return;u=parseFloat(r.replace(',','.'));if(!(u>0)){alert('Neplatná dávka.');return}}
+  else{const lb=ofType('basal').sort((a,b)=>b.t-a.t)[0];const r=prompt('Zapsat BAZÁL '+((BAS[S.basins]||{}).sn||'')+' (dlouhodobý inzulin)\n\nDávka v jednotkách:',lb?String(lb.u).replace('.',','):'');if(r===null)return;u=parseFloat(r.replace(',','.'));if(!(u>0)){alert('Neplatná dávka.');return}}
   const t=readTime('when');if(t===null)return;
   const e={id:uid(),t,type,u};
   if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
@@ -848,13 +951,147 @@ $('addb').onclick=()=>{
 function blMode(){$('ub').checked=S.useBlocks;$('blkbox').hidden=!S.useBlocks}
 $('ub').addEventListener('change',()=>{S.useBlocks=$('ub').checked;save('bc_s',S);rb();blMode();calc()});
 
+
+
+/* ===================== SDÍLENÍ S RODINOU ===================== */
+const b64u=buf=>{const a=new Uint8Array(buf);let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const ub64u=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a};
+const rnd=n=>b64u(crypto.getRandomValues(new Uint8Array(n)));
+async function aesKey(k,use){return crypto.subtle.importKey('raw',ub64u(k),'AES-GCM',false,[use])}
+async function encObj(o,k){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},await aesKey(k,'encrypt'),new TextEncoder().encode(JSON.stringify(o)));return{v:1,iv:b64u(iv),ct:b64u(ct)}}
+async function decObj(e,k){const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64u(e.iv)},await aesKey(k,'decrypt'),ub64u(e.ct));return JSON.parse(new TextDecoder().decode(pt))}
+const DEFAULT_DB='https://kalkulator---sdileni-default-rtdb.europe-west1.firebasedatabase.app';
+const dbUrl=(db,id)=>db.replace(/\/+$/,'')+'/share/'+id+'.json';
+function normDb(v){v=(v||'').trim();if(!v)return'';if(/^http:\/\/(localhost|127\.0\.0\.1)/.test(v))return v.replace(/\/+$/,'');if(!/^https:\/\//.test(v))v='https://'+v.replace(/^\w+:\/\//,'');return v.replace(/\/+$/,'')}
+const RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "share": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        ".validate": "newData.hasChildren([\'v\', \'iv\', \'ct\']) && newData.child(\'ct\').isString() && newData.child(\'ct\').val().length < 300000"\n      }\n    }\n  }\n}';
+
+/* ---- dcera: odesílání ---- */
+let shTimer=null,shBusy=false;
+function shareSoon(){if(WATCH||!S.share||!S.share.on||!S.share.db)return;S.share.pending=true;save('bc_s',S);clearTimeout(shTimer);shTimer=setTimeout(sharePush,800)}
+function snapshot(){const now=Date.now();
+  const keep=L.filter(d=>(d.type==='basal'?now-d.t<60*36e5:now-d.t<30*36e5)).map(d=>{const o={t:d.t,type:d.type};['u','bg','carbs','rec','note','mods'].forEach(k=>{if(d[k]!=null)o[k]=d[k]});return o});
+  return{name:(S.share.name||'').trim()||'Dcera',bins:S.bins,basins:S.basins,dia:S.dia,low:S.low,high:S.high,sent:now,L:keep}}
+async function sharePush(){if(WATCH||shBusy||!S.share||!S.share.on||!S.share.db)return;shBusy=true;
+  try{const body=await encObj(snapshot(),S.share.key);
+    const r=await fetch(dbUrl(S.share.db,S.share.id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    S.share.pending=false;S.share.last=Date.now();S.share.err='';save('bc_s',S);
+  }catch(e){S.share.err=String(e.message||e);save('bc_s',S)}
+  shBusy=false;shStatus()}
+function shStatus(){const el=$('shStat');if(!el||!S.share)return;
+  if(!S.share.db){el.className='stx err';el.textContent='Chybí adresa databáze.';return}
+  if(S.share.err&&S.share.pending){el.className='stx '+(navigator.onLine?'err':'wait');el.textContent=navigator.onLine?'Odeslání se nepovedlo ('+S.share.err+'). Zkusím to znovu.':'Bez internetu. Odešlu, až bude připojení.';return}
+  if(S.share.pending){el.className='stx wait';el.textContent='Odesílám…';return}
+  el.className='stx ok';el.textContent=S.share.last?'✓ Rodina vidí stav z '+hhmm(S.share.last)+(dayKey(S.share.last)!==dayKey(Date.now())?' ('+dateCz(S.share.last)+')':''):'Zatím nic neodesláno.'}
+function shareLink(){const p={d:S.share.db,i:S.share.id,k:S.share.key,n:(S.share.name||'').trim()||'Dcera'};return location.origin+location.pathname+'#sledovat='+b64u(new TextEncoder().encode(JSON.stringify(p)))}
+function shUi(){const sh=S.share||{};$('shDb').value=sh.db||DEFAULT_DB;$('shName').value=sh.name||'';$('shOn').checked=!!sh.on;$('shTools').hidden=!sh.on;$('rulesTxt').textContent=RULES;shStatus();refresh()}
+function shEnsure(){if(!S.share)S.share={};if(!S.share.db)S.share.db=DEFAULT_DB;if(!S.share.id){S.share.id=rnd(18);S.share.key=rnd(32)}}
+function shInit(){
+  $('rulesCopy').onclick=async()=>{try{await navigator.clipboard.writeText(RULES);$('rulesCopy').textContent='Zkopírováno ✓'}catch(e){prompt('Zkopíruj pravidla:',RULES)}};
+  $('shDb').onchange=()=>{shEnsure();S.share.db=normDb($('shDb').value);$('shDb').value=S.share.db;save('bc_s',S);shStatus();shareSoon()};
+  $('shName').oninput=()=>{shEnsure();S.share.name=$('shName').value;save('bc_s',S)};
+  $('shName').onchange=()=>shareSoon();
+  $('shOn').onchange=()=>{shEnsure();S.share.on=$('shOn').checked;
+    if(S.share.on&&!S.share.name)S.share.name=(S.greet||'').replace(/^ahoj,?\s*/i,'').replace(/[^\p{L}\s-]/gu,'').trim();
+    save('bc_s',S);shUi();if(S.share.on)shareSoon()};
+  $('shLink').onclick=async()=>{if(!S.share.db){alert('Nejdřív vyplň adresu databáze.');return}const url=shareLink();
+    try{if(navigator.share){await navigator.share({title:'Sledování kalkulátoru',text:'Odkaz pro sledování mého kalkulátoru. Nepřeposílej ho dál.',url});return}}catch(e){if(e.name==='AbortError')return}
+    try{await navigator.clipboard.writeText(url);alert('Odkaz je zkopírovaný. Pošli ho zprávou.')}catch(e){prompt('Zkopíruj odkaz:',url)}};
+  $('shQr').onclick=()=>{if(!S.share.db){alert('Nejdřív vyplň adresu databáze.');return}const box=$('qrBox');if(!box.hidden){box.hidden=true;return}box.hidden=false;box.innerHTML='Načítám…';
+    const draw=()=>{box.innerHTML='';new QRCode(box,{text:shareLink(),width:220,height:220,correctLevel:QRCode.CorrectLevel.M})};
+    if(window.QRCode)draw();else{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';sc.onload=draw;sc.onerror=()=>{box.textContent='QR kód se nepodařilo načíst (chybí internet). Použij Poslat odkaz.'};document.head.appendChild(sc)}};
+  $('shNew').onclick=async()=>{if(!confirm('Opravdu? Všichni, kdo tě sledují, se budou muset znovu připojit novým odkazem.'))return;
+    const old=Object.assign({},S.share);try{if(old.db&&old.id)await fetch(dbUrl(old.db,old.id),{method:'DELETE'})}catch(e){}
+    S.share.id=rnd(18);S.share.key=rnd(32);S.share.last=0;save('bc_s',S);$('qrBox').hidden=true;shUi();shareSoon()};
+  window.addEventListener('online',()=>{if(S.share&&S.share.pending)sharePush()});
+  setInterval(()=>{if(S.share&&S.share.pending&&navigator.onLine)sharePush()},60000);
+}
+
+/* ---- sledující: seznam, otevření, načítání ---- */
+function parseWatch(str){try{const m=String(str).match(/sledovat=([A-Za-z0-9_-]+)/);if(!m)return null;const p=JSON.parse(new TextDecoder().decode(ub64u(m[1])));if(!p.d||!p.i||!p.k)return null;return{db:normDb(p.d),id:p.i,key:p.k,name:p.n||'Sledovaný'}}catch(e){return null}}
+function addWatch(w){if(!Array.isArray(S.watch))S.watch=[];const ex=S.watch.find(x=>x.id===w.id);if(ex)Object.assign(ex,w);else S.watch.push(w);save('bc_s',S)}
+function watchUi(){const W=Array.isArray(S.watch)?S.watch:[];
+  $('watchCard').hidden=!W.length;const b=$('watchBtns');b.innerHTML='';W.forEach(w=>{const x=document.createElement('button');x.textContent='👀 Sledovat: '+w.name;x.onclick=()=>openWatch(w);b.appendChild(x)});
+  const l=$('wSetList');l.innerHTML=W.length?'':'<div class="f">Zatím nikoho nesleduješ.</div>';
+  W.forEach(w=>{const r=document.createElement('div');r.className='row';r.innerHTML='<span>'+esc(w.name)+'</span>';const x=document.createElement('button');x.className='s';x.textContent='Odebrat';x.onclick=()=>{if(confirm('Přestat sledovat '+w.name+'?')){S.watch=S.watch.filter(y=>y!==w);save('bc_s',S);watchUi()}};r.appendChild(x);l.appendChild(r)})}
+let wCur=null,wTimer=null;
+function openWatch(w){wCur=w;
+  // uložit vlastní stav a přepnout do režimu jen pro čtení (nic se neukládá)
+  WATCH=true;document.body.classList.add('watch');window.scrollTo(0,0);
+  const cached=load('bc_wc_'+w.id,null);if(cached){watchRender(cached);wLive(cached,'cache')}else{$('wName').textContent=w.name+' · sledování';$('wLive').textContent='Načítám…'}
+  watchFetch();clearInterval(wTimer);wTimer=setInterval(watchFetch,60000)}
+async function watchFetch(){const w=wCur;if(!w)return;
+  try{const r=await fetch(dbUrl(w.db,w.id),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const e=await r.json();
+    if(!e){wLive(null,'empty');return}
+    const snap=await decObj(e,w.key);
+    try{localStorage.setItem('bc_wc_'+w.id,JSON.stringify(snap))}catch(_){}
+    watchRender(snap);wLive(snap,'ok');
+  }catch(err){const c=load('bc_wc_'+w.id,null);wLive(c,err&&err.name==='OperationError'?'key':'net')}}
+function wLive(snap,st){const el=$('wLive'),dot=$('wDot');
+  const t=snap?'aktualizováno '+hhmm(snap.sent)+(dayKey(snap.sent)!==dayKey(Date.now())?' ('+dateCz(snap.sent)+')':''):'';
+  dot.style.background=st==='ok'?'var(--in)':st==='cache'?'var(--mu)':'var(--wa)';dot.style.animation=st==='ok'?'':'none';
+  el.textContent=st==='ok'?'Živě · '+t:st==='cache'?'Načítám… · '+t:st==='empty'?'Žádná data. Odkaz mohl být zrušen, případně požádej o nový.':st==='key'?'Odkaz už neplatí, požádej o nový':'Bez připojení'+(t?' · zobrazen stav '+t.replace('aktualizováno ',''):'')}
+$('wBack').onclick=()=>{clearInterval(wTimer);location.replace(location.pathname)};
+function initShare(){
+  shInit();shUi();watchUi();
+  const p=parseWatch(location.hash);
+  if(p){addWatch(p);history.replaceState(null,'',location.pathname);watchUi();openWatch(p);return}
+  // dcera: při otevření aplikace obnovit přehled pro rodinu (max. jednou za 15 min nebo když něco čeká)
+  if(S.share&&S.share.on&&S.share.db&&(S.share.pending||!S.share.last||Date.now()-S.share.last>15*6e4))sharePush();
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(WATCH)watchFetch();else if(S.share&&S.share.on&&(S.share.pending||Date.now()-(S.share.last||0)>15*6e4))sharePush()});
+  $('wAddBtn').onclick=()=>{const w=parseWatch($('wAdd').value);if(!w){alert('Tohle není platný odkaz pro sledování.');return}addWatch(w);$('wAdd').value='';watchUi();alert('Přidáno: '+w.name+'. Tlačítko pro sledování najdeš nahoře na kalkulátoru.')};
+}
+
+/* ===== Sledování (zobrazení) ===== */
+function watchRender(snap){
+  document.body.classList.add('watch');
+  S.bins=snap.bins||S.bins;S.basins=snap.basins||S.basins;S.dia=snap.dia||S.dia;S.low=snap.low||S.low;S.high=snap.high||S.high;rebuild();
+  L=snap.L.map(d=>Object.assign({},d));
+  const now=Date.now(),last=L.slice().sort((a,b)=>b.t-a.t)[0];
+  $('wName').textContent=(snap.name||'Dcera')+' · sledování';
+  $('wSub').textContent=(BOL[S.bins]||{}).sn+' · '+(BAS[S.basins]||{}).sn;
+  $('wLive').textContent='Živě · aktualizováno '+hhmm(snap.sent||now);
+  if(last){const ago=H(now-last.t);$('wLast').innerHTML='<div class="m" style="color:var(--mu);font-size:13px">Poslední aktivita před '+hm(ago)+' ('+hhmm(last.t)+')</div><div style="margin-top:4px">'+entryText(last)+'</div>'}
+  // IOB
+  const I=bolusIOB(now),act=ofType('bolus').filter(d=>d.t<=now&&H(now-d.t)<MB.td),tot=act.reduce((a,d)=>a+d.u,0),fr=tot?I/tot:0,C=2*Math.PI*56;
+  $('wIob').textContent=fmt(I,1);$('wArc').setAttribute('stroke-dasharray',(fr*C).toFixed(1)+' '+C.toFixed(1));
+  $('wEnd').innerHTML=act.length&&I>=.05?'Dozní za <b>'+hm(Math.max(...act.map(d=>MB.td-H(now-d.t))))+'</b>':'Žádný aktivní bolus';
+  const bl=ofType('basal').sort((a,b)=>b.t-a.t)[0];$('wBas').textContent=bl?'Bazál '+fmt(bl.u)+' j. před '+hm(H(now-bl.t)):'Bazál nezapsán';
+  // list
+  const today=dayStart(now),box=$('wList');box.innerHTML='';
+  L.filter(d=>d.t>=today).sort((a,b)=>b.t-a.t).forEach(d=>{const r=document.createElement('div');r.className='en';r.innerHTML='<span class="tm">'+hhmm(d.t)+'</span><span class="dot" style="background:'+COL[d.type]+'"></span><span class="dt">'+entryText(d)+(d.note?'<div class="nt">'+esc(d.note)+'</div>':'')+'</span>';box.appendChild(r)});
+  timeline();
+}
+function timeline(){
+  const cv=$('wTl'),W=cv.clientWidth,Hh=cv.clientHeight;if(!W)return;const dpr=devicePixelRatio||1;cv.width=W*dpr;cv.height=Hh*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
+  const now=Date.now(),t0=dayStart(now),t1=t0+864e5,pad={l:26,r:6,t:36,b:20},gmin=2,gmax=18;
+  const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=v=>pad.t+(1-(Math.min(gmax,Math.max(gmin,v))-gmin)/(gmax-gmin))*(Hh-pad.t-pad.b);
+  g.font='11px system-ui';
+  // target band
+  g.fillStyle=col('--in');g.globalAlpha=.1;g.fillRect(pad.l,Y(S.high),W-pad.l-pad.r,Y(S.low)-Y(S.high));g.globalAlpha=1;
+  g.strokeStyle=col('--bd');g.fillStyle=col('--mu');
+  [4,10,15].forEach(v=>{g.beginPath();g.moveTo(pad.l,Y(v));g.lineTo(W-pad.r,Y(v));g.stroke();g.fillText(v,4,Y(v)+4)});
+  for(let h=0;h<=24;h+=6){const t=t0+h*36e5,tx=h+':00',w=g.measureText(tx).width;g.fillText(tx,Math.min(W-w,Math.max(pad.l,X(t)-w/2)),Hh-4)}
+  // now line
+  g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t-6);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([]);
+  const E=L.filter(d=>d.t>=t0&&d.t<=t1).sort((a,b)=>a.t-b.t);
+  // carbs bars
+  E.forEach(d=>{if(d.carbs){const h=Math.min(60,d.carbs*.55),x=X(d.t);g.fillStyle=col(d.type==='hypo'?'--lo':'--sac');g.globalAlpha=.35;g.fillRect(x-4,Hh-pad.b-h,8,h);g.globalAlpha=1;g.fillStyle=col('--mu');g.font='10px system-ui';g.fillText(fmt(d.carbs,0)+'g',x-8,Hh-pad.b-h-3);g.font='11px system-ui'}});
+  // glucose line (thin) + dots
+  const G=E.filter(d=>d.bg!=null);g.strokeStyle=col('--mu');g.globalAlpha=.35;g.beginPath();G.forEach((d,i)=>{i?g.lineTo(X(d.t),Y(d.bg)):g.moveTo(X(d.t),Y(d.bg))});g.stroke();g.globalAlpha=1;
+  G.forEach(d=>{g.fillStyle=col(d.bg<S.low?'--lo':d.bg>S.high?'--hi':'--in');g.beginPath();g.arc(X(d.t),Y(d.bg),5,0,7);g.fill();g.fillStyle=col('--tx');g.fillText(fmt(d.bg,1),X(d.t)+7,Y(d.bg)-6)});
+  // dose markers on top
+  let lastX=-99,row=0;E.forEach(d=>{if(d.type!=='bolus'&&d.type!=='basal')return;const x=X(d.t);row=(x-lastX<34)?1-row:0;lastX=x;g.fillStyle=col(d.type==='basal'?'--bas':'--bol');g.beginPath();g.moveTo(x-6,4);g.lineTo(x+6,4);g.lineTo(x,13);g.fill();g.font='bold 10px system-ui';const t=fmt(d.u)+' j.';g.fillText(t,Math.min(W-g.measureText(t).width,x-g.measureText(t).width/2),22+row*11);g.font='11px system-ui'});
+}
 /* ---------- navigace a obnova ---------- */
 let cur='tCalc';
 function show(t){cur=t;document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0);refresh()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
 function refresh(){
+  const lbt=$('logBasT');if(lbt)lbt.textContent='Zapsat bazál'+(S.basins&&S.basins!=='none'?' ('+(BAS[S.basins]||{}).sn+')':'');
   if($('trAuto'))trSync();
-  const hs=$('hdrSub');if(hs)hs.textContent=(BOL[S.bins]||{}).sn+(S.basins!=='none'?' · '+(BAS[S.basins]||{}).sn:'');
+  const hs=$('hdrSub');if(hs)hs.innerHTML=esc((BOL[S.bins]||{}).sn+(S.basins!=='none'?' · '+(BAS[S.basins]||{}).sn:''))+(S.share&&S.share.on?' <span class="shareBadge">· 👪 sdílíš s rodinou</span>':'');
   calc();basalInfo();
   if(cur==='tCalc')chart();
   if(cur==='tLog')renderDiary();
@@ -905,7 +1142,8 @@ const ACC=[['#2f8f86','tyrkysová'],['#3b7dd8','modrá'],['#4f5bd5','indigo'],['
 function applyMine(){const r=document.documentElement;if(S.accent){r.classList.add('acc');r.style.setProperty('--acc',S.accent)}else{r.classList.remove('acc');r.style.removeProperty('--acc')}
   $('hdrTitle').textContent=(S.greet||'').trim()||'Bolusový kalkulátor';
   document.querySelectorAll('#sw8 button').forEach(b=>b.classList.toggle('on',(b.dataset.c||'')===(S.accent||'')));
-  document.body.classList.remove('quick');
+  document.body.classList.toggle('quick',!!S.quick);$('qbtn').classList.toggle('on',!!S.quick);$('qbtn').setAttribute('aria-pressed',!!S.quick);$('quickSet').checked=!!S.quick;
+  if(S.quick){trend=0;sport=false}
   if(typeof chart==='function'&&cur==='tCalc')chart()}
 function applyTheme(){const t=['more','malba'].includes(S.theme)?S.theme:'mata';document.documentElement.dataset.th=t;document.querySelectorAll('#thp button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));if(cur==='tCalc')chart()}
 document.querySelectorAll('#thp button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save('bc_s',S);applyTheme()});
@@ -913,8 +1151,11 @@ document.querySelectorAll('#thp button').forEach(b=>b.onclick=()=>{S.theme=b.dat
   ACC.forEach(([c,t])=>{const b=document.createElement('button');b.style.background=c;b.dataset.c=c;b.title=t;b.setAttribute('aria-label',t);box.appendChild(b)});
   box.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.accent=b.dataset.c||'';save('bc_s',S);applyMine();calc()})})();
 $('greet').value=S.greet||'';$('greet').oninput=()=>{S.greet=$('greet').value;save('bc_s',S);applyMine()};
+$('qbtn').onclick=()=>{S.quick=!S.quick;save('bc_s',S);applyMine();adj=null;calc()};
+$('quickSet').onchange=()=>{S.quick=$('quickSet').checked;save('bc_s',S);applyMine();calc()};
 $('qmore').onclick=()=>{document.body.classList.toggle('showbk');$('qmore').textContent=document.body.classList.contains('showbk')?'Skrýt rozpis':'Rozpis výpočtu'};
 applyMine();applyTheme();rb();blMode();renderFoods();tickTimes();refresh();
+initShare();
 if('serviceWorker' in navigator){
   const had=!!navigator.serviceWorker.controller;let reloaded=false;
   // Když se nainstaluje nová verze, stránka se jednou sama obnoví (jen pokud se zrovna nic nevyplňuje).
