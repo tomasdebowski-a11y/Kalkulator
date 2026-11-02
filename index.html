@@ -275,7 +275,7 @@ input.bad{border-color:var(--er)!important}
 .hdr{position:relative}
 .qiob,.qsick,.qmore{display:none}
 body.quick .qiob{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--tint);font-size:15px}
-body.quick .qiob b{font-size:20px;color:var(--bol)}
+body.quick .qiob b{font-size:20px;color:var(--bol);white-space:nowrap;margin-left:8px}
 body.quick .qsick{display:block;margin-top:8px;font-size:14px;font-weight:600;color:var(--ac)}
 body.quick .qmore{display:inline-block;width:auto;margin:8px 0 0;padding:4px 0;background:none;color:var(--mu);font-size:13px;font-weight:600;text-decoration:underline}
 body.quick #trend,body.quick #foods,body.quick .tg2,body.quick #blk,body.quick #whenHint,body.quick #noteBox,body.quick #iobCard,body.quick #tCalc>p.f{display:none!important}
@@ -322,7 +322,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
 
 <!-- ============ KALKULÁTOR ============ -->
 <section class="tab on" id="tCalc">
-<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div></div>
+<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div><button class="qbtn" id="qbtn" aria-pressed="false">⚡ Rychle</button></div>
 <div class="c" id="watchCard" hidden><div class="wcard" id="watchBtns"></div></div>
 <div class="c inp">
   <div class="r">
@@ -417,6 +417,8 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
   <label for="greet" style="margin-top:10px">Nadpis kalkulátoru</label>
   <input id="greet" class="t" type="text" maxlength="32" placeholder="Bolusový kalkulátor">
   <p class="f">Třeba „Ahoj, Ani 🌿“. Emoji vložíš z klávesnice.</p>
+  <label class="sw" style="margin-top:8px"><input type="checkbox" id="quickSet"> Rychlý režim</label>
+  <p class="f" style="margin-top:0">Na kalkulátoru jen glykémie, sacharidy, dávka a zápis. Přepnout jde i tlačítkem ⚡ v záhlaví.</p>
 </div>
 <div class="c">
   <h2>Inzuliny</h2>
@@ -1139,7 +1141,8 @@ const ACC=[['#2f8f86','tyrkysová'],['#3b7dd8','modrá'],['#4f5bd5','indigo'],['
 function applyMine(){const r=document.documentElement;if(S.accent){r.classList.add('acc');r.style.setProperty('--acc',S.accent)}else{r.classList.remove('acc');r.style.removeProperty('--acc')}
   $('hdrTitle').textContent=(S.greet||'').trim()||'Bolusový kalkulátor';
   document.querySelectorAll('#sw8 button').forEach(b=>b.classList.toggle('on',(b.dataset.c||'')===(S.accent||'')));
-  document.body.classList.remove('quick');
+  document.body.classList.toggle('quick',!!S.quick);$('qbtn').classList.toggle('on',!!S.quick);$('qbtn').setAttribute('aria-pressed',!!S.quick);$('quickSet').checked=!!S.quick;
+  if(S.quick){trend=0;sport=false}
   if(typeof chart==='function'&&cur==='tCalc')chart()}
 function applyTheme(){const t=['more','malba'].includes(S.theme)?S.theme:'mata';document.documentElement.dataset.th=t;document.querySelectorAll('#thp button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));if(cur==='tCalc')chart()}
 document.querySelectorAll('#thp button').forEach(b=>b.onclick=()=>{S.theme=b.dataset.v;save('bc_s',S);applyTheme()});
@@ -1147,6 +1150,8 @@ document.querySelectorAll('#thp button').forEach(b=>b.onclick=()=>{S.theme=b.dat
   ACC.forEach(([c,t])=>{const b=document.createElement('button');b.style.background=c;b.dataset.c=c;b.title=t;b.setAttribute('aria-label',t);box.appendChild(b)});
   box.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.accent=b.dataset.c||'';save('bc_s',S);applyMine();calc()})})();
 $('greet').value=S.greet||'';$('greet').oninput=()=>{S.greet=$('greet').value;save('bc_s',S);applyMine()};
+$('qbtn').onclick=()=>{S.quick=!S.quick;save('bc_s',S);applyMine();adj=null;calc()};
+$('quickSet').onchange=()=>{S.quick=$('quickSet').checked;save('bc_s',S);applyMine();calc()};
 $('qmore').onclick=()=>{document.body.classList.toggle('showbk');$('qmore').textContent=document.body.classList.contains('showbk')?'Skrýt rozpis':'Rozpis výpočtu'};
 applyMine();applyTheme();rb();blMode();renderFoods();tickTimes();refresh();
 initShare();
