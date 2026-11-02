@@ -376,7 +376,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.6 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 2.7 (Apple Watch) · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -496,6 +496,17 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
     <button id="rulesCopy" class="o" style="margin-top:6px">Zkopírovat pravidla</button>
   </details>
 </div>
+<div class="c" id="awCard">
+  <h2>Apple Watch</h2>
+  <p class="f" style="margin-top:0">Zkratka Bolus na hodinkách ukáže aktivní inzulin, spočítá dávku a zapíše ji sem do kalkulátoru. Hodinky dostávají jen časy a velikosti dávek a tvoje nastavení výpočtu, bez jména.</p>
+  <label class="sw"><input type="checkbox" id="awOn"> Propojit s hodinkami</label>
+  <div id="awTools" hidden>
+    <label>Odkaz pro zkratku</label>
+    <input id="awUrl" class="t" type="text" readonly>
+    <button id="awCopy" class="o">Zkopírovat odkaz</button>
+    <div class="stx" id="awStat"></div>
+  </div>
+</div>
 <div class="c" id="watchSet">
   <h2>Sleduji</h2>
   <div class="wlist" id="wSetList"></div>
@@ -588,7 +599,7 @@ const rows=new Map();
     if(r.bg!=null&&e.bg==null)e.bg=r.bg;if(r.cb>0&&e.carbs==null)e.carbs=r.cb;if(r.rec!=null&&e.rec==null)e.rec=r.rec});
   saveL();save('bc_mig2',true);
 }catch(e){}})();
-const saveL=()=>{save('bc_l',L);if(typeof shareSoon==='function')shareSoon()};
+const saveL=()=>{save('bc_l',L);if(typeof shareSoon==='function')shareSoon();if(typeof awSoon==='function')awSoon()};
 const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?null:v};
 const fmt=(x,d=2)=>x==null||isNaN(x)?'–':String(+(+x).toFixed(d)).replace('.',',');
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -963,7 +974,7 @@ async function decObj(e,k){const pt=await crypto.subtle.decrypt({name:'AES-GCM',
 const DEFAULT_DB='https://kalkulator---sdileni-default-rtdb.europe-west1.firebasedatabase.app';
 const dbUrl=(db,id)=>db.replace(/\/+$/,'')+'/share/'+id+'.json';
 function normDb(v){v=(v||'').trim();if(!v)return'';if(/^http:\/\/(localhost|127\.0\.0\.1)/.test(v))return v.replace(/\/+$/,'');if(!/^https:\/\//.test(v))v='https://'+v.replace(/^\w+:\/\//,'');return v.replace(/\/+$/,'')}
-const RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "share": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        ".validate": "newData.hasChildren([\'v\', \'iv\', \'ct\']) && newData.child(\'ct\').isString() && newData.child(\'ct\').val().length < 300000"\n      }\n    }\n  }\n}';
+const RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "share": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        ".validate": "newData.hasChildren([\'v\', \'iv\', \'ct\']) && newData.child(\'ct\').isString() && newData.child(\'ct\').val().length < 300000"\n      }\n    },\n    "watch": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        "inbox": {\n          "$k": {\n            ".validate": "newData.hasChildren([\'t\'])"\n          }\n        }\n      }\n    }\n  }\n}';
 
 /* ---- dcera: odesílání ---- */
 let shTimer=null,shBusy=false;
@@ -1032,7 +1043,52 @@ function wLive(snap,st){const el=$('wLive'),dot=$('wDot');
   dot.style.background=st==='ok'?'var(--in)':st==='cache'?'var(--mu)':'var(--wa)';dot.style.animation=st==='ok'?'':'none';
   el.textContent=st==='ok'?'Živě · '+t:st==='cache'?'Načítám… · '+t:st==='empty'?'Žádná data. Odkaz mohl být zrušen, případně požádej o nový.':st==='key'?'Odkaz už neplatí, požádej o nový':'Bez připojení'+(t?' · zobrazen stav '+t.replace('aktualizováno ',''):'')}
 $('wBack').onclick=()=>{clearInterval(wTimer);location.replace(location.pathname)};
+
+/* ===================== APPLE WATCH (zkratka) ===================== */
+let awTimer=null,awBusy=false;
+const awDb=()=>normDb((S.share&&S.share.db)||DEFAULT_DB);
+const awBase=()=>awDb()+'/watch/'+S.aw.id;
+function awOn(){return !WATCH&&S.aw&&S.aw.on&&S.aw.id}
+function awSoon(){if(!awOn())return;clearTimeout(awTimer);awTimer=setTimeout(awPush,700)}
+function awFeed(){
+  const now=Date.now(),t0=now+1000,N=289,step=5*6e4,r2=x=>Math.round(x*100)/100;
+  const iob=[],icr=[],isf=[],tgt=[],frac=[];
+  for(let i=0;i<N;i++){const t=t0+i*step,d=new Date(t),m=d.getHours()*60+d.getMinutes();
+    const B=S.useBlocks?blockAt(m):null,V=B||S;
+    iob.push(r2(bolusIOB(t)));icr.push(V.icr);isf.push(V.isf);tgt.push((B&&B.tg>0)?B.tg:S.target);
+    frac.push(Math.round((1-MB.cum(i*5/60))*1000)/1000)}
+  return{v:1,t:new Date(t0).toISOString(),ts:t0,iob,icr,isf,tgt,frac,low:S.low,max:S.max,step:S.step,mult:S.sick?r2(1+S.sickPct/100):1}}
+async function awPush(){if(!awOn()||awBusy)return;awBusy=true;
+  try{const r=await fetch(awBase()+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(awFeed()),cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);S.aw.last=Date.now();S.aw.err='';save('bc_s',S)}
+  catch(e){S.aw.err=String(e.message||e);save('bc_s',S)}
+  awBusy=false;awStatus()}
+async function awPull(){if(!awOn())return;
+  try{const r=await fetch(awBase()+'/inbox.json',{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const box=await r.json();
+    if(!box||typeof box!=='object')return;const keys=Object.keys(box);if(!keys.length)return;let added=0;
+    keys.forEach(k=>{const x=box[k]||{};const t=typeof x.t==='number'?x.t:Date.parse(x.t);if(!t||isNaN(t))return;const id='w_'+k;if(L.some(d=>d.id===id))return;
+      const hypo=x.type==='hypo'||!(+x.u>0);if(!hypo&&!(+x.u>0))return;
+      const e={id,t,type:hypo?'hypo':'bolus',note:'z hodinek'};if(!hypo)e.u=+x.u;if(x.bg!=null&&x.bg!=='')e.bg=+String(x.bg).replace(',','.');if(+x.carbs>0)e.carbs=+x.carbs;if(x.rec!=null&&x.rec!=='')e.rec=+x.rec;
+      L.push(e);added++});
+    if(added){saveL();refresh()}
+    await awPush();
+    await Promise.all(keys.map(k=>fetch(awBase()+'/inbox/'+k+'.json',{method:'DELETE'}).catch(()=>{})));
+  }catch(e){S.aw.err=String(e.message||e);save('bc_s',S);awStatus()}}
+function awStatus(){const el=$('awStat');if(!el||!S.aw)return;
+  if(S.aw.err){el.className='stx '+(navigator.onLine?'err':'wait');el.textContent=navigator.onLine?'Spojení s databází se nepovedlo ('+S.aw.err+').':'Bez internetu. Hodinky dostanou nový stav, až bude připojení.';return}
+  el.className='stx ok';el.textContent=S.aw.last?'✓ Hodinky mají stav z '+hhmm(S.aw.last):'Zatím neodesláno.'}
+function awUi(){const a=S.aw||{};$('awOn').checked=!!a.on;$('awTools').hidden=!a.on;if(a.on&&a.id)$('awUrl').value=awBase();awStatus()}
+function awInit(){
+  $('awOn').onchange=()=>{if(!S.aw)S.aw={};if(!S.aw.id)S.aw.id=rnd(18);S.aw.on=$('awOn').checked;save('bc_s',S);awUi();if(S.aw.on){awPush()}};
+  $('awCopy').onclick=async()=>{try{await navigator.clipboard.writeText(awBase());$('awCopy').textContent='Zkopírováno ✓'}catch(e){prompt('Zkopíruj odkaz:',awBase())}};
+  awUi();
+  if(awOn()){awPull();setInterval(()=>{if(!document.hidden)awPull()},60000)}
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&awOn())awPull()});
+  window.addEventListener('online',()=>{if(awOn())awPull()});
+}
+
 function initShare(){
+  awInit();
   shInit();shUi();watchUi();
   const p=parseWatch(location.hash);
   if(p){addWatch(p);history.replaceState(null,'',location.pathname);watchUi();openWatch(p);return}
@@ -1088,7 +1144,9 @@ function timeline(){
 let cur='tCalc';
 function show(t){cur=t;document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0);refresh()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+let awSig='';
 function refresh(){
+  try{const sig=JSON.stringify([S.icr,S.isf,S.target,S.useBlocks,S.blocks,S.sick,S.sickPct,S.low,S.max,S.step,S.dia,S.bins]);if(sig!==awSig){const first=!awSig;awSig=sig;if(!first&&typeof awSoon==='function')awSoon()}}catch(e){}
   const lbt=$('logBasT');if(lbt)lbt.textContent='Zapsat bazál'+(S.basins&&S.basins!=='none'?' ('+(BAS[S.basins]||{}).sn+')':'');
   if($('trAuto'))trSync();
   const hs=$('hdrSub');if(hs)hs.innerHTML=esc((BOL[S.bins]||{}).sn+(S.basins!=='none'?' · '+(BAS[S.basins]||{}).sn:''))+(S.share&&S.share.on?' <span class="shareBadge">· 👪 sdílíš s rodinou</span>':'');
