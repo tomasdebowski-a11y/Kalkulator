@@ -315,6 +315,16 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
 #logBol b{font-size:25px;margin-top:2px}
 :root[data-th="mata"] #logBol,:root[data-th="more"] #logBol{box-shadow:0 10px 22px -10px var(--ac),0 0 0 1px color-mix(in srgb,var(--ac) 25%,transparent) inset}
 :root[data-th] #logBas,#logBas{display:block;width:auto!important;margin:18px 0 0 auto!important;padding:7px 14px!important;min-height:0!important;font-size:14px!important;font-weight:600!important;background:transparent!important;border:1px dashed color-mix(in srgb,var(--bas) 65%,transparent)!important;border-radius:999px!important;color:var(--bas)!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;font-family:inherit!important;text-shadow:none!important}
+
+.hbtns{position:absolute;right:14px;top:calc(16px + env(safe-area-inset-top,0px));display:flex;gap:6px;z-index:2}
+.hbtns .qbtn{position:static}
+.hdr h1#hdrTitle{padding-right:0}
+#tCalc .hdr{padding-top:calc(58px + env(safe-area-inset-top,0px))}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
+.modal .box{background:var(--card);color:var(--tx);border-radius:18px;padding:18px;width:100%;max-width:460px;box-shadow:0 10px 40px rgba(0,0,0,.3);margin-bottom:env(safe-area-inset-bottom,0px)}
+.modal h2{margin:0 0 8px}
+.modal .m-b{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.modal .m-b button{margin:0}
 </style>
 </head>
 <body>
@@ -322,7 +332,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
 
 <!-- ============ KALKULÁTOR ============ -->
 <section class="tab on" id="tCalc">
-<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div><button class="qbtn" id="qbtn" aria-pressed="false">⚡ Rychle</button></div>
+<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div><div class="hbtns"><button class="qbtn" id="wbtn">👀 Sledovat</button><button class="qbtn" id="qbtn" aria-pressed="false">⚡ Rychle</button></div></div>
 <div class="c" id="watchCard" hidden><div class="wcard" id="watchBtns"></div></div>
 <div class="c inp">
   <div class="r">
@@ -376,7 +386,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.7 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 2.8 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1021,7 +1031,24 @@ function shInit(){
 /* ---- sledující: seznam, otevření, načítání ---- */
 function parseWatch(str){try{const m=String(str).match(/sledovat=([A-Za-z0-9_-]+)/);if(!m)return null;const p=JSON.parse(new TextDecoder().decode(ub64u(m[1])));if(!p.d||!p.i||!p.k)return null;return{db:normDb(p.d),id:p.i,key:p.k,name:p.n||'Sledovaný'}}catch(e){return null}}
 function addWatch(w){if(!Array.isArray(S.watch))S.watch=[];const ex=S.watch.find(x=>x.id===w.id);if(ex)Object.assign(ex,w);else S.watch.push(w);save('bc_s',S)}
+function closeModal(){const m=document.querySelector('.modal');if(m)m.remove()}
+function modal(html){closeModal();const m=document.createElement('div');m.className='modal';m.innerHTML='<div class="box">'+html+'</div>';m.addEventListener('click',e=>{if(e.target===m)closeModal()});document.body.appendChild(m);return m}
+function watchAddFlow(){
+  const m=modal('<h2>Sledovat</h2><p class="f" style="margin-top:0">Vlož odkaz pro sledování, který ti poslal ten, koho chceš sledovat (zpráva „Sledování kalkulátoru“). Odkaz ve zprávě podrž → Kopírovat.</p><input id="mLink" class="t" type="url" placeholder="sem vlož odkaz" autocapitalize="off" autocorrect="off" spellcheck="false"><div class="m-b"><button id="mPaste" class="o">📋 Vložit zkopírovaný odkaz</button><button id="mAdd">Přidat a zobrazit</button><button id="mX" class="o" style="color:var(--mu)">Zavřít</button></div>');
+  const go=v=>{const w=parseWatch(v);if(!w){alert('Tohle není platný odkaz pro sledování. Zkopíruj celý odkaz ze zprávy.');return}addWatch(w);watchUi();closeModal();openWatch(w)};
+  m.querySelector('#mPaste').onclick=async()=>{try{const t=await navigator.clipboard.readText();m.querySelector('#mLink').value=t;go(t)}catch(e){m.querySelector('#mLink').focus();alert('Schránku se nepodařilo přečíst. Klepni do pole a zvol Vložit.')}};
+  m.querySelector('#mAdd').onclick=()=>go(m.querySelector('#mLink').value);
+  m.querySelector('#mX').onclick=closeModal;
+}
+function watchBtn(){const W=Array.isArray(S.watch)?S.watch:[];
+  if(W.length===1){openWatch(W[0]);return}
+  if(!W.length){watchAddFlow();return}
+  const m=modal('<h2>Koho zobrazit?</h2><div class="m-b" id="mList"></div><div class="m-b"><button id="mNew" class="o">＋ Přidat dalšího</button><button id="mX" class="o" style="color:var(--mu)">Zavřít</button></div>');
+  W.forEach(w=>{const b=document.createElement('button');b.textContent='👀 '+w.name;b.onclick=()=>{closeModal();openWatch(w)};m.querySelector('#mList').appendChild(b)});
+  m.querySelector('#mNew').onclick=watchAddFlow;m.querySelector('#mX').onclick=closeModal;
+}
 function watchUi(){const W=Array.isArray(S.watch)?S.watch:[];
+  const wb=$('wbtn');if(wb)wb.textContent=W.length===1?'👀 '+W[0].name:'👀 Sledovat';
   $('watchCard').hidden=!W.length;const b=$('watchBtns');b.innerHTML='';W.forEach(w=>{const x=document.createElement('button');x.textContent='👀 Sledovat: '+w.name;x.onclick=()=>openWatch(w);b.appendChild(x)});
   const l=$('wSetList');l.innerHTML=W.length?'':'<div class="f">Zatím nikoho nesleduješ.</div>';
   W.forEach(w=>{const r=document.createElement('div');r.className='row';r.innerHTML='<span>'+esc(w.name)+'</span>';const x=document.createElement('button');x.className='s';x.textContent='Odebrat';x.onclick=()=>{if(confirm('Přestat sledovat '+w.name+'?')){S.watch=S.watch.filter(y=>y!==w);save('bc_s',S);watchUi()}};r.appendChild(x);l.appendChild(r)})}
@@ -1088,6 +1115,7 @@ function awInit(){
 }
 
 function initShare(){
+  $('wbtn').onclick=watchBtn;
   awInit();
   shInit();shUi();watchUi();
   const p=parseWatch(location.hash);
