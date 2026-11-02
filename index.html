@@ -52,7 +52,7 @@ h2{font-size:15px;margin:0 0 10px}
 .stat div{background:var(--bg);border-radius:10px;padding:8px 10px}
 .stat b{display:block;font-size:16px}
 .stat span{font-size:11px;color:var(--mu)}
-canvas{width:100%;height:110px;display:block;opacity:.8}
+canvas{width:100%;height:130px;display:block}
 .lg{display:flex;gap:14px;font-size:12px;color:var(--mu);margin-top:6px;flex-wrap:wrap}
 .lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -308,6 +308,13 @@ body.watch #tWatch{display:block!important}
 details.howto summary{font-size:14px;color:var(--ac)}
 details.howto ol{padding-left:20px;font-size:14px;line-height:1.5;margin:8px 0}
 details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(--bg);padding:8px;border-radius:8px}
+
+/* ===== Tlačítka zápisu: bolus hlavní, bazál nenápadný ===== */
+.wr{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+#logBol{min-height:74px!important;font-size:17px!important}
+#logBol b{font-size:25px;margin-top:2px}
+:root[data-th="mata"] #logBol,:root[data-th="more"] #logBol{box-shadow:0 10px 22px -10px var(--ac),0 0 0 1px color-mix(in srgb,var(--ac) 25%,transparent) inset}
+:root[data-th] #logBas,#logBas{display:block;width:auto!important;margin:18px 0 0 auto!important;padding:7px 14px!important;min-height:0!important;font-size:14px!important;font-weight:600!important;background:transparent!important;border:1px dashed color-mix(in srgb,var(--bas) 65%,transparent)!important;border-radius:999px!important;color:var(--bas)!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;font-family:inherit!important;text-shadow:none!important}
 </style>
 </head>
 <body>
@@ -346,7 +353,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
   </div>
   <p class="f" style="margin:6px 0 0" id="whenHint">Čas se doplňuje automaticky. Změnit ho můžeš klepnutím na pole.</p>
   <div style="margin-top:8px" id="noteBox"><label for="note">Poznámka (nepovinné)</label><input id="note" class="t" type="text" placeholder="např. sport, nemoc, pizza"></div>
-  <button id="logBas" class="o" style="margin-top:12px">Zapsat bazál…</button>
+  <button id="logBas" class="o">＋ <span id="logBasT">Zapsat bazál</span>…</button>
 </div>
 
 <div class="c" id="iobCard">
@@ -366,7 +373,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
     <div><b id="basLast">–</b><span id="basNext">Poslední bazál</span></div>
   </div>
   <canvas id="ch"></canvas>
-  <div class="lg"><span><i style="background:var(--bas)"></i>Bazál</span><span><i style="background:var(--bol)"></i>Bolus</span><span>působení inzulinu, −12 h až +12 h</span></div>
+  <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
 <p class="f" style="text-align:center">Návrh 2.6 (sdílení) · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
@@ -693,16 +700,25 @@ function chart(){
   const dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=Hh*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
   const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
   const now=Date.now(),t0=now-12*36e5,t1=now+12*36e5,N=145,pad={l:4,r:4,t:14,b:18};
-  const xs=[],bas=[],bol=[];
-  for(let i=0;i<N;i++){const t=t0+(t1-t0)*i/(N-1);xs.push(t);bas.push(S.basins==='none'?0:actAt(t,'basal'));bol.push(actAt(t,'bolus'))}
-  const ymax=Math.max(0.5,...xs.map((_,i)=>bas[i]+bol[i]))*1.15;
+  const xs=[];for(let i=0;i<N;i++)xs.push(t0+(t1-t0)*i/(N-1));
+  const bas=xs.map(t=>S.basins==='none'?0:actAt(t,'basal'));
+  const doses=ofType('bolus').filter(d=>d.t<t1&&d.t+MB.td*36e5>t0);
+  const curves=doses.map(d=>xs.map(t=>d.u*MB.act(H(t-d.t))));
+  const tot=xs.map((_,i)=>curves.reduce((a,c)=>a+c[i],0));
+  const ymax=Math.max(0.5,...bas,...tot)*1.15;
   const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=v=>Hh-pad.b-v/ymax*(Hh-pad.t-pad.b);
   g.font='11px system-ui';g.fillStyle=col('--mu');g.strokeStyle=col('--bd');g.lineWidth=1;
   g.beginPath();g.moveTo(pad.l,Y(0));g.lineTo(W-pad.r,Y(0));g.stroke();
   for(let k=-12;k<=12;k+=6){const t=now+k*36e5,tx=hhmm(t),w=g.measureText(tx).width;g.fillText(tx,Math.min(W-w,Math.max(0,X(t)-w/2)),Hh-4)}
-  function area(lo,hi,c){g.beginPath();xs.forEach((t,i)=>{const y=Y(hi[i]);i?g.lineTo(X(t),y):g.moveTo(X(t),y)});for(let i=N-1;i>=0;i--)g.lineTo(X(xs[i]),Y(lo[i]));g.closePath();g.globalAlpha=0.45;g.fillStyle=c;g.fill();g.globalAlpha=1}
-  area(xs.map(()=>0),bas,col('--bas'));area(bas,xs.map((_,i)=>bas[i]+bol[i]),col('--bol'));
-  g.strokeStyle=col('--mu');g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([]);
+  const path=v=>{g.beginPath();xs.forEach((t,i)=>{const y=Y(v[i]);i?g.lineTo(X(t),y):g.moveTo(X(t),y)})};
+  const fillTo0=(v,c,a)=>{path(v);g.lineTo(X(xs[N-1]),Y(0));g.lineTo(X(xs[0]),Y(0));g.closePath();g.globalAlpha=a;g.fillStyle=c;g.fill();g.globalAlpha=1};
+  // bazál v pozadí: jemná plocha a tenká čárkovaná linka
+  fillTo0(bas,col('--bas'),.16);path(bas);g.strokeStyle=col('--bas');g.globalAlpha=.55;g.setLineDash([4,3]);g.lineWidth=1.2;g.stroke();g.setLineDash([]);g.globalAlpha=1;
+  // součet bolusů: jemná tečkovaná linka (jak dávky navazují)
+  if(curves.length>1){path(tot);g.strokeStyle=col('--bol');g.globalAlpha=.6;g.setLineDash([1.5,3]);g.lineWidth=1.4;g.stroke();g.setLineDash([]);g.globalAlpha=1}
+  // jednotlivé bolusy v popředí: průhledné píky s obrysem
+  curves.forEach(c=>{fillTo0(c,col('--bol'),.28);path(c);g.strokeStyle=col('--bol');g.lineWidth=1.8;g.stroke()});
+  g.lineWidth=1;g.strokeStyle=col('--mu');g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([]);
   g.fillStyle=col('--mu');g.fillText('teď',X(now)+3,pad.t-3);
   L.forEach(d=>{if((d.type==='bolus'||d.type==='basal')&&d.t>=t0&&d.t<=t1){g.fillStyle=d.type==='basal'?col('--bas'):col('--bol');g.beginPath();g.moveTo(X(d.t),Hh-pad.b);g.lineTo(X(d.t)-4,Hh-pad.b+6);g.lineTo(X(d.t)+4,Hh-pad.b+6);g.fill()}});
 }
@@ -723,7 +739,7 @@ function logHypo(bg,g){const t=readTime('when');if(t===null)return;const e={id:u
 function logDose(type){
   let u;
   if(type==='bolus'){u=shownDose();if(!u||u<=0){alert('Není co zapsat. Zadej glykémii a sacharidy, nebo dávku nastav tlačítkem +.');return}}
-  else{const lb=ofType('basal').sort((a,b)=>b.t-a.t)[0];const r=prompt('Dávka bazálu (j.)',lb?String(lb.u).replace('.',','):'');if(r===null)return;u=parseFloat(r.replace(',','.'));if(!(u>0)){alert('Neplatná dávka.');return}}
+  else{const lb=ofType('basal').sort((a,b)=>b.t-a.t)[0];const r=prompt('Zapsat BAZÁL '+((BAS[S.basins]||{}).sn||'')+' (dlouhodobý inzulin)\n\nDávka v jednotkách:',lb?String(lb.u).replace('.',','):'');if(r===null)return;u=parseFloat(r.replace(',','.'));if(!(u>0)){alert('Neplatná dávka.');return}}
   const t=readTime('when');if(t===null)return;
   const e={id:uid(),t,type,u};
   if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
@@ -1070,6 +1086,7 @@ let cur='tCalc';
 function show(t){cur=t;document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0);refresh()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
 function refresh(){
+  const lbt=$('logBasT');if(lbt)lbt.textContent='Zapsat bazál'+(S.basins&&S.basins!=='none'?' ('+(BAS[S.basins]||{}).sn+')':'');
   if($('trAuto'))trSync();
   const hs=$('hdrSub');if(hs)hs.innerHTML=esc((BOL[S.bins]||{}).sn+(S.basins!=='none'?' · '+(BAS[S.basins]||{}).sn:''))+(S.share&&S.share.on?' <span class="shareBadge">· 👪 sdílíš s rodinou</span>':'');
   calc();basalInfo();
