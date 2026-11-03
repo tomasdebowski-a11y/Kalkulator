@@ -315,6 +315,55 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
 #logBol b{font-size:25px;margin-top:2px}
 :root[data-th="mata"] #logBol,:root[data-th="more"] #logBol{box-shadow:0 10px 22px -10px var(--ac),0 0 0 1px color-mix(in srgb,var(--ac) 25%,transparent) inset}
 :root[data-th] #logBas,#logBas{display:block;width:auto!important;margin:18px 0 0 auto!important;padding:7px 14px!important;min-height:0!important;font-size:14px!important;font-weight:600!important;background:transparent!important;border:1px dashed color-mix(in srgb,var(--bas) 65%,transparent)!important;border-radius:999px!important;color:var(--bas)!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;font-family:inherit!important;text-shadow:none!important}
+
+.hbtns{position:absolute;right:14px;top:calc(16px + env(safe-area-inset-top,0px));display:flex;gap:6px;z-index:2}
+.hbtns .qbtn{position:static}
+.hdr h1#hdrTitle{padding-right:0}
+#tCalc .hdr{padding-top:calc(66px + env(safe-area-inset-top,0px))}
+/* 2.8 – velikosti pro prst (Apple doporučuje aspoň 44 bodů) */
+.hbtns .qbtn{min-height:40px;padding:9px 15px;font-size:14px}
+.tg2 button{min-height:44px}
+:root[data-th] #logBas,#logBas{min-height:44px!important;padding:10px 16px!important}
+.seg button{min-height:40px}
+.x{min-width:44px;min-height:44px;font-size:20px;margin:-10px -10px -10px 0}
+.bx button.s{width:44px;height:44px}
+.sw8 button{width:40px;height:40px}
+.sw{min-height:44px;margin:6px 0 2px}
+button.s{min-height:36px;padding:6px 12px;font-size:14px}
+.stat span{font-size:12px}
+.wr>div{min-width:0}
+input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;text-align:center}
+input[type=datetime-local]::-webkit-date-and-time-value{text-align:center;margin:0}
+#watchCard{display:none!important}
+details.howto summary{padding:12px 0}
+/* 2.9 – sbalovací karty */
+.fold>.fh{display:flex;align-items:center;gap:10px;margin:-14px;padding:14px;min-height:52px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.fold>.fh h2{margin:0;flex:none}
+.fold>.fh .fs{flex:1;min-width:0;font-size:13px;color:var(--mu);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold>.fh .fi{font-size:18px;line-height:1;flex:none}
+.fold>.fh::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(45deg);margin:-4px 2px 0 2px;transition:transform .2s}
+.fold.open>.fh::after{transform:rotate(-135deg);margin-top:4px}
+.fold>.fb{display:none;padding-top:14px}
+.fold.open>.fb{display:block}
+.fold.open>.fh{border-bottom:1px solid var(--bd);margin-bottom:0}
+.foldAll{display:flex;justify-content:flex-end;margin:-4px 2px 8px}
+.foldAll button{width:auto;margin:0;padding:8px 4px;min-height:36px;background:none;border:0;color:var(--ac);font-size:14px;font-weight:600}
+.day .dh{cursor:pointer;min-height:44px;align-items:center;-webkit-tap-highlight-color:transparent}
+.day .dh>span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(-45deg);margin:0 10px 2px 2px;transition:transform .2s}
+.day.open .dh>span:first-child::before{transform:rotate(45deg)}
+.day:not(.open) .en{display:none}
+.day:not(.open) .dh{border-bottom:0;padding-bottom:0}
+.day.sel{box-shadow:0 0 0 2px color-mix(in srgb,var(--ac) 45%,transparent)}
+#dTl{width:100%;height:220px;display:block}
+.dnav{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dnav b{flex:1;text-align:center;font-size:15px}
+.dnav button{width:44px;height:44px;margin:0;padding:0;border-radius:50%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);font-size:18px}
+.dnav button:disabled{opacity:.35}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
+.modal .box{background:var(--card);color:var(--tx);border-radius:18px;padding:18px;width:100%;max-width:460px;box-shadow:0 10px 40px rgba(0,0,0,.3);margin-bottom:env(safe-area-inset-bottom,0px)}
+.modal h2{margin:0 0 8px}
+.modal .m-b{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.modal .m-b button{margin:0}
 </style>
 </head>
 <body>
@@ -322,7 +371,7 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
 
 <!-- ============ KALKULÁTOR ============ -->
 <section class="tab on" id="tCalc">
-<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div><button class="qbtn" id="qbtn" aria-pressed="false">⚡ Rychle</button></div>
+<div class="hdr"><h1 id="hdrTitle">Bolusový kalkulátor</h1><div id="hdrSub">Fiasp · Toujeo</div><div class="hbtns"><button class="qbtn" id="wbtn">👀 Sledovat</button><button class="qbtn" id="qbtn" aria-pressed="false">⚡ Rychle</button></div></div>
 <div class="c" id="watchCard" hidden><div class="wcard" id="watchBtns"></div></div>
 <div class="c inp">
   <div class="r">
@@ -376,13 +425,17 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.7 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 2.9 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
 <section class="tab" id="tLog">
 <div class="hdr"><h1>Deník</h1><div>Bolusy a bazál po dnech</div></div>
-<div class="lg" style="margin:0 2px 4px"><span><i style="background:var(--bol);border-radius:50%"></i>Bolus</span><span><i style="background:var(--bas);border-radius:50%"></i>Bazál</span><span><i style="background:var(--lo);border-radius:50%"></i>Hypo</span></div>
+<div class="c" id="dChart">
+  <div class="dnav"><button id="dPrev" aria-label="Předchozí den">‹</button><b id="dDay">Dnes</b><button id="dNext" aria-label="Další den">›</button></div>
+  <canvas id="dTl"></canvas>
+  <div class="wlg"><span><i style="background:var(--in)"></i>Glykémie v rozmezí</span><span><i style="background:var(--hi)"></i>Vysoko</span><span><i style="background:var(--lo)"></i>Nízko</span><span><i style="background:var(--sac);border-radius:2px"></i>Sacharidy</span><span>▼ Bolus</span><span style="color:var(--bas)">▼ Bazál</span></div>
+</div>
 <div id="diary"></div>
 <button id="more" class="o" style="display:none">Zobrazit starší</button>
 </section>
@@ -781,8 +834,17 @@ function entryText(d){
   if(d.type==='hypo')return'<b>Léčba hypo</b>'+(d.carbs?' · '+fmt(d.carbs,0)+' g':'')+bgTag(d.bg);
   return'<b>Glykémie</b>'+bgTag(d.bg);
 }
+let dSel=null;const dOpen=new Set();
+function dChart(){const today=dayStart(Date.now());if(dSel==null)dSel=today;
+  const first=L.length?dayStart(Math.min(...L.map(d=>d.t))):today;
+  const k=Math.round((today-dSel)/864e5),dt=new Date(dSel);
+  $('dDay').textContent=(k===0?'Dnes':k===1?'Včera':DAYS[dt.getDay()])+' '+dt.getDate()+'. '+(dt.getMonth()+1)+'.';
+  $('dNext').disabled=dSel>=today;$('dPrev').disabled=dSel<=first;
+  timeline('dTl',dSel);
+  document.querySelectorAll('#diary .day').forEach(d=>d.classList.toggle('sel',+d.dataset.d===dSel&&dSel!==today))}
+function dGo(day){dSel=day;dChart()}
 function renderDiary(){
-  const box=$('diary');box.innerHTML='';
+  const box=$('diary');box.innerHTML='';$('dChart').hidden=!L.length;
   if(!L.length){box.innerHTML='<div class="c f" style="margin-top:12px">Deník je prázdný. Záznamy vznikají při zápisu dávky v kalkulátoru nebo tady nahoře.</div>';$('more').style.display='none';return}
   const from=dayStart(Date.now())-(showDays-1)*864e5;
   const items=L.filter(d=>d.t>=from).sort((a,b)=>b.t-a.t);
@@ -790,16 +852,18 @@ function renderDiary(){
   Object.values(groups).forEach(arr=>{
     const t=arr[0].t,today=dayKey(Date.now())===dayKey(t),yest=dayKey(Date.now()-864e5)===dayKey(t);
     const bo=arr.filter(d=>d.type==='bolus').reduce((s,d)=>s+d.u,0),ba=arr.filter(d=>d.type==='basal').reduce((s,d)=>s+d.u,0),cb=arr.filter(d=>d.type==='bolus').reduce((s,d)=>s+(d.carbs||0),0);
-    const dv=document.createElement('div');dv.className='day c';
+    const dv=document.createElement('div');const d0=dayStart(t);dv.dataset.d=d0;if(today&&!dOpen.has('init')){dOpen.add('init');dOpen.add(d0)}dv.className='day c'+(dOpen.has(d0)?' open':'');
     dv.innerHTML='<div class="dh"><span>'+(today?'Dnes':yest?'Včera':DAYS[new Date(t).getDay()])+' <span style="font-weight:400;color:var(--mu);font-size:13px">'+new Date(t).getDate()+'. '+(new Date(t).getMonth()+1)+'.</span></span><small>bolus '+fmt(bo,1)+' j. · bazál '+fmt(ba,1)+' j.<br>sacharidy '+fmt(cb,0)+' g</small></div>';
     arr.forEach(d=>{const r=document.createElement('div');r.className='en';
       r.innerHTML='<span class="tm">'+hhmm(d.t)+'</span><span class="dot" style="background:'+COL[d.type]+'"></span><span class="dt">'+entryText(d)+(d.note?'<div class="nt">'+esc(d.note)+'</div>':'')+'</span>';
       const x=document.createElement('button');x.className='x';x.textContent='×';x.title='Smazat';
       x.onclick=()=>{if(confirm('Smazat záznam '+hhmm(d.t)+'?')){L=L.filter(e=>e!==d);saveL();refresh()}};r.appendChild(x);dv.appendChild(r)});
     dv.lastChild.style.borderBottom='0';box.appendChild(dv);
+    dv.querySelector('.dh').onclick=()=>{const o=!dv.classList.contains('open');dv.classList.toggle('open',o);o?dOpen.add(d0):dOpen.delete(d0);if(o)dGo(d0)};
   });
   if(!items.length)box.innerHTML='<div class="c f" style="margin-top:12px">V posledních '+showDays+' dnech nic.</div>';
   $('more').style.display=L.some(d=>d.t<from)?'block':'none';
+  dChart();
 }
 
 /* ---------- statistiky ---------- */
@@ -870,7 +934,13 @@ function renderStats(){
   }else h+='<div class="f">Žádný zapsaný bazál.</div>';
   h+='</div>';
   box.innerHTML=h;
+  foldify(box,'st',{'Inzulin':'💉','Glykémie':'🩸','Kontrola po jídle':'🍽️','Bazál':'🌙'});
+  const avg=s.gv.length?s.gv.reduce((a,b)=>a+b,0)/s.gv.length:null;
+  foldSums(box,{'Inzulin':()=>fmt(tdd,1)+' j. za den','Glykémie':()=>avg!=null?'Ø '+fmt(avg,1)+' · v rozmezí '+Math.round(s.inr/s.gv.length*100)+' %':'bez hodnot',
+    'Kontrola po jídle':()=>{const n=MEALS.slice(0,3).reduce((a,m)=>a+s.post[m].n,0);return n?n+'× změřeno':'málo dat'},'Bazál':()=>s.bInfo?'Ø '+hFmt(s.bInfo.mean)+' · '+fmt(s.bInfo.avg,1)+' j.':'nezapsán'});
+  if(statUpd)statUpd();
 }
+let statUpd=null;
 
 /* ---------- PDF zpráva ---------- */
 function buildReport(){
@@ -1021,7 +1091,24 @@ function shInit(){
 /* ---- sledující: seznam, otevření, načítání ---- */
 function parseWatch(str){try{const m=String(str).match(/sledovat=([A-Za-z0-9_-]+)/);if(!m)return null;const p=JSON.parse(new TextDecoder().decode(ub64u(m[1])));if(!p.d||!p.i||!p.k)return null;return{db:normDb(p.d),id:p.i,key:p.k,name:p.n||'Sledovaný'}}catch(e){return null}}
 function addWatch(w){if(!Array.isArray(S.watch))S.watch=[];const ex=S.watch.find(x=>x.id===w.id);if(ex)Object.assign(ex,w);else S.watch.push(w);save('bc_s',S)}
+function closeModal(){const m=document.querySelector('.modal');if(m)m.remove()}
+function modal(html){closeModal();const m=document.createElement('div');m.className='modal';m.innerHTML='<div class="box">'+html+'</div>';m.addEventListener('click',e=>{if(e.target===m)closeModal()});document.body.appendChild(m);return m}
+function watchAddFlow(){
+  const m=modal('<h2>Sledovat</h2><p class="f" style="margin-top:0">Vlož odkaz pro sledování, který ti poslal ten, koho chceš sledovat (zpráva „Sledování kalkulátoru“). Odkaz ve zprávě podrž → Kopírovat.</p><input id="mLink" class="t" type="url" placeholder="sem vlož odkaz" autocapitalize="off" autocorrect="off" spellcheck="false"><div class="m-b"><button id="mPaste" class="o">📋 Vložit zkopírovaný odkaz</button><button id="mAdd">Přidat a zobrazit</button><button id="mX" class="o" style="color:var(--mu)">Zavřít</button></div>');
+  const go=v=>{const w=parseWatch(v);if(!w){alert('Tohle není platný odkaz pro sledování. Zkopíruj celý odkaz ze zprávy.');return}addWatch(w);watchUi();closeModal();openWatch(w)};
+  m.querySelector('#mPaste').onclick=async()=>{try{const t=await navigator.clipboard.readText();m.querySelector('#mLink').value=t;go(t)}catch(e){m.querySelector('#mLink').focus();alert('Schránku se nepodařilo přečíst. Klepni do pole a zvol Vložit.')}};
+  m.querySelector('#mAdd').onclick=()=>go(m.querySelector('#mLink').value);
+  m.querySelector('#mX').onclick=closeModal;
+}
+function watchBtn(){const W=Array.isArray(S.watch)?S.watch:[];
+  if(W.length===1){openWatch(W[0]);return}
+  if(!W.length){watchAddFlow();return}
+  const m=modal('<h2>Koho zobrazit?</h2><div class="m-b" id="mList"></div><div class="m-b"><button id="mNew" class="o">＋ Přidat dalšího</button><button id="mX" class="o" style="color:var(--mu)">Zavřít</button></div>');
+  W.forEach(w=>{const b=document.createElement('button');b.textContent='👀 '+w.name;b.onclick=()=>{closeModal();openWatch(w)};m.querySelector('#mList').appendChild(b)});
+  m.querySelector('#mNew').onclick=watchAddFlow;m.querySelector('#mX').onclick=closeModal;
+}
 function watchUi(){const W=Array.isArray(S.watch)?S.watch:[];
+  const wb=$('wbtn');if(wb)wb.textContent=W.length===1?'👀 '+W[0].name:'👀 Sledovat';
   $('watchCard').hidden=!W.length;const b=$('watchBtns');b.innerHTML='';W.forEach(w=>{const x=document.createElement('button');x.textContent='👀 Sledovat: '+w.name;x.onclick=()=>openWatch(w);b.appendChild(x)});
   const l=$('wSetList');l.innerHTML=W.length?'':'<div class="f">Zatím nikoho nesleduješ.</div>';
   W.forEach(w=>{const r=document.createElement('div');r.className='row';r.innerHTML='<span>'+esc(w.name)+'</span>';const x=document.createElement('button');x.className='s';x.textContent='Odebrat';x.onclick=()=>{if(confirm('Přestat sledovat '+w.name+'?')){S.watch=S.watch.filter(y=>y!==w);save('bc_s',S);watchUi()}};r.appendChild(x);l.appendChild(r)})}
@@ -1088,6 +1175,7 @@ function awInit(){
 }
 
 function initShare(){
+  $('wbtn').onclick=watchBtn;
   awInit();
   shInit();shUi();watchUi();
   const p=parseWatch(location.hash);
@@ -1118,10 +1206,10 @@ function watchRender(snap){
   L.filter(d=>d.t>=today).sort((a,b)=>b.t-a.t).forEach(d=>{const r=document.createElement('div');r.className='en';r.innerHTML='<span class="tm">'+hhmm(d.t)+'</span><span class="dot" style="background:'+COL[d.type]+'"></span><span class="dt">'+entryText(d)+(d.note?'<div class="nt">'+esc(d.note)+'</div>':'')+'</span>';box.appendChild(r)});
   timeline();
 }
-function timeline(){
-  const cv=$('wTl'),W=cv.clientWidth,Hh=cv.clientHeight;if(!W)return;const dpr=devicePixelRatio||1;cv.width=W*dpr;cv.height=Hh*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
+function timeline(id,day){
+  const cv=$(id||'wTl'),W=cv.clientWidth,Hh=cv.clientHeight;if(!W)return;const dpr=devicePixelRatio||1;cv.width=W*dpr;cv.height=Hh*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
   const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
-  const now=Date.now(),t0=dayStart(now),t1=t0+864e5,pad={l:26,r:6,t:36,b:20},gmin=2,gmax=18;
+  const now=Date.now(),t0=day!=null?day:dayStart(now),t1=t0+864e5,pad={l:26,r:6,t:36,b:20},gmin=2,gmax=18;
   const X=t=>pad.l+(t-t0)/(t1-t0)*(W-pad.l-pad.r),Y=v=>pad.t+(1-(Math.min(gmax,Math.max(gmin,v))-gmin)/(gmax-gmin))*(Hh-pad.t-pad.b);
   g.font='11px system-ui';
   // target band
@@ -1130,7 +1218,7 @@ function timeline(){
   [4,10,15].forEach(v=>{g.beginPath();g.moveTo(pad.l,Y(v));g.lineTo(W-pad.r,Y(v));g.stroke();g.fillText(v,4,Y(v)+4)});
   for(let h=0;h<=24;h+=6){const t=t0+h*36e5,tx=h+':00',w=g.measureText(tx).width;g.fillText(tx,Math.min(W-w,Math.max(pad.l,X(t)-w/2)),Hh-4)}
   // now line
-  g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t-6);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([]);
+  if(now>=t0&&now<t1){g.setLineDash([3,3]);g.beginPath();g.moveTo(X(now),pad.t-6);g.lineTo(X(now),Hh-pad.b);g.stroke();g.setLineDash([])}
   const E=L.filter(d=>d.t>=t0&&d.t<=t1).sort((a,b)=>a.t-b.t);
   // carbs bars
   E.forEach(d=>{if(d.carbs){const h=Math.min(60,d.carbs*.55),x=X(d.t);g.fillStyle=col(d.type==='hypo'?'--lo':'--sac');g.globalAlpha=.35;g.fillRect(x-4,Hh-pad.b-h,8,h);g.globalAlpha=1;g.fillStyle=col('--mu');g.font='10px system-ui';g.fillText(fmt(d.carbs,0)+'g',x-8,Hh-pad.b-h-3);g.font='11px system-ui'}});
@@ -1140,6 +1228,35 @@ function timeline(){
   // dose markers on top
   let lastX=-99,row=0;E.forEach(d=>{if(d.type!=='bolus'&&d.type!=='basal')return;const x=X(d.t);row=(x-lastX<34)?1-row:0;lastX=x;g.fillStyle=col(d.type==='basal'?'--bas':'--bol');g.beginPath();g.moveTo(x-6,4);g.lineTo(x+6,4);g.lineTo(x,13);g.fill();g.font='bold 10px system-ui';const t=fmt(d.u)+' j.';g.fillText(t,Math.min(W-g.measureText(t).width,x-g.measureText(t).width/2),22+row*11);g.font='11px system-ui'});
 }
+/* ---------- sbalovací karty ---------- */
+let FO=(()=>{try{return JSON.parse(localStorage.getItem('bc_fold'))||{}}catch(e){return{}}})();
+function foldSave(){try{localStorage.setItem('bc_fold',JSON.stringify(FO))}catch(e){}}
+function foldify(root,pre,icons){
+  root.querySelectorAll(':scope>.c').forEach(c=>{if(c.classList.contains('fold'))return;const h=c.firstElementChild;if(!h||h.tagName!=='H2')return;
+    const t=h.childNodes[0].textContent.trim(),key=pre+':'+t,fh=document.createElement('div'),fb=document.createElement('div');
+    fh.className='fh';fh.setAttribute('role','button');fb.className='fb';
+    const ic=icons&&icons[t];if(ic){const i=document.createElement('span');i.className='fi';i.textContent=ic;fh.appendChild(i)}
+    const sm=h.querySelector('.m');if(sm){sm.remove();sm.className='f';sm.style.cssText='margin:0 0 8px;display:block';sm.textContent=sm.textContent.replace(/^\s*·\s*/,'')}
+    fh.appendChild(h);const fs=document.createElement('span');fs.className='fs';fh.appendChild(fs);
+    while(c.firstChild)fb.appendChild(c.firstChild);if(sm)fb.prepend(sm);c.append(fh,fb);c.classList.add('fold');c.dataset.fk=key;c.dataset.ft=t;
+    if(FO[key])c.classList.add('open');
+    fh.onclick=()=>{const o=!c.classList.contains('open');c.classList.toggle('open',o);FO[key]=o;foldSave();if(o&&pre==='st')renderStats()}})}
+function foldSums(root,map){root.querySelectorAll('.fold').forEach(c=>{const f=map[c.dataset.ft];const el=c.querySelector(':scope>.fh .fs');if(el)el.textContent=f?f():''})}
+const SET_IC={'Barvy':'🎨','Inzuliny':'💉','Výpočet':'🧮','Moje jídla':'🍽️','Sdílení s rodinou':'👪','Apple Watch':'⌚','Sleduji':'👀','Zpráva a záloha':'💾'};
+const TH_N={mata:'Máta',more:'Moře',malba:'Malba'};
+function setSums(){foldSums($('tSet'),{
+  'Barvy':()=>(TH_N[S.theme]||'Máta')+(document.documentElement.classList.contains('acc')?' · můj motiv':''),
+  'Inzuliny':()=>((BOL[S.bins]||{}).sn||'')+(S.basins!=='none'?' · '+((BAS[S.basins]||{}).sn||''):''),
+  'Výpočet':()=>S.useBlocks?'časové bloky · '+(S.blocks||[]).length:'poměr '+fmt(S.icr,1)+' · citl. '+fmt(S.isf,1)+' · cíl '+fmt(S.target,1),
+  'Moje jídla':()=>{const n=F.length;return n?n+(n===1?' jídlo':n<5?' jídla':' jídel'):'zatím žádná'},
+  'Sdílení s rodinou':()=>S.share&&S.share.on?'zapnuto':'vypnuto',
+  'Apple Watch':()=>S.aw&&S.aw.on?'propojeno':'vypnuto',
+  'Sleduji':()=>{const W=Array.isArray(S.watch)?S.watch:[];return W.length?W.map(w=>w.name).join(', '):'nikoho'},
+  'Zpráva a záloha':()=>'PDF · záloha · obnova'})}
+function foldAllBtn(sec,pre){const b=document.createElement('div');b.className='foldAll';b.innerHTML='<button>Rozbalit vše</button>';const btn=b.firstChild;
+  const upd=()=>{const all=[...sec.querySelectorAll('.fold')];btn.textContent=all.length&&all.every(c=>c.classList.contains('open'))?'Sbalit vše':'Rozbalit vše'};
+  btn.onclick=()=>{const all=[...sec.querySelectorAll('.fold')],o=!all.every(c=>c.classList.contains('open'));all.forEach(c=>{c.classList.toggle('open',o);FO[c.dataset.fk]=o});foldSave();if(pre==='st')renderStats();upd()};
+  sec.addEventListener('click',e=>{if(e.target.closest('.fh'))setTimeout(upd,0)});return [b,upd]}
 /* ---------- navigace a obnova ---------- */
 let cur='tCalc';
 function show(t){cur=t;document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0);refresh()}
@@ -1154,12 +1271,15 @@ function refresh(){
   if(cur==='tCalc')chart();
   if(cur==='tLog')renderDiary();
   if(cur==='tStat')renderStats();
+  if(cur==='tSet')setSums();
   $('src').textContent=[(BOL[S.bins]||{}).src,(BAS[S.basins]||{}).src].filter(Boolean).join(' ')+' Tvar křivek je model sestavený z těchto údajů.';
 }
 
 $('logBol').onclick=()=>logDose('bolus');
 $('logBas').onclick=()=>logDose('basal');
 $('more').onclick=()=>{showDays+=14;renderDiary()};
+$('dPrev').onclick=()=>{const dd=dayStart(dSel-864e5+36e5);dGo(dd);const from=dayStart(Date.now())-(showDays-1)*864e5;if(dd<from){showDays+=14;renderDiary()}};
+$('dNext').onclick=()=>dGo(dayStart(dSel+864e5+36e5));
 document.querySelectorAll('#per button').forEach(b=>b.onclick=()=>{per=+b.dataset.d;document.querySelectorAll('#per button').forEach(x=>x.classList.toggle('on',x===b));renderStats()});
 $('pdf').onclick=()=>{buildReport();setTimeout(()=>window.print(),50)};
 $('csv').onclick=csv;
@@ -1214,6 +1334,9 @@ $('quickSet').onchange=()=>{S.quick=$('quickSet').checked;save('bc_s',S);applyMi
 $('qmore').onclick=()=>{document.body.classList.toggle('showbk');$('qmore').textContent=document.body.classList.contains('showbk')?'Skrýt rozpis':'Rozpis výpočtu'};
 applyMine();applyTheme();rb();blMode();renderFoods();tickTimes();refresh();
 initShare();
+foldify($('tSet'),'set',SET_IC);
+{const [b,u]=foldAllBtn($('tSet'),'set');$('tSet').querySelector('.hdr').after(b);u()}
+{const [b,u]=foldAllBtn($('tStat'),'st');$('stats').before(b);statUpd=u}
 if('serviceWorker' in navigator){
   const had=!!navigator.serviceWorker.controller;let reloaded=false;
   // Když se nainstaluje nová verze, stránka se jednou sama obnoví (jen pokud se zrovna nic nevyplňuje).
