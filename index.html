@@ -319,7 +319,23 @@ details.howto pre{white-space:pre-wrap;word-break:break-all;font-size:11px;backg
 .hbtns{position:absolute;right:14px;top:calc(16px + env(safe-area-inset-top,0px));display:flex;gap:6px;z-index:2}
 .hbtns .qbtn{position:static}
 .hdr h1#hdrTitle{padding-right:0}
-#tCalc .hdr{padding-top:calc(58px + env(safe-area-inset-top,0px))}
+#tCalc .hdr{padding-top:calc(66px + env(safe-area-inset-top,0px))}
+/* 2.8 – velikosti pro prst (Apple doporučuje aspoň 44 bodů) */
+.hbtns .qbtn{min-height:40px;padding:9px 15px;font-size:14px}
+.tg2 button{min-height:44px}
+:root[data-th] #logBas,#logBas{min-height:44px!important;padding:10px 16px!important}
+.seg button{min-height:40px}
+.x{min-width:44px;min-height:44px;font-size:20px;margin:-10px -10px -10px 0}
+.bx button.s{width:44px;height:44px}
+.sw8 button{width:40px;height:40px}
+.sw{min-height:44px;margin:6px 0 2px}
+button.s{min-height:36px;padding:6px 12px;font-size:14px}
+.stat span{font-size:12px}
+.wr>div{min-width:0}
+input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;text-align:center}
+input[type=datetime-local]::-webkit-date-and-time-value{text-align:center;margin:0}
+#watchCard{display:none!important}
+details.howto summary{padding:12px 0}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
 .modal .box{background:var(--card);color:var(--tx);border-radius:18px;padding:18px;width:100%;max-width:460px;box-shadow:0 10px 40px rgba(0,0,0,.3);margin-bottom:env(safe-area-inset-bottom,0px)}
 .modal h2{margin:0 0 8px}
