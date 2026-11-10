@@ -366,27 +366,7 @@ details.howto summary{padding:12px 0}
 .modal .m-b button{margin:0}
 
 /* ===== 3.0 návrh rozvržení karty Kalkulátor ===== */
-.fld{position:relative}
-.fmic{position:absolute;bottom:14px;right:14px;width:36px;height:36px;margin:0;padding:0;border-radius:50%;background:transparent;border:0;font-size:17px;line-height:1;opacity:.75;z-index:2}
-.fmic.on{opacity:1;background:color-mix(in srgb,var(--ac) 18%,transparent)}
-.vhd{font-size:14px;font-weight:700;color:var(--tx);margin:0 2px 8px}
-.vbox{margin-top:10px;padding:10px;border-radius:16px;border:1px solid color-mix(in srgb,var(--ac) 40%,var(--bd));background:var(--bg)}
-.vbox input{width:100%;font-size:17px;min-height:46px;padding:8px 12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
-.vprev{margin:8px 2px;font-size:14px;color:var(--mu);line-height:1.35}
-.vprev b{color:var(--tx)}
-.vbt{display:flex;gap:8px}
-.vbt button{margin:0;min-height:44px;flex:1;justify-content:center}
-.vbt #vok{display:none;flex:2;border-radius:999px;background:var(--ac);color:#fff;font-weight:700}
-.vbt #vok:disabled{opacity:.4}
-.mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:10px 0 0;min-height:42px;padding:0 12px;border-radius:999px;background:var(--bg);border:1px dashed var(--bd);color:var(--mu);font-size:14px;font-weight:600}
-.mic .mi{font-size:16px}
-.mic.on{border-style:solid;border-color:var(--er);color:var(--er);background:color-mix(in srgb,var(--er) 8%,var(--bg))}
-.mic.on .mi{animation:micp 1s ease-in-out infinite}
-@keyframes micp{50%{transform:scale(1.25)}}
-.mich{margin-top:8px;font-size:13px;color:var(--mu);text-align:center;line-height:1.35}
-.mich b{color:var(--tx)}
-.fld input.vo{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 45%,transparent);transition:box-shadow .3s}
-body.quick .mic{display:flex!important}
+
 .lay #whenHint,.lay #oldAct{display:none!important}
 .act{margin-top:14px}
 .lay #logBol{display:flex;width:100%;margin:0;min-height:68px!important;align-items:center;justify-content:center;gap:10px;font-size:19px!important;font-weight:700;border-radius:18px}
@@ -455,8 +435,6 @@ body.quick .iobTop .gl{display:none}
     <div class="fld g"><label for="bg">Glykémie <small>mmol/l</small></label><input id="bg" type="number" inputmode="decimal" step="any" placeholder="–"></div>
     <div class="fld s"><label for="cb">Sacharidy <small>g</small></label><input id="cb" type="number" inputmode="decimal" step="any" placeholder="–"></div>
   </div>
-  <button type="button" class="mic" id="mic"><span class="mi">🎤</span><span id="micT">Zadat hlasem</span></button>
-  <div class="mich" id="mich" hidden></div>
   <div class="trend" id="trend" hidden><span>Trend<br><small style="font-size:10px">nepovinné</small></span></div>
   <div class="chips" id="foods"></div>
 </div>
@@ -504,7 +482,7 @@ body.quick .iobTop .gl{display:none}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.0.2 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 3.0.3 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1468,90 +1446,7 @@ const tc=()=>document.body.classList.toggle('tc',cur==='tCalc');document.querySe
 place(LAY);tpUpd();
 })();
 
-/* ===== 3.0 diktování glykémie a sacharidů ===== */
-const CZN={nula:0,jedna:1,jeden:1,jedno:1,dva:2,dvě:2,tři:3,čtyři:4,pět:5,šest:6,sedm:7,osm:8,devět:9,deset:10,jedenáct:11,dvanáct:12,třináct:13,čtrnáct:14,patnáct:15,šestnáct:16,sedmnáct:17,osmnáct:18,devatenáct:19,dvacet:20,třicet:30,čtyřicet:40,padesát:50,šedesát:60,sedmdesát:70,osmdesát:80,devadesát:90,sto:100,stě:100,set:100};
-const CZU=['jedna','dva','tři','čtyři','pět','šest','sedm','osm','devět'],CZT=['dvacet','třicet','čtyřicet','padesát','šedesát','sedmdesát','osmdesát','devadesát'];
-function voiceParse(txt){
-  let t=' '+txt.toLowerCase().replace(/(\d)\s*[,.]\s*(\d)/g,'$1D$2').replace(/[.,;:!?]/g,' ')+' ';
-  // pětapadesát → 55
-  CZU.forEach((u,i)=>CZT.forEach((d,j)=>{t=t.split(u+'a'+d).join(' '+((j+2)*10+i+1)+' ')}));
-  const raw=t.trim().split(/\s+/),tk=[];
-  for(const w of raw){
-    if(/^\d+(D\d+)?$/.test(w)){tk.push({n:parseFloat(w.replace('D','.'))});continue}
-    if(w in CZN){tk.push({w:CZN[w]});continue}
-    if(/^(celá|celé|celých|čárka|tečka|celou)$/.test(w)){tk.push({dec:1});continue}
-    if(w==='půl'){tk.push({half:1});continue}
-    if(/^(glyk|gluk|cukr|hladin|glyc|krev|bg)/.test(w)){tk.push({k:'bg'});continue}
-    if(/^(sachar|karbo|gram|g$|jídl|jíd|chleb|výměn|carb)/.test(w)){tk.push({k:/^(gram|g$)/.test(w)?'g':'cb'});continue}
-    tk.push({x:w});
-  }
-  // slova → čísla (sto/dvě stě, desítky + jednotky)
-  const t2=[];
-  for(let i=0;i<tk.length;i++){const a=tk[i];
-    if(a.w==null){t2.push(a);continue}
-    let v=0,cur=0,j=i;
-    while(j<tk.length&&tk[j].w!=null){const x=tk[j].w;
-      if(x===100){v+=(cur||1)*100;cur=0}
-      else if(x>=20&&x%10===0){if(cur&&cur<10){cur+=x}else{v+=cur;cur=x}}
-      else if(cur>=20&&cur%10===0&&x<10){cur+=x}
-      else{if(cur)break;cur=x}
-      j++}
-    t2.push({n:v+cur});i=j-1}
-  // desetinná čísla a "a půl"
-  const t3=[];
-  for(let i=0;i<t2.length;i++){const a=t2[i];
-    if(a.n!=null&&t2[i+1]&&t2[i+1].dec&&t2[i+2]&&t2[i+2].n!=null){const d=t2[i+2].n;t3.push({n:a.n+d/Math.pow(10,String(d).length)});i+=2;continue}
-    if(a.n!=null&&t2[i+1]&&t2[i+1].x==='a'&&t2[i+2]&&t2[i+2].half){t3.push({n:a.n+0.5});i+=2;continue}
-    t3.push(a)}
-  // přiřazení k polím
-  let bg=null,cb=null,pend=null;const free=[];
-  for(let i=0;i<t3.length;i++){const a=t3[i];
-    if(a.k==='bg'||a.k==='cb'){pend=a.k;continue}
-    if(a.n!=null){
-      const nx=t3[i+1];
-      if(nx&&nx.k==='g'){cb=a.n;i++;pend=null;continue}
-      if(pend==='bg'&&bg==null){bg=a.n;pend=null;continue}
-      if(pend==='cb'&&cb==null){cb=a.n;pend=null;continue}
-      free.push(a.n)}}
-  free.forEach(n=>{if(bg==null&&cb==null&&free.length>=2){bg=n}else if(bg==null&&cb!=null){bg=n}else if(cb==null&&bg!=null){cb=n}else if(bg==null&&cb==null&&free.length===1){if(n%1!==0||n<=25)bg=n;else cb=n}});
-  const err=[];
-  if(bg!=null&&(bg<1||bg>35)){err.push('glykémie '+bg+' nedává smysl');bg=null}
-  if(cb!=null&&(cb<0||cb>400)){err.push('sacharidy '+cb+' g nedávají smysl');cb=null}
-  return{bg,cb,err};
-}
-(function(){
-  // Diktování: jedno klepnutí na 🎤, pak mikrofon na klávesnici iPhonu a mluvit. Vyplní se samo.
-  const btn=$('mic'),hint=$('mich');
-  const box=document.createElement('div');box.className='vbox';box.hidden=true;
-  box.innerHTML='<div class="vhd" id="vhd"></div><input id="vtx" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"><div class="vprev" id="vprev"></div><div class="vbt"><button type="button" class="pill" id="vno">Zavřít</button></div>';
-  btn.after(box);
-  const tx=box.querySelector('#vtx'),pv=box.querySelector('#vprev'),hd=box.querySelector('#vhd');let T=null,tm=null,done={};
-  const NAME={bg:'glykémii',cb:'sacharidy'};
-  function put(id,v){const el=$(id);const nv=String(Math.round(v*10)/10);if(el.value===nv)return;el.value=nv;el.dispatchEvent(new Event('input',{bubbles:true}));el.classList.add('vo');setTimeout(()=>el.classList.remove('vo'),2500)}
-  function close(){clearTimeout(tm);box.hidden=true;btn.hidden=false;tx.value='';tx.blur();document.querySelectorAll('.fmic').forEach(m=>m.classList.remove('on'))}
-  function parse(){const v=tx.value.trim();if(!v)return null;
-    if(T){const p=voiceParse((T==='bg'?'glykémie ':'sacharidy ')+v);const o={bg:null,cb:null,err:p.err};o[T]=p[T];return o}
-    return voiceParse(v)}
-  function upd(){clearTimeout(tm);const p=parse();
-    if(!p){pv.innerHTML='';return}
-    if(p.bg!=null){put('bg',p.bg);done.bg=1}if(p.cb!=null){put('cb',p.cb);done.cb=1}
-    const parts=[];if(p.bg!=null)parts.push('glykémie <b>'+fmt(p.bg,1)+'</b>');if(p.cb!=null)parts.push('sacharidy <b>'+fmt(p.cb,0)+' g</b>');
-    pv.innerHTML=(parts.length?'✓ '+parts.join(' · '):'')+(p.err.length?(parts.length?'<br>':'')+esc(p.err.join(', ')):'')||'Zatím nerozumím číslu…';
-    const complete=T?p[T]!=null:(p.bg!=null&&p.cb!=null);
-    // hotovo: zavřít samo po krátké pauze (u jedné hodnoty bez cíle počkat déle, třeba ještě přijdou sacharidy)
-    if(complete)tm=setTimeout(finish,1300);else if(p.bg!=null||p.cb!=null)tm=setTimeout(finish,3500)}
-  function finish(){const p=parse();if(p&&(p.bg!=null||p.cb!=null)){hint.hidden=false;hint.innerHTML='Vyplněno hlasem – zkontroluj prosím hodnoty.';setTimeout(()=>{hint.hidden=true},6000)}close()}
-  function open(t){T=t||null;done={};hint.hidden=true;btn.hidden=true;box.hidden=false;tx.value='';pv.innerHTML='';
-    hd.innerHTML=T?'Řekni '+NAME[T]+', třeba „'+(T==='bg'?'osm celá čtyři':'padesát pět')+'“':'Řekni glykémii a sacharidy, třeba „8,4 a 55“';
-    tx.placeholder='Mikrofon je na klávesnici ↘';
-    document.querySelectorAll('.fmic').forEach(m=>m.classList.toggle('on',m.dataset.t===T));tx.focus()}
-  tx.addEventListener('input',upd);
-  tx.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finish()}});
-  box.querySelector('#vno').onclick=close;
-  btn.onclick=()=>open(null);
-  [['bg','.fld.g label'],['cb','.fld.s label']].forEach(([t,sel])=>{const l=document.querySelector(sel);const m=document.createElement('button');m.type='button';m.className='fmic';m.dataset.t=t;m.setAttribute('aria-label','Zadat '+NAME[t]+' hlasem');m.textContent='🎤';
-    m.onclick=e=>{e.preventDefault();e.stopPropagation();open(t)};l.parentNode.insertBefore(m,l)});
-})();
+
 
 (function(){function basUpd(){const n=$('basName'),i=$('basInfo');if(!n)return;const B=BAS[S.basins];
   const bl=$('logBas');bl.hidden=S.basins==='none';n.textContent=B?B.sn:'';
