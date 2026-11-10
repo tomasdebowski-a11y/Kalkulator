@@ -387,9 +387,9 @@ body.quick .mic{display:flex!important}
 .tp input{position:absolute;inset:0;width:100%!important;height:100%!important;min-height:0!important;opacity:0;padding:0;border:0;margin:0;font-size:16px}
 .tp .rs{position:relative;z-index:2;margin:0 -8px 0 2px;width:26px;height:26px;border-radius:50%;background:var(--card);border:1px solid var(--bd);display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--ac)}
 .meta .sp{flex:1}
-html.lay #logBas.bbig{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:10px;row-gap:0;width:100%!important;margin:14px 0 0!important;min-height:68px!important;padding:8px 14px!important;border-radius:18px!important;font-size:19px!important;font-weight:700!important;color:var(--tx)!important;border:1px solid color-mix(in srgb,var(--bas) 55%,var(--bd))!important;background:linear-gradient(120deg,color-mix(in srgb,var(--bas) 22%,var(--card)),color-mix(in srgb,var(--bas) 45%,var(--card)))!important;box-shadow:0 10px 22px -12px var(--bas)!important;-webkit-mask:none!important;mask:none!important;filter:none!important}
-html.lay #logBas.bbig b{font-size:22px;color:color-mix(in srgb,var(--bas) 70%,var(--tx))}
-html.lay #logBas.bbig small{flex-basis:100%;text-align:center;font-size:12.5px;font-weight:600;color:var(--mu)}
+html.lay #logBas.bbig{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:8px;row-gap:0;width:78%!important;margin:12px auto 0!important;min-height:50px!important;padding:6px 14px!important;border-radius:16px!important;font-size:16px!important;font-weight:700!important;color:var(--tx)!important;border:1px solid color-mix(in srgb,var(--bas) 55%,var(--bd))!important;background:linear-gradient(120deg,color-mix(in srgb,var(--bas) 22%,var(--card)),color-mix(in srgb,var(--bas) 45%,var(--card)))!important;box-shadow:0 10px 22px -12px var(--bas)!important;-webkit-mask:none!important;mask:none!important;filter:none!important}
+html.lay #logBas.bbig b{font-size:17px;color:color-mix(in srgb,var(--bas) 70%,var(--tx))}
+html.lay #logBas.bbig small{flex-basis:100%;text-align:center;font-size:11.5px;font-weight:600;color:var(--mu)}
 html.lay #logBas.bbig small:empty{display:none}
 html.lay #logBas.xpill{display:inline-flex!important;align-items:center;justify-content:center;margin:0!important;flex:1 1 0;min-height:42px!important;height:42px;padding:0 8px!important;font-size:13.5px!important;font-weight:600!important;border-style:solid!important;filter:none!important;border-radius:999px!important;background:color-mix(in srgb,var(--bas) 13%,var(--bg))!important;color:color-mix(in srgb,var(--bas) 80%,var(--tx))!important;border:1px solid color-mix(in srgb,var(--bas) 35%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
 .lay #noteBox{margin-top:10px!important}
@@ -1532,7 +1532,7 @@ function voiceParse(txt){
   const bl=$('logBas');bl.hidden=S.basins==='none';n.textContent=B?B.sn:'';
   const lb=ofType('basal').filter(d=>d.t<=Date.now()).sort((a,b)=>b.t-a.t)[0];
   if(!lb){i.textContent='zatím nezapsán';return}const h=(Date.now()-lb.t)/36e5;
-  i.textContent='naposledy '+fmt(lb.u)+' j. · '+(h<1?'před '+Math.round(h*60)+' min':'před '+hm(h))}
+  i.textContent='naposledy '+fmt(lb.u)+' j. · '+(h<1?'před '+Math.round(h*60)+' min':h<3?'před '+hm(h):'před '+Math.round(h)+' h')}
  const _r=refresh;window.refresh=refresh=function(){_r.apply(this,arguments);basUpd()};basUpd();setInterval(basUpd,60000)})();
 </script>
 </body>
