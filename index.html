@@ -366,19 +366,28 @@ details.howto summary{padding:12px 0}
 .modal .m-b button{margin:0}
 
 /* ===== 3.0 návrh rozvržení karty Kalkulátor ===== */
+.mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:10px 0 0;min-height:42px;padding:0 12px;border-radius:999px;background:var(--bg);border:1px dashed var(--bd);color:var(--mu);font-size:14px;font-weight:600}
+.mic .mi{font-size:16px}
+.mic.on{border-style:solid;border-color:var(--er);color:var(--er);background:color-mix(in srgb,var(--er) 8%,var(--bg))}
+.mic.on .mi{animation:micp 1s ease-in-out infinite}
+@keyframes micp{50%{transform:scale(1.25)}}
+.mich{margin-top:8px;font-size:13px;color:var(--mu);text-align:center;line-height:1.35}
+.mich b{color:var(--tx)}
+.fld input.vo{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 45%,transparent);transition:box-shadow .3s}
+body.quick .mic{display:flex!important}
 .lay #whenHint,.lay #oldAct{display:none!important}
 .act{margin-top:14px}
 .lay #logBol{display:flex;width:100%;margin:0;min-height:68px!important;align-items:center;justify-content:center;gap:10px;font-size:19px!important;font-weight:700;border-radius:18px}
 .lay #logBol b{display:inline;font-size:26px!important;margin:0}
 .lay #logBol:disabled{opacity:.45}
 .meta{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-.meta #logBas{margin-left:auto!important}
+.meta .pill{flex:1 1 0;justify-content:center;padding:0 8px}
 .pill{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:42px;padding:0 11px;border-radius:999px;background:var(--bg);border:1px solid var(--bd);color:var(--mu);font-size:13.5px;font-weight:600;width:auto;margin:0;flex:none;cursor:pointer;white-space:nowrap}
 .pill.chg{color:var(--ac);border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
 .tp input{position:absolute;inset:0;width:100%!important;height:100%!important;min-height:0!important;opacity:0;padding:0;border:0;margin:0;font-size:16px}
 .tp .rs{position:relative;z-index:2;margin:0 -8px 0 2px;width:26px;height:26px;border-radius:50%;background:var(--card);border:1px solid var(--bd);display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--ac)}
 .meta .sp{flex:1}
-.lay #logBas.pill{min-height:42px!important;height:42px;padding:0 12px!important;font-size:13.5px;background:var(--bg)!important;color:var(--bas)!important;border:1px solid color-mix(in srgb,var(--bas) 45%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
+html.lay #logBas.pill{display:inline-flex!important;align-items:center;justify-content:center;margin:0!important;flex:1 1 0;min-height:42px!important;height:42px;padding:0 8px!important;font-size:13.5px!important;font-weight:600!important;border-style:solid!important;filter:none!important;border-radius:999px!important;background:color-mix(in srgb,var(--bas) 13%,var(--bg))!important;color:color-mix(in srgb,var(--bas) 80%,var(--tx))!important;border:1px solid color-mix(in srgb,var(--bas) 35%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
 .lay #noteBox{margin-top:10px!important}
 .lay #noteBox[hidden]{display:none!important}
 /* proužek s kolečkem */
@@ -430,6 +439,8 @@ body.quick .iobTop .gl{display:none}
     <div class="fld g"><label for="bg">Glykémie <small>mmol/l</small></label><input id="bg" type="number" inputmode="decimal" step="any" placeholder="–"></div>
     <div class="fld s"><label for="cb">Sacharidy <small>g</small></label><input id="cb" type="number" inputmode="decimal" step="any" placeholder="–"></div>
   </div>
+  <button type="button" class="mic" id="mic"><span class="mi">🎤</span><span id="micT">Nadiktovat hodnoty</span></button>
+  <div class="mich" id="mich" hidden></div>
   <div class="trend" id="trend" hidden><span>Trend<br><small style="font-size:10px">nepovinné</small></span></div>
   <div class="chips" id="foods"></div>
 </div>
@@ -1398,7 +1409,7 @@ if('serviceWorker' in navigator){
 
 /* ===== 3.0 návrh rozvržení ===== */
 (function(){
-const q=new URLSearchParams(location.search);let LAY=(q.get('lay')||(()=>{try{return localStorage.getItem('bc_lay')}catch(e){}})()||'A').toUpperCase();
+const q=new URLSearchParams(location.search);let LAY=(q.get('lay')||'A').toUpperCase();
 const ring=document.querySelector('#iobCard .ring'),hi=document.querySelector('#iobCard .hi'),hero=document.querySelector('#iobCard .hero');
 const bolc=document.querySelector('#tCalc .bolc'),oldAct=$('logBol').closest('.c');oldAct.id='oldAct';
 // akční blok uvnitř karty s dávkou
@@ -1420,7 +1431,7 @@ const top=document.createElement('div');top.className='c iobTop';
 const gl=document.createElement('span');gl.className='gl';top.onclick=()=>$('iobCard').scrollIntoView({behavior:'smooth',block:'start'});
 const basRow=document.createElement('div');basRow.className='basAdd';
 const hdr=document.querySelector('#tCalc .hdr');
-function place(v){LAY=v;document.documentElement.dataset.lay=v;try{localStorage.setItem('bc_lay',v)}catch(e){}
+function place(v){LAY=v;document.documentElement.dataset.lay=v;
   hi.classList.remove('hhi');
   if(v==='B'){hdr.appendChild(ring);hdr.appendChild(hi);hi.classList.add('hhi');top.remove()}
   else{top.append(ring,hi,gl);hdr.after(top)}
@@ -1431,7 +1442,7 @@ function place(v){LAY=v;document.documentElement.dataset.lay=v;try{localStorage.
   if(v==='C'){const n=document.querySelector('nav');document.documentElement.style.setProperty('--navh',(n.getBoundingClientRect().height-(parseFloat(getComputedStyle(n).paddingBottom)||0))+'px')}
   if(typeof chart==='function'&&cur==='tCalc')chart();}
 document.documentElement.classList.add('lay');
-const sw=document.createElement('div');sw.className='laysw';['A','B','C'].forEach(k=>{const b=document.createElement('button');b.textContent=k;b.onclick=()=>place(k);sw.appendChild(b)});document.body.appendChild(sw);
+const sw=document.createElement('div');sw.className='laysw';['A','B','C'].forEach(k=>{const b=document.createElement('button');b.textContent=k;b.onclick=()=>place(k);sw.appendChild(b)});if(q.get('lay'))document.body.appendChild(sw);
 function tpUpd(){const t=tp.querySelector('#tpT');const v=W.value,d=v?new Date(v):new Date(),hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
   const today=new Date().toDateString()===d.toDateString();
   t.textContent=edited.when?'🕐 '+(today?'':d.getDate()+'. '+(d.getMonth()+1)+'. ')+hm:'🕐 Teď '+hm;tp.classList.toggle('chg',!!edited.when);rs.hidden=!edited.when}
@@ -1439,6 +1450,78 @@ const _tt=tickTimes;window.tickTimes=tickTimes=function(){_tt();tpUpd()};
 W.addEventListener('change',()=>setTimeout(tpUpd,0));setInterval(tpUpd,15000);
 const tc=()=>document.body.classList.toggle('tc',cur==='tCalc');document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>setTimeout(tc,0)));tc();
 place(LAY);tpUpd();
+})();
+
+/* ===== 3.0 diktování glykémie a sacharidů ===== */
+const CZN={nula:0,jedna:1,jeden:1,jedno:1,dva:2,dvě:2,tři:3,čtyři:4,pět:5,šest:6,sedm:7,osm:8,devět:9,deset:10,jedenáct:11,dvanáct:12,třináct:13,čtrnáct:14,patnáct:15,šestnáct:16,sedmnáct:17,osmnáct:18,devatenáct:19,dvacet:20,třicet:30,čtyřicet:40,padesát:50,šedesát:60,sedmdesát:70,osmdesát:80,devadesát:90,sto:100,stě:100,set:100};
+const CZU=['jedna','dva','tři','čtyři','pět','šest','sedm','osm','devět'],CZT=['dvacet','třicet','čtyřicet','padesát','šedesát','sedmdesát','osmdesát','devadesát'];
+function voiceParse(txt){
+  let t=' '+txt.toLowerCase().replace(/(\d)\s*[,.]\s*(\d)/g,'$1D$2').replace(/[.,;:!?]/g,' ')+' ';
+  // pětapadesát → 55
+  CZU.forEach((u,i)=>CZT.forEach((d,j)=>{t=t.split(u+'a'+d).join(' '+((j+2)*10+i+1)+' ')}));
+  const raw=t.trim().split(/\s+/),tk=[];
+  for(const w of raw){
+    if(/^\d+(D\d+)?$/.test(w)){tk.push({n:parseFloat(w.replace('D','.'))});continue}
+    if(w in CZN){tk.push({w:CZN[w]});continue}
+    if(/^(celá|celé|celých|čárka|tečka|celou)$/.test(w)){tk.push({dec:1});continue}
+    if(w==='půl'){tk.push({half:1});continue}
+    if(/^(glyk|gluk|cukr|hladin|glyc|krev|bg)/.test(w)){tk.push({k:'bg'});continue}
+    if(/^(sachar|karbo|gram|g$|jídl|jíd|chleb|výměn|carb)/.test(w)){tk.push({k:/^(gram|g$)/.test(w)?'g':'cb'});continue}
+    tk.push({x:w});
+  }
+  // slova → čísla (sto/dvě stě, desítky + jednotky)
+  const t2=[];
+  for(let i=0;i<tk.length;i++){const a=tk[i];
+    if(a.w==null){t2.push(a);continue}
+    let v=0,cur=0,j=i;
+    while(j<tk.length&&tk[j].w!=null){const x=tk[j].w;
+      if(x===100){v+=(cur||1)*100;cur=0}
+      else if(x>=20&&x%10===0){if(cur&&cur<10){cur+=x}else{v+=cur;cur=x}}
+      else if(cur>=20&&cur%10===0&&x<10){cur+=x}
+      else{if(cur)break;cur=x}
+      j++}
+    t2.push({n:v+cur});i=j-1}
+  // desetinná čísla a "a půl"
+  const t3=[];
+  for(let i=0;i<t2.length;i++){const a=t2[i];
+    if(a.n!=null&&t2[i+1]&&t2[i+1].dec&&t2[i+2]&&t2[i+2].n!=null){const d=t2[i+2].n;t3.push({n:a.n+d/Math.pow(10,String(d).length)});i+=2;continue}
+    if(a.n!=null&&t2[i+1]&&t2[i+1].x==='a'&&t2[i+2]&&t2[i+2].half){t3.push({n:a.n+0.5});i+=2;continue}
+    t3.push(a)}
+  // přiřazení k polím
+  let bg=null,cb=null,pend=null;const free=[];
+  for(let i=0;i<t3.length;i++){const a=t3[i];
+    if(a.k==='bg'||a.k==='cb'){pend=a.k;continue}
+    if(a.n!=null){
+      const nx=t3[i+1];
+      if(nx&&nx.k==='g'){cb=a.n;i++;pend=null;continue}
+      if(pend==='bg'&&bg==null){bg=a.n;pend=null;continue}
+      if(pend==='cb'&&cb==null){cb=a.n;pend=null;continue}
+      free.push(a.n)}}
+  free.forEach(n=>{if(bg==null&&cb==null&&free.length>=2){bg=n}else if(bg==null&&cb!=null){bg=n}else if(cb==null&&bg!=null){cb=n}else if(bg==null&&cb==null&&free.length===1){if(n%1!==0||n<=25)bg=n;else cb=n}});
+  const err=[];
+  if(bg!=null&&(bg<1||bg>35)){err.push('glykémie '+bg+' nedává smysl');bg=null}
+  if(cb!=null&&(cb<0||cb>400)){err.push('sacharidy '+cb+' g nedávají smysl');cb=null}
+  return{bg,cb,err};
+}
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition,btn=$('mic'),hint=$('mich');let rec=null,on=false;
+  const say=h=>{hint.hidden=!h;hint.innerHTML=h||''};
+  function put(id,v){const el=$(id);el.value=String(Math.round(v*10)/10);el.dispatchEvent(new Event('input',{bubbles:true}));el.classList.add('vo');setTimeout(()=>el.classList.remove('vo'),2500)}
+  function stop(){on=false;btn.classList.remove('on');$('micT').textContent='Nadiktovat hodnoty';try{rec&&rec.stop()}catch(e){}}
+  btn.onclick=()=>{
+    if(!SR){say('Tenhle telefon diktování v aplikaci nepodporuje. Zkus aktualizovat iOS, nebo hodnoty zadej klávesnicí.');return}
+    if(on){stop();return}
+    rec=new SR();rec.lang='cs-CZ';rec.interimResults=true;rec.maxAlternatives=3;rec.continuous=false;
+    let last='';
+    rec.onresult=e=>{const r=e.results[e.results.length-1];last=r[0].transcript;say('Slyším: <b>„'+esc(last)+'“</b>');
+      if(r.isFinal){stop();let best=null;for(let k=0;k<r.length;k++){const p=voiceParse(r[k].transcript);if(p.bg!=null||p.cb!=null){best=[p,r[k].transcript];break}}
+        if(!best){say('Nerozuměl jsem číslům v „'+esc(last)+'“. Zkus třeba: <b>glykémie osm celá čtyři, sacharidy padesát</b>.');return}
+        const [p,tx]=best;if(p.bg!=null)put('bg',p.bg);if(p.cb!=null)put('cb',p.cb);
+        say('Slyšel jsem „'+esc(tx)+'“ → '+(p.bg!=null?'glykémie <b>'+fmt(p.bg,1)+'</b>':'')+(p.bg!=null&&p.cb!=null?', ':'')+(p.cb!=null?'sacharidy <b>'+fmt(p.cb,0)+' g</b>':'')+(p.err.length?'<br>'+p.err.join(', '):'')+'<br>Zkontroluj prosím hodnoty v polích.')}};
+    rec.onerror=e=>{stop();say(e.error==='not-allowed'||e.error==='service-not-allowed'?'Diktování nemá povolení. Povol mikrofon a rozpoznávání řeči pro Safari v Nastavení iPhonu.':e.error==='no-speech'?'Nic jsem neslyšel. Zkus to znovu.':'Diktování se nepovedlo ('+e.error+').')};
+    rec.onend=()=>{if(on)stop()};
+    try{rec.start();on=true;btn.classList.add('on');$('micT').textContent='Poslouchám… klepni pro konec';say('Řekni třeba: <b>glykémie 8,4, sacharidy 55</b>')}catch(e){say('Diktování se nepovedlo spustit.')}
+  };
 })();
 </script>
 </body>
