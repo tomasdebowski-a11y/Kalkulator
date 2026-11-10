@@ -366,6 +366,14 @@ details.howto summary{padding:12px 0}
 .modal .m-b button{margin:0}
 
 /* ===== 3.0 návrh rozvržení karty Kalkulátor ===== */
+.vbox{margin-top:10px;padding:10px;border-radius:16px;border:1px solid color-mix(in srgb,var(--ac) 40%,var(--bd));background:var(--bg)}
+.vbox input{width:100%;font-size:17px;min-height:46px;padding:8px 12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.vprev{margin:8px 2px;font-size:14px;color:var(--mu);line-height:1.35}
+.vprev b{color:var(--tx)}
+.vbt{display:flex;gap:8px}
+.vbt button{margin:0;min-height:44px;flex:1;justify-content:center}
+.vbt #vok{flex:2;border-radius:999px;background:var(--ac);color:#fff;font-weight:700}
+.vbt #vok:disabled{opacity:.4}
 .mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:10px 0 0;min-height:42px;padding:0 12px;border-radius:999px;background:var(--bg);border:1px dashed var(--bd);color:var(--mu);font-size:14px;font-weight:600}
 .mic .mi{font-size:16px}
 .mic.on{border-style:solid;border-color:var(--er);color:var(--er);background:color-mix(in srgb,var(--er) 8%,var(--bg))}
@@ -443,7 +451,7 @@ body.quick .iobTop .gl{display:none}
     <div class="fld g"><label for="bg">Glykémie <small>mmol/l</small></label><input id="bg" type="number" inputmode="decimal" step="any" placeholder="–"></div>
     <div class="fld s"><label for="cb">Sacharidy <small>g</small></label><input id="cb" type="number" inputmode="decimal" step="any" placeholder="–"></div>
   </div>
-  <button type="button" class="mic" id="mic"><span class="mi">🎤</span><span id="micT">Nadiktovat hodnoty</span></button>
+  <button type="button" class="mic" id="mic"><span class="mi">🎤</span><span id="micT">Zadat hlasem</span></button>
   <div class="mich" id="mich" hidden></div>
   <div class="trend" id="trend" hidden><span>Trend<br><small style="font-size:10px">nepovinné</small></span></div>
   <div class="chips" id="foods"></div>
@@ -492,7 +500,7 @@ body.quick .iobTop .gl{display:none}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.0 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 3.0.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1508,24 +1516,24 @@ function voiceParse(txt){
   return{bg,cb,err};
 }
 (function(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition,btn=$('mic'),hint=$('mich');let rec=null,on=false;
-  const say=h=>{hint.hidden=!h;hint.innerHTML=h||''};
+  // Diktování přes mikrofon na klávesnici iPhonu (spolehlivé i v aplikaci na ploše)
+  const btn=$('mic'),hint=$('mich');
+  const box=document.createElement('div');box.className='vbox';box.hidden=true;
+  box.innerHTML='<input id="vtx" type="text" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="např. glykémie 8,4 sacharidy 55"><div class="vprev" id="vprev">Na klávesnici klepni na <b>🎤</b> (vpravo dole) a řekni hodnoty.</div><div class="vbt"><button type="button" class="pill" id="vno">Zrušit</button><button type="button" id="vok" disabled>Použít</button></div>';
+  btn.after(box);
+  const tx=box.querySelector('#vtx'),pv=box.querySelector('#vprev'),ok=box.querySelector('#vok');let P=null;
   function put(id,v){const el=$(id);el.value=String(Math.round(v*10)/10);el.dispatchEvent(new Event('input',{bubbles:true}));el.classList.add('vo');setTimeout(()=>el.classList.remove('vo'),2500)}
-  function stop(){on=false;btn.classList.remove('on');$('micT').textContent='Nadiktovat hodnoty';try{rec&&rec.stop()}catch(e){}}
-  btn.onclick=()=>{
-    if(!SR){say('Tenhle telefon diktování v aplikaci nepodporuje. Zkus aktualizovat iOS, nebo hodnoty zadej klávesnicí.');return}
-    if(on){stop();return}
-    rec=new SR();rec.lang='cs-CZ';rec.interimResults=true;rec.maxAlternatives=3;rec.continuous=false;
-    let last='';
-    rec.onresult=e=>{const r=e.results[e.results.length-1];last=r[0].transcript;say('Slyším: <b>„'+esc(last)+'“</b>');
-      if(r.isFinal){stop();let best=null;for(let k=0;k<r.length;k++){const p=voiceParse(r[k].transcript);if(p.bg!=null||p.cb!=null){best=[p,r[k].transcript];break}}
-        if(!best){say('Nerozuměl jsem číslům v „'+esc(last)+'“. Zkus třeba: <b>glykémie osm celá čtyři, sacharidy padesát</b>.');return}
-        const [p,tx]=best;if(p.bg!=null)put('bg',p.bg);if(p.cb!=null)put('cb',p.cb);
-        say('Slyšel jsem „'+esc(tx)+'“ → '+(p.bg!=null?'glykémie <b>'+fmt(p.bg,1)+'</b>':'')+(p.bg!=null&&p.cb!=null?', ':'')+(p.cb!=null?'sacharidy <b>'+fmt(p.cb,0)+' g</b>':'')+(p.err.length?'<br>'+p.err.join(', '):'')+'<br>Zkontroluj prosím hodnoty v polích.')}};
-    rec.onerror=e=>{stop();say(e.error==='not-allowed'||e.error==='service-not-allowed'?'Diktování nemá povolení. Povol mikrofon a rozpoznávání řeči pro Safari v Nastavení iPhonu.':e.error==='no-speech'?'Nic jsem neslyšel. Zkus to znovu.':'Diktování se nepovedlo ('+e.error+').')};
-    rec.onend=()=>{if(on)stop()};
-    try{rec.start();on=true;btn.classList.add('on');$('micT').textContent='Poslouchám… (klepni = stop)';say('Řekni třeba: <b>glykémie 8,4, sacharidy 55</b>')}catch(e){say('Diktování se nepovedlo spustit.')}
-  };
+  function close(){box.hidden=true;btn.hidden=false;tx.value='';P=null;ok.disabled=true;tx.blur()}
+  function upd(){const v=tx.value.trim();if(!v){P=null;ok.disabled=true;pv.innerHTML='Na klávesnici klepni na <b>🎤</b> (vpravo dole) a řekni hodnoty.';return}
+    const p=voiceParse(v);P=(p.bg!=null||p.cb!=null)?p:null;ok.disabled=!P;
+    pv.innerHTML=P?'→ '+(p.bg!=null?'glykémie <b>'+fmt(p.bg,1)+'</b>':'')+(p.bg!=null&&p.cb!=null?' · ':'')+(p.cb!=null?'sacharidy <b>'+fmt(p.cb,0)+' g</b>':'')+(p.err.length?'<br>'+esc(p.err.join(', ')):''):(p.err.length?esc(p.err.join(', ')):'Zatím nerozumím číslům. Řekni třeba „glykémie 8,4, sacharidy 55“.')}
+  function apply(){if(!P)return;if(P.bg!=null)put('bg',P.bg);if(P.cb!=null)put('cb',P.cb);
+    hint.hidden=false;hint.innerHTML='Vyplněno: '+(P.bg!=null?'glykémie <b>'+fmt(P.bg,1)+'</b>':'')+(P.bg!=null&&P.cb!=null?', ':'')+(P.cb!=null?'sacharidy <b>'+fmt(P.cb,0)+' g</b>':'')+'. Zkontroluj prosím hodnoty.';
+    setTimeout(()=>{hint.hidden=true},8000);close()}
+  tx.addEventListener('input',upd);
+  tx.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();apply()}});
+  ok.onclick=apply;box.querySelector('#vno').onclick=close;
+  btn.onclick=()=>{hint.hidden=true;btn.hidden=true;box.hidden=false;upd();tx.focus()};
 })();
 
 (function(){function basUpd(){const n=$('basName'),i=$('basInfo');if(!n)return;const B=BAS[S.basins];
