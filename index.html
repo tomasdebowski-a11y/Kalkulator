@@ -364,6 +364,58 @@ details.howto summary{padding:12px 0}
 .modal h2{margin:0 0 8px}
 .modal .m-b{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .modal .m-b button{margin:0}
+
+/* ===== 3.0 návrh rozvržení karty Kalkulátor ===== */
+.lay #whenHint,.lay #oldAct{display:none!important}
+.act{margin-top:14px}
+.lay #logBol{display:flex;width:100%;margin:0;min-height:68px!important;align-items:center;justify-content:center;gap:10px;font-size:19px!important;font-weight:700;border-radius:18px}
+.lay #logBol b{display:inline;font-size:26px!important;margin:0}
+.lay #logBol:disabled{opacity:.45}
+.meta{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.meta #logBas{margin-left:auto!important}
+.pill{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:42px;padding:0 11px;border-radius:999px;background:var(--bg);border:1px solid var(--bd);color:var(--mu);font-size:13.5px;font-weight:600;width:auto;margin:0;flex:none;cursor:pointer;white-space:nowrap}
+.pill.chg{color:var(--ac);border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
+.tp input{position:absolute;inset:0;width:100%!important;height:100%!important;min-height:0!important;opacity:0;padding:0;border:0;margin:0;font-size:16px}
+.tp .rs{position:relative;z-index:2;margin:0 -8px 0 2px;width:26px;height:26px;border-radius:50%;background:var(--card);border:1px solid var(--bd);display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--ac)}
+.meta .sp{flex:1}
+.lay #logBas.pill{min-height:42px!important;height:42px;padding:0 12px!important;font-size:13.5px;background:var(--bg)!important;color:var(--bas)!important;border:1px solid color-mix(in srgb,var(--bas) 45%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
+.lay #noteBox{margin-top:10px!important}
+.lay #noteBox[hidden]{display:none!important}
+/* proužek s kolečkem */
+.iobTop{display:flex;align-items:center;gap:14px;padding:10px 14px}
+.iobTop .ring,.iobTop .ring svg{width:84px;height:84px}
+.iobTop .ring .v b{font-size:28px}
+.iobTop .ring .v small{font-size:11px}
+.iobTop .hi .t1{font-size:15px;margin-bottom:2px}
+.iobTop .hi{font-size:14px;min-width:0}
+.iobTop .hi #iobOf,.iobTop .hi #iobLast{font-size:13px;color:var(--mu)}
+.iobTop{cursor:pointer}
+@media (max-width:379px){.iobTop #iobLast{display:none}.iobTop .ring,.iobTop .ring svg{width:74px;height:74px}.iobTop .ring .v b{font-size:24px}.iobTop .hi .t1{font-size:14px}}
+.iobTop .gl{display:none!important;margin-left:auto;align-self:center;background:none;border:0;width:auto;margin-top:0;color:var(--ac);font-size:13px;font-weight:600;padding:8px 0;min-height:40px}
+body.quick .iobTop .gl{display:none}
+.lay .qiob{display:none!important}
+.lay #iobCard .hero{display:none}
+.basAdd{display:flex;justify-content:flex-end;margin:-2px 0 10px}
+/* B: kolečko v záhlaví */
+:root[data-lay=B] #tCalc .hdr{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px}
+:root[data-lay=B] #tCalc .hdr>h1,:root[data-lay=B] #tCalc .hdr>#hdrSub,:root[data-lay=B] #tCalc .hdr>.hhi{grid-column:1}
+:root[data-lay=B] #tCalc .hdr>.ring{grid-column:2;grid-row:1/span 3;width:96px;height:96px;background:color-mix(in srgb,var(--card) 70%,transparent);border-radius:50%}
+:root[data-lay=B] #tCalc .hdr>.ring svg{width:96px;height:96px}
+:root[data-lay=B] #tCalc .hdr>.ring .v b{font-size:30px}
+:root[data-lay=B] #tCalc .hdr>.ring .v small{font-size:11px;opacity:1}
+:root[data-lay=B] #tCalc .hdr .hhi{margin-top:8px;font-size:14px!important;opacity:1!important;font-weight:600}
+:root[data-lay=B] #tCalc .hdr .hhi *{font-size:13px}
+:root[data-lay=B] #tCalc .hdr .hhi .t1{display:none}
+/* C: palec dole */
+:root[data-lay=C] .act{position:fixed;left:0;right:0;bottom:calc(var(--navh,62px) + env(safe-area-inset-bottom,0px));z-index:4;margin:0;padding:10px 16px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--bd)}
+:root[data-lay=C] .act>*{max-width:448px;margin-left:auto;margin-right:auto}
+:root[data-lay=C] .act .meta{margin-top:8px;justify-content:center}
+:root[data-lay=C] #tCalc{padding-bottom:150px}
+:root[data-lay=C] body:not(.tc) .act{display:none}
+.iobTop.cmp{padding:8px 12px}
+.laysw{position:fixed;top:38%;right:0;z-index:9;display:flex;flex-direction:column;border-radius:12px 0 0 12px!important;gap:4px;background:rgba(0,0,0,.55);padding:4px;border-radius:999px}
+.laysw button{width:30px;height:30px;margin:0;padding:0;border-radius:50%;background:transparent;color:#fff;font-size:13px;font-weight:700}
+.laysw button.on{background:#fff;color:#000}
 </style>
 </head>
 <body>
@@ -425,7 +477,7 @@ details.howto summary{padding:12px 0}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.9 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 3.0 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1343,6 +1395,51 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||reloaded)return;const busy=['bg','cb','note','tot'].some(i=>{const el=$(i);return el&&(el===document.activeElement||(i!=='tot'&&el.value))});if(busy)return;reloaded=true;location.reload()});
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})})}
+
+/* ===== 3.0 návrh rozvržení ===== */
+(function(){
+const q=new URLSearchParams(location.search);let LAY=(q.get('lay')||(()=>{try{return localStorage.getItem('bc_lay')}catch(e){}})()||'A').toUpperCase();
+const ring=document.querySelector('#iobCard .ring'),hi=document.querySelector('#iobCard .hi'),hero=document.querySelector('#iobCard .hero');
+const bolc=document.querySelector('#tCalc .bolc'),oldAct=$('logBol').closest('.c');oldAct.id='oldAct';
+// akční blok uvnitř karty s dávkou
+const act=document.createElement('div');act.className='act';
+const meta=document.createElement('div');meta.className='meta';
+const tp=document.createElement('label');tp.className='pill tp';const W=$('when');tp.innerHTML='<span id="tpT">🕐 Teď</span>';tp.appendChild(W);
+const rs=document.createElement('span');rs.className='rs';rs.textContent='↺';rs.title='Nastavit na teď';rs.hidden=true;tp.appendChild(rs);
+rs.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();resetTime('when')});
+const np=document.createElement('button');np.className='pill';np.type='button';np.textContent='📝 Poznámka';
+const nb=$('noteBox');nb.hidden=true;np.onclick=()=>{nb.hidden=!nb.hidden;if(!nb.hidden)$('note').focus()};
+$('note').addEventListener('input',()=>np.classList.toggle('chg',!!$('note').value.trim()));
+const sp=document.createElement('span');sp.className='sp';
+const bas=$('logBas');bas.classList.add('pill');bas.title='Zapsat bazál';bas.innerHTML='＋ Bazál<span id="logBasT" hidden></span>';
+act.append($('logBol'),meta,nb);
+const tg=bolc.querySelector('.tg2');(tg.nextSibling?bolc.insertBefore(act,$('blk')):bolc.appendChild(act));
+bolc.insertBefore(tg,act);
+// proužek s kolečkem
+const top=document.createElement('div');top.className='c iobTop';
+const gl=document.createElement('span');gl.className='gl';top.onclick=()=>$('iobCard').scrollIntoView({behavior:'smooth',block:'start'});
+const basRow=document.createElement('div');basRow.className='basAdd';
+const hdr=document.querySelector('#tCalc .hdr');
+function place(v){LAY=v;document.documentElement.dataset.lay=v;try{localStorage.setItem('bc_lay',v)}catch(e){}
+  hi.classList.remove('hhi');
+  if(v==='B'){hdr.appendChild(ring);hdr.appendChild(hi);hi.classList.add('hhi');top.remove()}
+  else{top.append(ring,hi,gl);hdr.after(top)}
+  top.classList.toggle('cmp',v==='C');
+  meta.innerHTML='';meta.append(tp,np);
+  if(v==='A'){meta.append(bas)}else{basRow.appendChild(bas);$('iobCard').querySelector('.stat').after(basRow)}
+  document.querySelectorAll('.laysw button').forEach(b=>b.classList.toggle('on',b.textContent===v));
+  if(v==='C'){const n=document.querySelector('nav');document.documentElement.style.setProperty('--navh',(n.getBoundingClientRect().height-(parseFloat(getComputedStyle(n).paddingBottom)||0))+'px')}
+  if(typeof chart==='function'&&cur==='tCalc')chart();}
+document.documentElement.classList.add('lay');
+const sw=document.createElement('div');sw.className='laysw';['A','B','C'].forEach(k=>{const b=document.createElement('button');b.textContent=k;b.onclick=()=>place(k);sw.appendChild(b)});document.body.appendChild(sw);
+function tpUpd(){const t=tp.querySelector('#tpT');const v=W.value,d=v?new Date(v):new Date(),hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  const today=new Date().toDateString()===d.toDateString();
+  t.textContent=edited.when?'🕐 '+(today?'':d.getDate()+'. '+(d.getMonth()+1)+'. ')+hm:'🕐 Teď '+hm;tp.classList.toggle('chg',!!edited.when);rs.hidden=!edited.when}
+const _tt=tickTimes;window.tickTimes=tickTimes=function(){_tt();tpUpd()};
+W.addEventListener('change',()=>setTimeout(tpUpd,0));setInterval(tpUpd,15000);
+const tc=()=>document.body.classList.toggle('tc',cur==='tCalc');document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>setTimeout(tc,0)));tc();
+place(LAY);tpUpd();
+})();
 </script>
 </body>
 </html>
