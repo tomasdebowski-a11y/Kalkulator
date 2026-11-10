@@ -339,7 +339,7 @@ details.howto summary{padding:12px 0}
 /* 2.9 – sbalovací karty */
 .fold>.fh{display:flex;align-items:center;gap:10px;margin:-14px;padding:14px;min-height:52px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .fold>.fh h2{margin:0;flex:none}
-.fold>.fh .fs{flex:1;min-width:0;font-size:13px;color:var(--mu);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold>.fh .fs{flex:1;min-width:0;font-size:13px;line-height:1.3;color:var(--mu);text-align:right;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .fold>.fh .fi{font-size:18px;line-height:1;flex:none}
 .fold>.fh::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(45deg);margin:-4px 2px 0 2px;transition:transform .2s}
 .fold.open>.fh::after{transform:rotate(-135deg);margin-top:4px}
@@ -347,7 +347,7 @@ details.howto summary{padding:12px 0}
 .fold.open>.fb{display:block}
 .fold.open>.fh{border-bottom:1px solid var(--bd);margin-bottom:0}
 .foldAll{display:flex;justify-content:flex-end;margin:-4px 2px 8px}
-.foldAll button{width:auto;margin:0;padding:8px 4px;min-height:36px;background:none;border:0;color:var(--ac);font-size:14px;font-weight:600}
+.foldAll button{width:auto;margin:0;padding:8px 4px;min-height:40px;background:none;border:0;color:var(--ac);font-size:14px;font-weight:600}
 .day .dh{cursor:pointer;min-height:44px;align-items:center;-webkit-tap-highlight-color:transparent}
 .day .dh>span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(-45deg);margin:0 10px 2px 2px;transition:transform .2s}
 .day.open .dh>span:first-child::before{transform:rotate(45deg)}
@@ -364,6 +364,71 @@ details.howto summary{padding:12px 0}
 .modal h2{margin:0 0 8px}
 .modal .m-b{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .modal .m-b button{margin:0}
+
+/* ===== 3.0 návrh rozvržení karty Kalkulátor ===== */
+.mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:10px 0 0;min-height:42px;padding:0 12px;border-radius:999px;background:var(--bg);border:1px dashed var(--bd);color:var(--mu);font-size:14px;font-weight:600}
+.mic .mi{font-size:16px}
+.mic.on{border-style:solid;border-color:var(--er);color:var(--er);background:color-mix(in srgb,var(--er) 8%,var(--bg))}
+.mic.on .mi{animation:micp 1s ease-in-out infinite}
+@keyframes micp{50%{transform:scale(1.25)}}
+.mich{margin-top:8px;font-size:13px;color:var(--mu);text-align:center;line-height:1.35}
+.mich b{color:var(--tx)}
+.fld input.vo{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 45%,transparent);transition:box-shadow .3s}
+body.quick .mic{display:flex!important}
+.lay #whenHint,.lay #oldAct{display:none!important}
+.act{margin-top:14px}
+.lay #logBol{display:flex;width:100%;margin:0;min-height:68px!important;align-items:center;justify-content:center;gap:10px;font-size:19px!important;font-weight:700;border-radius:18px}
+.lay #logBol b{display:inline;font-size:26px!important;margin:0}
+.lay #logBol:disabled{opacity:.45}
+.meta{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.meta .pill{flex:1 1 0;justify-content:center;padding:0 8px}
+.pill{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:42px;padding:0 11px;border-radius:999px;background:var(--bg);border:1px solid var(--bd);color:var(--mu);font-size:13.5px;font-weight:600;width:auto;margin:0;flex:none;cursor:pointer;white-space:nowrap}
+.pill.chg{color:var(--ac);border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
+.tp input{position:absolute;inset:0;width:100%!important;height:100%!important;min-height:0!important;opacity:0;padding:0;border:0;margin:0;font-size:16px}
+.tp .rs{position:relative;z-index:2;margin:0 -8px 0 2px;width:26px;height:26px;border-radius:50%;background:var(--card);border:1px solid var(--bd);display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--ac)}
+.meta .sp{flex:1}
+html.lay #logBas.bbig{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:8px;row-gap:0;width:78%!important;margin:12px auto 0!important;min-height:50px!important;padding:6px 14px!important;border-radius:16px!important;font-size:16px!important;font-weight:700!important;color:var(--tx)!important;border:1px solid color-mix(in srgb,var(--bas) 55%,var(--bd))!important;background:linear-gradient(120deg,color-mix(in srgb,var(--bas) 22%,var(--card)),color-mix(in srgb,var(--bas) 45%,var(--card)))!important;box-shadow:0 10px 22px -12px var(--bas)!important;-webkit-mask:none!important;mask:none!important;filter:none!important}
+html.lay #logBas.bbig b{font-size:17px;color:color-mix(in srgb,var(--bas) 70%,var(--tx))}
+html.lay #logBas.bbig small{flex-basis:100%;text-align:center;font-size:12px;font-weight:600;color:var(--mu)}
+html.lay #logBas.bbig small:empty{display:none}
+html.lay #logBas.xpill{display:inline-flex!important;align-items:center;justify-content:center;margin:0!important;flex:1 1 0;min-height:42px!important;height:42px;padding:0 8px!important;font-size:13.5px!important;font-weight:600!important;border-style:solid!important;filter:none!important;border-radius:999px!important;background:color-mix(in srgb,var(--bas) 13%,var(--bg))!important;color:color-mix(in srgb,var(--bas) 80%,var(--tx))!important;border:1px solid color-mix(in srgb,var(--bas) 35%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
+.lay #noteBox{margin-top:10px!important}
+.lay #noteBox[hidden]{display:none!important}
+/* proužek s kolečkem */
+.iobTop{display:flex;align-items:center;gap:14px;padding:10px 14px}
+.iobTop .ring,.iobTop .ring svg{width:84px;height:84px}
+.iobTop .ring .v b{font-size:28px}
+.iobTop .ring .v small{font-size:12px}
+.iobTop .hi .t1{font-size:15px;margin-bottom:2px}
+.iobTop .hi{font-size:14px;min-width:0}
+.iobTop .hi #iobOf,.iobTop .hi #iobLast{font-size:13px;color:var(--mu)}
+.iobTop{cursor:pointer}
+@media (max-width:379px){.iobTop #iobLast{display:none}.iobTop .ring,.iobTop .ring svg{width:74px;height:74px}.iobTop .ring .v b{font-size:24px}.iobTop .hi .t1{font-size:14px}}
+.iobTop .gl{display:none!important;margin-left:auto;align-self:center;background:none;border:0;width:auto;margin-top:0;color:var(--ac);font-size:13px;font-weight:600;padding:8px 0;min-height:40px}
+body.quick .iobTop .gl{display:none}
+.lay .qiob{display:none!important}
+.lay #iobCard .hero{display:none}
+.basAdd{display:flex;justify-content:flex-end;margin:-2px 0 10px}
+/* B: kolečko v záhlaví */
+:root[data-lay=B] #tCalc .hdr{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px}
+:root[data-lay=B] #tCalc .hdr>h1,:root[data-lay=B] #tCalc .hdr>#hdrSub,:root[data-lay=B] #tCalc .hdr>.hhi{grid-column:1}
+:root[data-lay=B] #tCalc .hdr>.ring{grid-column:2;grid-row:1/span 3;width:96px;height:96px;background:color-mix(in srgb,var(--card) 70%,transparent);border-radius:50%}
+:root[data-lay=B] #tCalc .hdr>.ring svg{width:96px;height:96px}
+:root[data-lay=B] #tCalc .hdr>.ring .v b{font-size:30px}
+:root[data-lay=B] #tCalc .hdr>.ring .v small{font-size:11px;opacity:1}
+:root[data-lay=B] #tCalc .hdr .hhi{margin-top:8px;font-size:14px!important;opacity:1!important;font-weight:600}
+:root[data-lay=B] #tCalc .hdr .hhi *{font-size:13px}
+:root[data-lay=B] #tCalc .hdr .hhi .t1{display:none}
+/* C: palec dole */
+:root[data-lay=C] .act{position:fixed;left:0;right:0;bottom:calc(var(--navh,62px) + env(safe-area-inset-bottom,0px));z-index:4;margin:0;padding:10px 16px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--bd)}
+:root[data-lay=C] .act>*{max-width:448px;margin-left:auto;margin-right:auto}
+:root[data-lay=C] .act .meta{margin-top:8px;justify-content:center}
+:root[data-lay=C] #tCalc{padding-bottom:150px}
+:root[data-lay=C] body:not(.tc) .act{display:none}
+.iobTop.cmp{padding:8px 12px}
+.laysw{position:fixed;top:38%;right:0;z-index:9;display:flex;flex-direction:column;border-radius:12px 0 0 12px!important;gap:4px;background:rgba(0,0,0,.55);padding:4px;border-radius:999px}
+.laysw button{width:30px;height:30px;margin:0;padding:0;border-radius:50%;background:transparent;color:#fff;font-size:13px;font-weight:700}
+.laysw button.on{background:#fff;color:#000}
 </style>
 </head>
 <body>
@@ -378,6 +443,8 @@ details.howto summary{padding:12px 0}
     <div class="fld g"><label for="bg">Glykémie <small>mmol/l</small></label><input id="bg" type="number" inputmode="decimal" step="any" placeholder="–"></div>
     <div class="fld s"><label for="cb">Sacharidy <small>g</small></label><input id="cb" type="number" inputmode="decimal" step="any" placeholder="–"></div>
   </div>
+  <button type="button" class="mic" id="mic"><span class="mi">🎤</span><span id="micT">Nadiktovat hodnoty</span></button>
+  <div class="mich" id="mich" hidden></div>
   <div class="trend" id="trend" hidden><span>Trend<br><small style="font-size:10px">nepovinné</small></span></div>
   <div class="chips" id="foods"></div>
 </div>
@@ -425,7 +492,7 @@ details.howto summary{padding:12px 0}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 2.9 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 3.0 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1343,6 +1410,130 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||reloaded)return;const busy=['bg','cb','note','tot'].some(i=>{const el=$(i);return el&&(el===document.activeElement||(i!=='tot'&&el.value))});if(busy)return;reloaded=true;location.reload()});
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{})})}
+
+/* ===== 3.0 návrh rozvržení ===== */
+(function(){
+const q=new URLSearchParams(location.search);let LAY=(q.get('lay')||'A').toUpperCase();
+const ring=document.querySelector('#iobCard .ring'),hi=document.querySelector('#iobCard .hi'),hero=document.querySelector('#iobCard .hero');
+const bolc=document.querySelector('#tCalc .bolc'),oldAct=$('logBol').closest('.c');oldAct.id='oldAct';
+// akční blok uvnitř karty s dávkou
+const act=document.createElement('div');act.className='act';
+const meta=document.createElement('div');meta.className='meta';
+const tp=document.createElement('label');tp.className='pill tp';const W=$('when');tp.innerHTML='<span id="tpT">🕐 Teď</span>';tp.appendChild(W);
+const rs=document.createElement('span');rs.className='rs';rs.textContent='↺';rs.title='Nastavit na teď';rs.hidden=true;tp.appendChild(rs);
+rs.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();resetTime('when')});
+const np=document.createElement('button');np.className='pill';np.type='button';np.textContent='📝 Poznámka';
+const nb=$('noteBox');nb.hidden=true;np.onclick=()=>{nb.hidden=!nb.hidden;if(!nb.hidden)$('note').focus()};
+$('note').addEventListener('input',()=>np.classList.toggle('chg',!!$('note').value.trim()));
+const sp=document.createElement('span');sp.className='sp';
+const bas=$('logBas');bas.classList.add('bbig');bas.innerHTML='<span>Zapsat bazál</span><b id="basName"></b><span id="logBasT" hidden></span><small id="basInfo"></small>';
+act.append($('logBol'),meta,nb);
+const tg=bolc.querySelector('.tg2');(tg.nextSibling?bolc.insertBefore(act,$('blk')):bolc.appendChild(act));
+bolc.insertBefore(tg,act);
+// proužek s kolečkem
+const top=document.createElement('div');top.className='c iobTop';
+const gl=document.createElement('span');gl.className='gl';top.onclick=()=>$('iobCard').scrollIntoView({behavior:'smooth',block:'start'});
+const basRow=document.createElement('div');basRow.className='basAdd';
+const hdr=document.querySelector('#tCalc .hdr');
+function place(v){LAY=v;document.documentElement.dataset.lay=v;
+  hi.classList.remove('hhi');
+  if(v==='B'){hdr.appendChild(ring);hdr.appendChild(hi);hi.classList.add('hhi');top.remove()}
+  else{top.append(ring,hi,gl);hdr.after(top)}
+  top.classList.toggle('cmp',v==='C');
+  meta.innerHTML='';meta.append(tp,np);
+  if(v==='A'){act.append(bas)}else{basRow.appendChild(bas);$('iobCard').querySelector('.stat').after(basRow)}
+  document.querySelectorAll('.laysw button').forEach(b=>b.classList.toggle('on',b.textContent===v));
+  if(v==='C'){const n=document.querySelector('nav');document.documentElement.style.setProperty('--navh',(n.getBoundingClientRect().height-(parseFloat(getComputedStyle(n).paddingBottom)||0))+'px')}
+  if(typeof chart==='function'&&cur==='tCalc')chart();}
+document.documentElement.classList.add('lay');
+const sw=document.createElement('div');sw.className='laysw';['A','B','C'].forEach(k=>{const b=document.createElement('button');b.textContent=k;b.onclick=()=>place(k);sw.appendChild(b)});if(q.get('lay'))document.body.appendChild(sw);
+function tpUpd(){const t=tp.querySelector('#tpT');const v=W.value,d=v?new Date(v):new Date(),hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  const today=new Date().toDateString()===d.toDateString();
+  t.textContent=edited.when?'🕐 '+(today?'':d.getDate()+'. '+(d.getMonth()+1)+'. ')+hm:'🕐 Teď '+hm;tp.classList.toggle('chg',!!edited.when);rs.hidden=!edited.when}
+const _tt=tickTimes;window.tickTimes=tickTimes=function(){_tt();tpUpd()};
+W.addEventListener('change',()=>setTimeout(tpUpd,0));setInterval(tpUpd,15000);
+const tc=()=>document.body.classList.toggle('tc',cur==='tCalc');document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>setTimeout(tc,0)));tc();
+place(LAY);tpUpd();
+})();
+
+/* ===== 3.0 diktování glykémie a sacharidů ===== */
+const CZN={nula:0,jedna:1,jeden:1,jedno:1,dva:2,dvě:2,tři:3,čtyři:4,pět:5,šest:6,sedm:7,osm:8,devět:9,deset:10,jedenáct:11,dvanáct:12,třináct:13,čtrnáct:14,patnáct:15,šestnáct:16,sedmnáct:17,osmnáct:18,devatenáct:19,dvacet:20,třicet:30,čtyřicet:40,padesát:50,šedesát:60,sedmdesát:70,osmdesát:80,devadesát:90,sto:100,stě:100,set:100};
+const CZU=['jedna','dva','tři','čtyři','pět','šest','sedm','osm','devět'],CZT=['dvacet','třicet','čtyřicet','padesát','šedesát','sedmdesát','osmdesát','devadesát'];
+function voiceParse(txt){
+  let t=' '+txt.toLowerCase().replace(/(\d)\s*[,.]\s*(\d)/g,'$1D$2').replace(/[.,;:!?]/g,' ')+' ';
+  // pětapadesát → 55
+  CZU.forEach((u,i)=>CZT.forEach((d,j)=>{t=t.split(u+'a'+d).join(' '+((j+2)*10+i+1)+' ')}));
+  const raw=t.trim().split(/\s+/),tk=[];
+  for(const w of raw){
+    if(/^\d+(D\d+)?$/.test(w)){tk.push({n:parseFloat(w.replace('D','.'))});continue}
+    if(w in CZN){tk.push({w:CZN[w]});continue}
+    if(/^(celá|celé|celých|čárka|tečka|celou)$/.test(w)){tk.push({dec:1});continue}
+    if(w==='půl'){tk.push({half:1});continue}
+    if(/^(glyk|gluk|cukr|hladin|glyc|krev|bg)/.test(w)){tk.push({k:'bg'});continue}
+    if(/^(sachar|karbo|gram|g$|jídl|jíd|chleb|výměn|carb)/.test(w)){tk.push({k:/^(gram|g$)/.test(w)?'g':'cb'});continue}
+    tk.push({x:w});
+  }
+  // slova → čísla (sto/dvě stě, desítky + jednotky)
+  const t2=[];
+  for(let i=0;i<tk.length;i++){const a=tk[i];
+    if(a.w==null){t2.push(a);continue}
+    let v=0,cur=0,j=i;
+    while(j<tk.length&&tk[j].w!=null){const x=tk[j].w;
+      if(x===100){v+=(cur||1)*100;cur=0}
+      else if(x>=20&&x%10===0){if(cur&&cur<10){cur+=x}else{v+=cur;cur=x}}
+      else if(cur>=20&&cur%10===0&&x<10){cur+=x}
+      else{if(cur)break;cur=x}
+      j++}
+    t2.push({n:v+cur});i=j-1}
+  // desetinná čísla a "a půl"
+  const t3=[];
+  for(let i=0;i<t2.length;i++){const a=t2[i];
+    if(a.n!=null&&t2[i+1]&&t2[i+1].dec&&t2[i+2]&&t2[i+2].n!=null){const d=t2[i+2].n;t3.push({n:a.n+d/Math.pow(10,String(d).length)});i+=2;continue}
+    if(a.n!=null&&t2[i+1]&&t2[i+1].x==='a'&&t2[i+2]&&t2[i+2].half){t3.push({n:a.n+0.5});i+=2;continue}
+    t3.push(a)}
+  // přiřazení k polím
+  let bg=null,cb=null,pend=null;const free=[];
+  for(let i=0;i<t3.length;i++){const a=t3[i];
+    if(a.k==='bg'||a.k==='cb'){pend=a.k;continue}
+    if(a.n!=null){
+      const nx=t3[i+1];
+      if(nx&&nx.k==='g'){cb=a.n;i++;pend=null;continue}
+      if(pend==='bg'&&bg==null){bg=a.n;pend=null;continue}
+      if(pend==='cb'&&cb==null){cb=a.n;pend=null;continue}
+      free.push(a.n)}}
+  free.forEach(n=>{if(bg==null&&cb==null&&free.length>=2){bg=n}else if(bg==null&&cb!=null){bg=n}else if(cb==null&&bg!=null){cb=n}else if(bg==null&&cb==null&&free.length===1){if(n%1!==0||n<=25)bg=n;else cb=n}});
+  const err=[];
+  if(bg!=null&&(bg<1||bg>35)){err.push('glykémie '+bg+' nedává smysl');bg=null}
+  if(cb!=null&&(cb<0||cb>400)){err.push('sacharidy '+cb+' g nedávají smysl');cb=null}
+  return{bg,cb,err};
+}
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition,btn=$('mic'),hint=$('mich');let rec=null,on=false;
+  const say=h=>{hint.hidden=!h;hint.innerHTML=h||''};
+  function put(id,v){const el=$(id);el.value=String(Math.round(v*10)/10);el.dispatchEvent(new Event('input',{bubbles:true}));el.classList.add('vo');setTimeout(()=>el.classList.remove('vo'),2500)}
+  function stop(){on=false;btn.classList.remove('on');$('micT').textContent='Nadiktovat hodnoty';try{rec&&rec.stop()}catch(e){}}
+  btn.onclick=()=>{
+    if(!SR){say('Tenhle telefon diktování v aplikaci nepodporuje. Zkus aktualizovat iOS, nebo hodnoty zadej klávesnicí.');return}
+    if(on){stop();return}
+    rec=new SR();rec.lang='cs-CZ';rec.interimResults=true;rec.maxAlternatives=3;rec.continuous=false;
+    let last='';
+    rec.onresult=e=>{const r=e.results[e.results.length-1];last=r[0].transcript;say('Slyším: <b>„'+esc(last)+'“</b>');
+      if(r.isFinal){stop();let best=null;for(let k=0;k<r.length;k++){const p=voiceParse(r[k].transcript);if(p.bg!=null||p.cb!=null){best=[p,r[k].transcript];break}}
+        if(!best){say('Nerozuměl jsem číslům v „'+esc(last)+'“. Zkus třeba: <b>glykémie osm celá čtyři, sacharidy padesát</b>.');return}
+        const [p,tx]=best;if(p.bg!=null)put('bg',p.bg);if(p.cb!=null)put('cb',p.cb);
+        say('Slyšel jsem „'+esc(tx)+'“ → '+(p.bg!=null?'glykémie <b>'+fmt(p.bg,1)+'</b>':'')+(p.bg!=null&&p.cb!=null?', ':'')+(p.cb!=null?'sacharidy <b>'+fmt(p.cb,0)+' g</b>':'')+(p.err.length?'<br>'+p.err.join(', '):'')+'<br>Zkontroluj prosím hodnoty v polích.')}};
+    rec.onerror=e=>{stop();say(e.error==='not-allowed'||e.error==='service-not-allowed'?'Diktování nemá povolení. Povol mikrofon a rozpoznávání řeči pro Safari v Nastavení iPhonu.':e.error==='no-speech'?'Nic jsem neslyšel. Zkus to znovu.':'Diktování se nepovedlo ('+e.error+').')};
+    rec.onend=()=>{if(on)stop()};
+    try{rec.start();on=true;btn.classList.add('on');$('micT').textContent='Poslouchám… (klepni = stop)';say('Řekni třeba: <b>glykémie 8,4, sacharidy 55</b>')}catch(e){say('Diktování se nepovedlo spustit.')}
+  };
+})();
+
+(function(){function basUpd(){const n=$('basName'),i=$('basInfo');if(!n)return;const B=BAS[S.basins];
+  const bl=$('logBas');bl.hidden=S.basins==='none';n.textContent=B?B.sn:'';
+  const lb=ofType('basal').filter(d=>d.t<=Date.now()).sort((a,b)=>b.t-a.t)[0];
+  if(!lb){i.textContent='zatím nezapsán';return}const h=(Date.now()-lb.t)/36e5;
+  i.textContent='naposledy '+fmt(lb.u)+' j. · '+(h<1?'před '+Math.round(h*60)+' min':h<3?'před '+hm(h):'před '+Math.round(h)+' h')}
+ const _r=refresh;window.refresh=refresh=function(){_r.apply(this,arguments);basUpd()};basUpd();setInterval(basUpd,60000)})();
 </script>
 </body>
 </html>
