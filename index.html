@@ -339,7 +339,7 @@ details.howto summary{padding:12px 0}
 /* 2.9 – sbalovací karty */
 .fold>.fh{display:flex;align-items:center;gap:10px;margin:-14px;padding:14px;min-height:52px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .fold>.fh h2{margin:0;flex:none}
-.fold>.fh .fs{flex:1;min-width:0;font-size:13px;color:var(--mu);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold>.fh .fs{flex:1;min-width:0;font-size:13px;line-height:1.3;color:var(--mu);text-align:right;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .fold>.fh .fi{font-size:18px;line-height:1;flex:none}
 .fold>.fh::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(45deg);margin:-4px 2px 0 2px;transition:transform .2s}
 .fold.open>.fh::after{transform:rotate(-135deg);margin-top:4px}
@@ -347,7 +347,7 @@ details.howto summary{padding:12px 0}
 .fold.open>.fb{display:block}
 .fold.open>.fh{border-bottom:1px solid var(--bd);margin-bottom:0}
 .foldAll{display:flex;justify-content:flex-end;margin:-4px 2px 8px}
-.foldAll button{width:auto;margin:0;padding:8px 4px;min-height:36px;background:none;border:0;color:var(--ac);font-size:14px;font-weight:600}
+.foldAll button{width:auto;margin:0;padding:8px 4px;min-height:40px;background:none;border:0;color:var(--ac);font-size:14px;font-weight:600}
 .day .dh{cursor:pointer;min-height:44px;align-items:center;-webkit-tap-highlight-color:transparent}
 .day .dh>span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(-45deg);margin:0 10px 2px 2px;transition:transform .2s}
 .day.open .dh>span:first-child::before{transform:rotate(45deg)}
@@ -389,7 +389,7 @@ body.quick .mic{display:flex!important}
 .meta .sp{flex:1}
 html.lay #logBas.bbig{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:8px;row-gap:0;width:78%!important;margin:12px auto 0!important;min-height:50px!important;padding:6px 14px!important;border-radius:16px!important;font-size:16px!important;font-weight:700!important;color:var(--tx)!important;border:1px solid color-mix(in srgb,var(--bas) 55%,var(--bd))!important;background:linear-gradient(120deg,color-mix(in srgb,var(--bas) 22%,var(--card)),color-mix(in srgb,var(--bas) 45%,var(--card)))!important;box-shadow:0 10px 22px -12px var(--bas)!important;-webkit-mask:none!important;mask:none!important;filter:none!important}
 html.lay #logBas.bbig b{font-size:17px;color:color-mix(in srgb,var(--bas) 70%,var(--tx))}
-html.lay #logBas.bbig small{flex-basis:100%;text-align:center;font-size:11.5px;font-weight:600;color:var(--mu)}
+html.lay #logBas.bbig small{flex-basis:100%;text-align:center;font-size:12px;font-weight:600;color:var(--mu)}
 html.lay #logBas.bbig small:empty{display:none}
 html.lay #logBas.xpill{display:inline-flex!important;align-items:center;justify-content:center;margin:0!important;flex:1 1 0;min-height:42px!important;height:42px;padding:0 8px!important;font-size:13.5px!important;font-weight:600!important;border-style:solid!important;filter:none!important;border-radius:999px!important;background:color-mix(in srgb,var(--bas) 13%,var(--bg))!important;color:color-mix(in srgb,var(--bas) 80%,var(--tx))!important;border:1px solid color-mix(in srgb,var(--bas) 35%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
 .lay #noteBox{margin-top:10px!important}
@@ -398,7 +398,7 @@ html.lay #logBas.xpill{display:inline-flex!important;align-items:center;justify-
 .iobTop{display:flex;align-items:center;gap:14px;padding:10px 14px}
 .iobTop .ring,.iobTop .ring svg{width:84px;height:84px}
 .iobTop .ring .v b{font-size:28px}
-.iobTop .ring .v small{font-size:11px}
+.iobTop .ring .v small{font-size:12px}
 .iobTop .hi .t1{font-size:15px;margin-bottom:2px}
 .iobTop .hi{font-size:14px;min-width:0}
 .iobTop .hi #iobOf,.iobTop .hi #iobLast{font-size:13px;color:var(--mu)}
@@ -1524,7 +1524,7 @@ function voiceParse(txt){
         say('Slyšel jsem „'+esc(tx)+'“ → '+(p.bg!=null?'glykémie <b>'+fmt(p.bg,1)+'</b>':'')+(p.bg!=null&&p.cb!=null?', ':'')+(p.cb!=null?'sacharidy <b>'+fmt(p.cb,0)+' g</b>':'')+(p.err.length?'<br>'+p.err.join(', '):'')+'<br>Zkontroluj prosím hodnoty v polích.')}};
     rec.onerror=e=>{stop();say(e.error==='not-allowed'||e.error==='service-not-allowed'?'Diktování nemá povolení. Povol mikrofon a rozpoznávání řeči pro Safari v Nastavení iPhonu.':e.error==='no-speech'?'Nic jsem neslyšel. Zkus to znovu.':'Diktování se nepovedlo ('+e.error+').')};
     rec.onend=()=>{if(on)stop()};
-    try{rec.start();on=true;btn.classList.add('on');$('micT').textContent='Poslouchám… klepni pro konec';say('Řekni třeba: <b>glykémie 8,4, sacharidy 55</b>')}catch(e){say('Diktování se nepovedlo spustit.')}
+    try{rec.start();on=true;btn.classList.add('on');$('micT').textContent='Poslouchám… (klepni = stop)';say('Řekni třeba: <b>glykémie 8,4, sacharidy 55</b>')}catch(e){say('Diktování se nepovedlo spustit.')}
   };
 })();
 
