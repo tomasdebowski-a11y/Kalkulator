@@ -383,6 +383,14 @@ html.lay #logBas.bbig{display:flex!important;flex-wrap:wrap;align-items:center;j
 html.lay #logBas.bbig b{font-size:17px;color:color-mix(in srgb,var(--bas) 70%,var(--tx))}
 html.lay #logBas.bbig small{flex-basis:100%;text-align:center;font-size:12px;font-weight:600;color:var(--mu)}
 html.lay #logBas.bbig small:empty{display:none}
+html.lay #logBas.bbig{position:relative}
+#logBas .bok{position:absolute;left:12px;top:50%;width:26px;height:26px;margin-top:-13px;border-radius:50%;background:#22a05a;color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 0 0 3px color-mix(in srgb,#22a05a 22%,transparent)}
+#logBas .bok svg{width:15px;height:15px}
+#logBas.done .bok{display:flex}
+html.lay #logBas.bbig.done{padding-left:42px!important;padding-right:10px!important}
+@media (max-width:359px){html.lay #logBas.bbig{width:100%!important}}
+#logBas.done.pop .bok{animation:bokp .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bokp{0%{transform:scale(0)}100%{transform:scale(1)}}
 html.lay #logBas.xpill{display:inline-flex!important;align-items:center;justify-content:center;margin:0!important;flex:1 1 0;min-height:42px!important;height:42px;padding:0 8px!important;font-size:13.5px!important;font-weight:600!important;border-style:solid!important;filter:none!important;border-radius:999px!important;background:color-mix(in srgb,var(--bas) 13%,var(--bg))!important;color:color-mix(in srgb,var(--bas) 80%,var(--tx))!important;border:1px solid color-mix(in srgb,var(--bas) 35%,var(--bd))!important;box-shadow:none!important;-webkit-mask:none!important;mask:none!important;margin:0}
 .lay #noteBox{margin-top:10px!important}
 .lay #noteBox[hidden]{display:none!important}
@@ -482,7 +490,7 @@ body.quick .iobTop .gl{display:none}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.0.3 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 3.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1416,7 +1424,7 @@ const np=document.createElement('button');np.className='pill';np.type='button';n
 const nb=$('noteBox');nb.hidden=true;np.onclick=()=>{nb.hidden=!nb.hidden;if(!nb.hidden)$('note').focus()};
 $('note').addEventListener('input',()=>np.classList.toggle('chg',!!$('note').value.trim()));
 const sp=document.createElement('span');sp.className='sp';
-const bas=$('logBas');bas.classList.add('bbig');bas.innerHTML='<span>Zapsat bazál</span><b id="basName"></b><span id="logBasT" hidden></span><small id="basInfo"></small>';
+const bas=$('logBas');bas.classList.add('bbig');bas.innerHTML='<i class="bok" aria-label="Bazál zapsán"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i><span>Zapsat bazál</span><b id="basName"></b><span id="logBasT" hidden></span><small id="basInfo"></small>';
 act.append($('logBol'),meta,nb);
 const tg=bolc.querySelector('.tg2');(tg.nextSibling?bolc.insertBefore(act,$('blk')):bolc.appendChild(act));
 bolc.insertBefore(tg,act);
@@ -1451,8 +1459,12 @@ place(LAY);tpUpd();
 (function(){function basUpd(){const n=$('basName'),i=$('basInfo');if(!n)return;const B=BAS[S.basins];
   const bl=$('logBas');bl.hidden=S.basins==='none';n.textContent=B?B.sn:'';
   const lb=ofType('basal').filter(d=>d.t<=Date.now()).sort((a,b)=>b.t-a.t)[0];
-  if(!lb){i.textContent='zatím nezapsán';return}const h=(Date.now()-lb.t)/36e5;
-  i.textContent='naposledy '+fmt(lb.u)+' j. · '+(h<1?'před '+Math.round(h*60)+' min':h<3?'před '+hm(h):'před '+Math.round(h)+' h')}
+  if(!lb){bl.classList.remove('done');i.textContent='zatím nezapsán';return}const h=(Date.now()-lb.t)/36e5;
+  // fajfka: bazál zapsán v posledních 20 h (Toujeo jednou denně)
+  const was=bl.dataset.lid;bl.classList.toggle('done',h<20&&h>=0);
+  if(was&&was!==lb.id){bl.classList.remove('pop');void bl.offsetWidth;bl.classList.add('pop')}
+  bl.dataset.lid=lb.id;
+  i.textContent='naposledy '+fmt(lb.u)+' j. · '+(h*60<1?'právě teď':h<1?'před '+Math.round(h*60)+' min':h<3?'před '+hm(h):'před '+Math.round(h)+' h')}
  const _r=refresh;window.refresh=refresh=function(){_r.apply(this,arguments);basUpd()};basUpd();setInterval(basUpd,60000)})();
 </script>
 </body>
