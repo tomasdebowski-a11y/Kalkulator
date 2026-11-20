@@ -490,7 +490,7 @@ body.quick .iobTop .gl{display:none}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 3.1.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -1178,7 +1178,7 @@ function watchUi(){const W=Array.isArray(S.watch)?S.watch:[];
   const l=$('wSetList');l.innerHTML=W.length?'':'<div class="f">Zatím nikoho nesleduješ.</div>';
   W.forEach(w=>{const r=document.createElement('div');r.className='row';r.innerHTML='<span>'+esc(w.name)+'</span>';const x=document.createElement('button');x.className='s';x.textContent='Odebrat';x.onclick=()=>{if(confirm('Přestat sledovat '+w.name+'?')){S.watch=S.watch.filter(y=>y!==w);save('bc_s',S);watchUi()}};r.appendChild(x);l.appendChild(r)})}
 let wCur=null,wTimer=null;
-function openWatch(w){wCur=w;
+function openWatch(w){wCur=w;try{localStorage.setItem('bc_view',w.id)}catch(e){}
   // uložit vlastní stav a přepnout do režimu jen pro čtení (nic se neukládá)
   WATCH=true;document.body.classList.add('watch');window.scrollTo(0,0);
   const cached=load('bc_wc_'+w.id,null);if(cached){watchRender(cached);wLive(cached,'cache')}else{$('wName').textContent=w.name+' · sledování';$('wLive').textContent='Načítám…'}
@@ -1194,7 +1194,7 @@ function wLive(snap,st){const el=$('wLive'),dot=$('wDot');
   const t=snap?'aktualizováno '+hhmm(snap.sent)+(dayKey(snap.sent)!==dayKey(Date.now())?' ('+dateCz(snap.sent)+')':''):'';
   dot.style.background=st==='ok'?'var(--in)':st==='cache'?'var(--mu)':'var(--wa)';dot.style.animation=st==='ok'?'':'none';
   el.textContent=st==='ok'?'Živě · '+t:st==='cache'?'Načítám… · '+t:st==='empty'?'Žádná data. Odkaz mohl být zrušen, případně požádej o nový.':st==='key'?'Odkaz už neplatí, požádej o nový':'Bez připojení'+(t?' · zobrazen stav '+t.replace('aktualizováno ',''):'')}
-$('wBack').onclick=()=>{clearInterval(wTimer);location.replace(location.pathname)};
+$('wBack').onclick=()=>{clearInterval(wTimer);try{localStorage.removeItem('bc_view')}catch(e){}location.replace(location.pathname)};
 
 /* ===================== APPLE WATCH (zkratka) ===================== */
 let awTimer=null,awBusy=false;
@@ -1245,6 +1245,8 @@ function initShare(){
   shInit();shUi();watchUi();
   const p=parseWatch(location.hash);
   if(p){addWatch(p);history.replaceState(null,'',location.pathname);watchUi();openWatch(p);return}
+  // naposledy otevřené sledování: iPhone aplikaci na pozadí často ukončí, po otevření se vrátíme tam, kde jsi byl(a)
+  try{const v=localStorage.getItem('bc_view');const w=v&&Array.isArray(S.watch)&&S.watch.find(x=>x.id===v);if(w){openWatch(w);return}if(v)localStorage.removeItem('bc_view')}catch(e){}
   // dcera: při otevření aplikace obnovit přehled pro rodinu (max. jednou za 15 min nebo když něco čeká)
   if(S.share&&S.share.on&&S.share.db&&(S.share.pending||!S.share.last||Date.now()-S.share.last>15*6e4))sharePush();
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(WATCH)watchFetch();else if(S.share&&S.share.on&&(S.share.pending||Date.now()-(S.share.last||0)>15*6e4))sharePush()});
