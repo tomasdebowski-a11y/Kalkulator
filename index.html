@@ -429,6 +429,21 @@ body.quick .iobTop .gl{display:none}
 .laysw{position:fixed;top:38%;right:0;z-index:9;display:flex;flex-direction:column;border-radius:12px 0 0 12px!important;gap:4px;background:rgba(0,0,0,.55);padding:4px;border-radius:999px}
 .laysw button{width:30px;height:30px;margin:0;padding:0;border-radius:50%;background:transparent;color:#fff;font-size:13px;font-weight:700}
 .laysw button.on{background:#fff;color:#000}
+
+/* 3.2 odpočet do jídla */
+.iobTop{flex-wrap:wrap}
+.meal{flex-basis:100%;display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--wa) 12%,var(--card));border:1px solid color-mix(in srgb,var(--wa) 35%,var(--bd));cursor:default}
+.meal[hidden]{display:none}
+.meal .mi{font-size:22px;line-height:1}
+.meal .mt{flex:1;min-width:0;font-size:15px;font-weight:600;color:var(--tx)}
+.meal .mt b{font-size:22px;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--wa) 75%,var(--tx))}
+.meal .mt small{display:block;font-size:12px;font-weight:500;color:var(--mu)}
+.meal button{width:40px;height:40px;min-height:40px;margin:0;padding:0;border-radius:50%;background:var(--card);border:1px solid var(--bd);color:var(--tx);font-size:16px;font-weight:700;flex:none}
+.meal.ok{background:color-mix(in srgb,#22a05a 14%,var(--card));border-color:color-mix(in srgb,#22a05a 45%,var(--bd))}
+.meal.ok .mt b{color:#1c8a4c}
+.meal.ok .mi{animation:mealp 1s ease-in-out 3}
+@keyframes mealp{50%{transform:scale(1.35)}}
+body.watch #wMeal{margin:0 0 12px}
 </style>
 </head>
 <body>
@@ -490,7 +505,7 @@ body.quick .iobTop .gl{display:none}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.1.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 3.2 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -564,6 +579,7 @@ body.quick .iobTop .gl{display:none}
     <div><label for="low">Hranice hypo (mmol/l)</label><input id="low" type="number" inputmode="decimal" step="any"></div>
     <div><label for="high">Horní hranice rozmezí</label><input id="high" type="number" inputmode="decimal" step="any"></div>
     <div><label for="basInt">Interval bazálu (h)</label><input id="basInt" type="number" inputmode="decimal" step="any"></div>
+    <div><label for="pre">Odpočet do jídla (min, 0 = vypnuto)</label><input id="pre" type="number" inputmode="numeric" step="1"></div>
   </div>
   <h2 style="margin-top:16px">Úpravy dávky</h2>
   <div class="r">
@@ -644,6 +660,7 @@ body.quick .iobTop .gl{display:none}
 <section id="tWatch">
 <div class="hdr"><h1 id="wName">Sledování</h1><div id="wSub">Jen pro čtení</div></div>
 <div class="wtop"><div class="live" style="margin:0"><i id="wDot"></i><span id="wLive">Načítám…</span></div><button class="o" id="wBack">Zpět</button></div>
+<div class="meal" id="wMeal" hidden></div>
 <div class="c"><div class="last" id="wLast"></div></div>
 <div class="c">
   <h2>Dnešní den</h2>
@@ -688,7 +705,7 @@ const BAS={
   tresiba:{n:'Tresiba (degludek)',sn:'Tresiba',ramp:6,flat:30,td:42,src:'Tresiba, SPC: účinek přes 42 h, ustálený stav po 2–3 dnech.'},
   none:{n:'Nepoužívám / nezobrazovat',sn:'–',ramp:0.3,flat:0.6,td:1,src:''}
 };
-const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
+const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,pre:0,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 let WATCH=false;
 function save(k,v){if(WATCH)return;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -875,7 +892,9 @@ function logDose(type){
   const e={id:uid(),t,type,u};
   if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
   const n=$('note').value.trim();if(n)e.note=n;
+  if(type==='bolus'&&S.pre>0)e.pre=S.pre;
   L.push(e);saveL();
+  if(type==='bolus')mealStart(e);
   if(type==='bolus'){$('bg').value='';$('cb').value=''}
   adj=null;$('note').value='';resetTime('when');refresh();
 }
@@ -1115,7 +1134,7 @@ const RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "sh
 let shTimer=null,shBusy=false;
 function shareSoon(){if(WATCH||!S.share||!S.share.on||!S.share.db)return;S.share.pending=true;save('bc_s',S);clearTimeout(shTimer);shTimer=setTimeout(sharePush,800)}
 function snapshot(){const now=Date.now();
-  const keep=L.filter(d=>(d.type==='basal'?now-d.t<60*36e5:now-d.t<30*36e5)).map(d=>{const o={t:d.t,type:d.type};['u','bg','carbs','rec','note','mods'].forEach(k=>{if(d[k]!=null)o[k]=d[k]});return o});
+  const keep=L.filter(d=>(d.type==='basal'?now-d.t<60*36e5:now-d.t<30*36e5)).map(d=>{const o={t:d.t,type:d.type};['u','bg','carbs','rec','note','mods','pre'].forEach(k=>{if(d[k]!=null)o[k]=d[k]});return o});
   return{name:(S.share.name||'').trim()||'Dcera',bins:S.bins,basins:S.basins,dia:S.dia,low:S.low,high:S.high,sent:now,L:keep}}
 async function sharePush(){if(WATCH||shBusy||!S.share||!S.share.on||!S.share.db)return;shBusy=true;
   try{const body=await encObj(snapshot(),S.share.key);
@@ -1362,7 +1381,7 @@ for(const k in BAS){const o=document.createElement('option');o.value=k;o.textCon
 $('bins').value=S.bins;$('basins').value=S.basins;
 $('bins').onchange=()=>{S.bins=$('bins').value;S.dia=BOL[S.bins].td;$('dia').value=S.dia;save('bc_s',S);rebuild();refresh()};
 $('basins').onchange=()=>{S.basins=$('basins').value;save('bc_s',S);rebuild();refresh()};
-Object.keys(DEF).forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{const v=num(k);if(v!==null&&v>0){if(k==='dia'&&v<2)return;S[k]=v;save('bc_s',S);if(k==='dia')rebuild();refresh()}})});
+Object.keys(DEF).forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{const v=num(k);if(v!==null&&(v>0||(k==='pre'&&v===0))){if(k==='dia'&&v<2)return;S[k]=v;save('bc_s',S);if(k==='dia')rebuild();refresh()}})});
 $('name').value=S.name||'';$('name').oninput=()=>{S.name=$('name').value;save('bc_s',S)};
 $('bg').addEventListener('input',()=>{adj=null;if($('bg').value==='')trend=0;calc()});
 $('cb').addEventListener('input',()=>{adj=null;calc()});
@@ -1468,6 +1487,45 @@ place(LAY);tpUpd();
   bl.dataset.lid=lb.id;
   i.textContent='naposledy '+fmt(lb.u)+' j. · '+(h*60<1?'právě teď':h<1?'před '+Math.round(h*60)+' min':h<3?'před '+hm(h):'před '+Math.round(h)+' h')}
  const _r=refresh;window.refresh=refresh=function(){_r.apply(this,arguments);basUpd()};basUpd();setInterval(basUpd,60000)})();
+
+/* ===== 3.2 odpočet do jídla (předstih po bolusu) ===== */
+let MEAL=(()=>{try{return JSON.parse(localStorage.getItem('bc_meal'))||null}catch(e){return null}})(),mealT=null,wl=null,actx=null;
+function mealSave(){try{MEAL?localStorage.setItem('bc_meal',JSON.stringify(MEAL)):localStorage.removeItem('bc_meal')}catch(e){}}
+function audioUnlock(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;if(!actx)actx=new A();if(actx.state!=='running')actx.resume();const b=actx.createBuffer(1,1,22050),s=actx.createBufferSource();s.buffer=b;s.connect(actx.destination);s.start(0)}catch(e){}}
+function beep(){try{if(!actx)return;if(navigator.audioSession)try{navigator.audioSession.type='playback'}catch(e){}
+  actx.resume();const t0=actx.currentTime+.05;
+  [0,.22,.44,1.1,1.32,1.54].forEach((d,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=i%3===2?1175:880;
+    g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.35,t0+d+.02);g.gain.exponentialRampToValueAtTime(.001,t0+d+.18);o.connect(g);g.connect(actx.destination);o.start(t0+d);o.stop(t0+d+.2)});
+  setTimeout(()=>{if(navigator.audioSession)try{navigator.audioSession.type='auto'}catch(e){}},2500)}catch(e){}}
+async function wakeOn(){try{if(navigator.wakeLock&&!wl&&!document.hidden){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
+function wakeOff(){try{wl&&wl.release()}catch(e){}wl=null}
+function mealStart(e){audioUnlock();if(!e.pre)return;const end=e.t+e.pre*6e4;if(end<=Date.now())return;
+  MEAL={id:e.id,t:e.t,end,beeped:false};mealSave();wakeOn();mealTick()}
+function mealUi(el,M,own){
+  if(!el)return;const now=Date.now();
+  if(!M||now>M.end+10*6e4){el.hidden=true;el.innerHTML='';return false}
+  el.hidden=false;const left=M.end-now,ok=left<=0;el.classList.toggle('ok',ok);
+  if(ok){el.innerHTML='<span class="mi">🍽</span><span class="mt"><b>Můžeš jíst</b><small>'+'předstih uplynul v '+hhmm(M.end)+' · bolus v '+hhmm(M.t)+'</small></span>'+(own?'<button type="button" data-m="x" aria-label="Zavřít">✕</button>':'')}
+  else{const m=Math.floor(left/6e4),s=Math.floor(left%6e4/1e3);
+    el.innerHTML='<span class="mi">⏱</span><span class="mt">Jíst za <b>'+m+':'+String(s).padStart(2,'0')+'</b><small>'+(own?'od bolusu v '+hhmm(M.t)+' · jídlo v '+hhmm(M.end):'bolus v '+hhmm(M.t)+' · jídlo v '+hhmm(M.end))+'</small></span>'+(own?'<button type="button" data-m="-" aria-label="O minutu méně">−1</button><button type="button" data-m="+" aria-label="O minutu víc">+1</button><button type="button" data-m="x" aria-label="Zrušit">✕</button>':'')}
+  return true}
+function mealEl(){let el=$('mealBar');if(!el){el=document.createElement('div');el.id='mealBar';el.className='meal';el.hidden=true;
+  el.addEventListener('click',ev=>{ev.stopPropagation();const b=ev.target.closest('button');if(!b||!MEAL)return;const k=b.dataset.m;
+    if(k==='x'){MEAL=null;mealSave();wakeOff()}else{MEAL.end+=k==='+'?6e4:-6e4;if(MEAL.end<=Date.now())MEAL.end=Date.now();MEAL.beeped=false;mealSave()}mealTick()});
+  const top=document.querySelector('.iobTop');(top||document.querySelector('#tCalc .bolc')).appendChild(el)}return el}
+function mealTick(){clearTimeout(mealT);
+  if(WATCH){const last=L.filter(d=>d.type==='bolus'&&d.pre).sort((a,b)=>b.t-a.t)[0];const M=last?{t:last.t,end:last.t+last.pre*6e4}:null;
+    if(mealUi($('wMeal'),M,false))mealT=setTimeout(mealTick,1000);return}
+  // smazaný bolus → zrušit odpočet
+  if(MEAL&&!L.some(d=>d.id===MEAL.id)){MEAL=null;mealSave()}
+  const on=mealUi(mealEl(),MEAL,true);
+  if(!on){if(MEAL){MEAL=null;mealSave()}wakeOff();return}
+  if(Date.now()>=MEAL.end){wakeOff();if(!MEAL.beeped){MEAL.beeped=true;mealSave();if(Date.now()-MEAL.end<90e3&&!document.hidden)beep()}}
+  mealT=setTimeout(mealTick,1000)}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(MEAL&&Date.now()<MEAL.end)wakeOn();mealTick()}});
+document.addEventListener('pointerdown',()=>{if(MEAL&&!MEAL.beeped)audioUnlock()},{passive:true});
+{const _wr=watchRender;window.watchRender=watchRender=function(){_wr.apply(this,arguments);mealTick()}}
+mealTick();
 </script>
 </body>
 </html>
