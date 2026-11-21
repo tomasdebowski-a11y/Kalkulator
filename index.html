@@ -505,7 +505,7 @@ body.watch #wMeal{margin:0 0 12px}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.2 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 3.2.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -579,7 +579,14 @@ body.watch #wMeal{margin:0 0 12px}
     <div><label for="low">Hranice hypo (mmol/l)</label><input id="low" type="number" inputmode="decimal" step="any"></div>
     <div><label for="high">Horní hranice rozmezí</label><input id="high" type="number" inputmode="decimal" step="any"></div>
     <div><label for="basInt">Interval bazálu (h)</label><input id="basInt" type="number" inputmode="decimal" step="any"></div>
-    <div><label for="pre">Odpočet do jídla (min, 0 = vypnuto)</label><input id="pre" type="number" inputmode="numeric" step="1"></div>
+  </div>
+  <label class="sw" style="margin-top:12px"><input type="checkbox" id="preOn"> Odpočet do jídla po bolusu</label>
+  <div id="preBox" hidden>
+  <div class="r">
+    <div><label for="pre">Předstih (min)</label><input id="pre" type="number" inputmode="numeric" step="1"></div>
+    <div><label>&nbsp;</label><button type="button" class="o" id="preTest" style="margin:0;width:100%;min-height:50px">🔔 Zkusit zvuk</button></div>
+  </div>
+  <p class="f">Po zapsání bolusu se nahoře spustí odpočet a po jeho uplynutí zazní zvuk „Můžeš jíst“. Zvuk zazní, jen když je kalkulátor otevřený na obrazovce; displej během odpočtu nezhasne. Fiasp: ČDS doporučuje asi 5–10 min.</p>
   </div>
   <h2 style="margin-top:16px">Úpravy dávky</h2>
   <div class="r">
@@ -705,7 +712,7 @@ const BAS={
   tresiba:{n:'Tresiba (degludek)',sn:'Tresiba',ramp:6,flat:30,td:42,src:'Tresiba, SPC: účinek přes 42 h, ustálený stav po 2–3 dnech.'},
   none:{n:'Nepoužívám / nezobrazovat',sn:'–',ramp:0.3,flat:0.6,td:1,src:''}
 };
-const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,pre:0,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
+const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,pre:8,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 let WATCH=false;
 function save(k,v){if(WATCH)return;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -717,6 +724,7 @@ const okn=x=>Number.isInteger(x)&&x>=0&&x<1440;
 if(!Array.isArray(S.blocks))S.blocks=[];
 S.blocks=S.blocks.filter(b=>b&&okn(b.m)&&okn(b.e)&&b.icr>0&&b.isf>0);
 if(typeof S.useBlocks!=='boolean')S.useBlocks=false;
+if(typeof S.preOn!=='boolean'){const rp=(load('bc_s',{})||{}).pre;S.preOn=rp>0;if(!(S.pre>0))S.pre=8}
 const hmm=(m,p)=>(p?String(Math.floor(m/60)).padStart(2,'0'):Math.floor(m/60))+':'+String(m%60).padStart(2,'0');
 const inb=(b,m)=>b.m<b.e?(m>=b.m&&m<b.e):(m>=b.m||m<b.e);
 const blockAt=m=>S.blocks.find(b=>inb(b,m))||null;
@@ -892,7 +900,7 @@ function logDose(type){
   const e={id:uid(),t,type,u};
   if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
   const n=$('note').value.trim();if(n)e.note=n;
-  if(type==='bolus'&&S.pre>0)e.pre=S.pre;
+  if(type==='bolus'&&S.preOn&&S.pre>0)e.pre=S.pre;
   L.push(e);saveL();
   if(type==='bolus')mealStart(e);
   if(type==='bolus'){$('bg').value='';$('cb').value=''}
@@ -1381,7 +1389,7 @@ for(const k in BAS){const o=document.createElement('option');o.value=k;o.textCon
 $('bins').value=S.bins;$('basins').value=S.basins;
 $('bins').onchange=()=>{S.bins=$('bins').value;S.dia=BOL[S.bins].td;$('dia').value=S.dia;save('bc_s',S);rebuild();refresh()};
 $('basins').onchange=()=>{S.basins=$('basins').value;save('bc_s',S);rebuild();refresh()};
-Object.keys(DEF).forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{const v=num(k);if(v!==null&&(v>0||(k==='pre'&&v===0))){if(k==='dia'&&v<2)return;S[k]=v;save('bc_s',S);if(k==='dia')rebuild();refresh()}})});
+Object.keys(DEF).forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{const v=num(k);if(v!==null&&v>0){if(k==='dia'&&v<2)return;S[k]=v;save('bc_s',S);if(k==='dia')rebuild();refresh()}})});
 $('name').value=S.name||'';$('name').oninput=()=>{S.name=$('name').value;save('bc_s',S)};
 $('bg').addEventListener('input',()=>{adj=null;if($('bg').value==='')trend=0;calc()});
 $('cb').addEventListener('input',()=>{adj=null;calc()});
@@ -1492,11 +1500,28 @@ place(LAY);tpUpd();
 let MEAL=(()=>{try{return JSON.parse(localStorage.getItem('bc_meal'))||null}catch(e){return null}})(),mealT=null,wl=null,actx=null;
 function mealSave(){try{MEAL?localStorage.setItem('bc_meal',JSON.stringify(MEAL)):localStorage.removeItem('bc_meal')}catch(e){}}
 function audioUnlock(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;if(!actx)actx=new A();if(actx.state!=='running')actx.resume();const b=actx.createBuffer(1,1,22050),s=actx.createBufferSource();s.buffer=b;s.connect(actx.destination);s.start(0)}catch(e){}}
-function beep(){try{if(!actx)return;if(navigator.audioSession)try{navigator.audioSession.type='playback'}catch(e){}
-  actx.resume();const t0=actx.currentTime+.05;
+function beepWav(){const sr=22050,seq=[[880,.16],[0,.06],[880,.16],[0,.06],[1175,.22],[0,.45],[880,.16],[0,.06],[880,.16],[0,.06],[1175,.22],[0,.1]];
+  let n=0;seq.forEach(([,d])=>n+=Math.round(d*sr));const buf=new ArrayBuffer(44+n*2),v=new DataView(buf);
+  const ws=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i))};
+  ws(0,'RIFF');v.setUint32(4,36+n*2,true);ws(8,'WAVE');ws(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);ws(36,'data');v.setUint32(40,n*2,true);
+  let o=44;seq.forEach(([f,d])=>{const m=Math.round(d*sr);for(let i=0;i<m;i++){const env=Math.min(1,i/220,(m-i)/600);const x=f?Math.sin(2*Math.PI*f*i/sr)*env*0.8:0;v.setInt16(o,x*32767,true);o+=2}});
+  let bin='';const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=8192)bin+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return 'data:audio/wav;base64,'+btoa(bin)}
+let SND=null,sndOk=false;
+function sndInit(){if(!SND){SND=new Audio(beepWav());SND.preload='auto';SND.setAttribute('playsinline','')}return SND}
+// odemknutí zvuku dotykem (iPhone pustí zvuk později jen u prvku, který už jednou hrál po dotyku)
+function audioUnlock(){try{const a=sndInit();if(sndOk)return;a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.currentTime=0;a.muted=false;sndOk=true}).catch(()=>{a.muted=false})}catch(e){}
+  try{const A=window.AudioContext||window.webkitAudioContext;if(A){if(!actx)actx=new A();if(actx.state!=='running')actx.resume()}}catch(e){}}
+function beep(){try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  const a=sndInit();a.muted=false;a.volume=1;try{a.currentTime=0}catch(e){}
+  const p=a.play();if(p&&p.catch)p.catch(()=>beepWA());
+  setTimeout(()=>{try{if(navigator.audioSession)navigator.audioSession.type='auto'}catch(e){}},3000)}
+function beepWA(){try{if(!actx)return;actx.resume();const t0=actx.currentTime+.05;
   [0,.22,.44,1.1,1.32,1.54].forEach((d,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=i%3===2?1175:880;
-    g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.35,t0+d+.02);g.gain.exponentialRampToValueAtTime(.001,t0+d+.18);o.connect(g);g.connect(actx.destination);o.start(t0+d);o.stop(t0+d+.2)});
-  setTimeout(()=>{if(navigator.audioSession)try{navigator.audioSession.type='auto'}catch(e){}},2500)}catch(e){}}
+    g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.35,t0+d+.02);g.gain.exponentialRampToValueAtTime(.001,t0+d+.18);o.connect(g);g.connect(actx.destination);o.start(t0+d);o.stop(t0+d+.2)})}catch(e){}}
+function preUi(){$('preOn').checked=!!S.preOn;$('preBox').hidden=!S.preOn}
+$('preOn').addEventListener('change',()=>{S.preOn=$('preOn').checked;if(S.preOn&&!(S.pre>0)){S.pre=8;$('pre').value=8}save('bc_s',S);preUi();audioUnlock()});
+$('preTest').onclick=()=>{audioUnlock();setTimeout(beep,150)};
+preUi();
 async function wakeOn(){try{if(navigator.wakeLock&&!wl&&!document.hidden){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
 function wakeOff(){try{wl&&wl.release()}catch(e){}wl=null}
 function mealStart(e){audioUnlock();if(!e.pre)return;const end=e.t+e.pre*6e4;if(end<=Date.now())return;
@@ -1524,6 +1549,7 @@ function mealTick(){clearTimeout(mealT);
   mealT=setTimeout(mealTick,1000)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(MEAL&&Date.now()<MEAL.end)wakeOn();mealTick()}});
 document.addEventListener('pointerdown',()=>{if(MEAL&&!MEAL.beeped)audioUnlock()},{passive:true});
+document.addEventListener('touchend',()=>{if(MEAL&&!MEAL.beeped)audioUnlock()},{passive:true});
 {const _wr=watchRender;window.watchRender=watchRender=function(){_wr.apply(this,arguments);mealTick()}}
 mealTick();
 </script>
