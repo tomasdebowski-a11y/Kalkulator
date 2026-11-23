@@ -444,6 +444,9 @@ body.quick .iobTop .gl{display:none}
 .meal.ok .mi{animation:mealp 1s ease-in-out 3}
 @keyframes mealp{50%{transform:scale(1.35)}}
 body.watch #wMeal{margin:0 0 12px}
+.hyp .hmb{width:auto;margin:0;padding:8px 14px;min-height:40px;border-radius:999px;font-size:15px;font-weight:700;background:var(--ac);color:#fff;border:0}
+.hyp .chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.hyp .chip{min-height:36px}
 </style>
 </head>
 <body>
@@ -505,7 +508,7 @@ body.watch #wMeal{margin:0 0 12px}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.2.2 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Verze 3.3 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -593,6 +596,12 @@ body.watch #wMeal{margin:0 0 12px}
     <div><label for="sportPct">Sport: snížit o (%)</label><input id="sportPct" type="number" inputmode="decimal" step="any"></div>
     <div><label for="sickPct">Nemoc: zvýšit o (%)</label><input id="sickPct" type="number" inputmode="decimal" step="any"></div>
   </div>
+  <label style="margin-top:12px;font-weight:600;color:var(--tx)">Hypo a jídlo zároveň</label>
+  <div class="r">
+    <div><label for="hypoG">Gramy na hypo (bez inzulínu)</label><input id="hypoG" type="number" inputmode="numeric" step="1"></div>
+    <div><label for="hypoMode">Snížení dávky</label><select id="hypoMode"><option value="both">Odečíst gramy i korekci</option><option value="carbs">Jen odečíst gramy</option><option value="corr">Jen zápornou korekci</option></select></div>
+  </div>
+  <p class="f">Když jíš při glykémii pod hranicí hypo. Výchozí je nejopatrnější varianta (nejmenší dávka). Pravidlo si potvrď s diabetologem.</p>
   <label style="margin-top:10px">Šipka trendu: úprava bolusu (j.)</label>
   <label class="sw" style="margin:4px 0 8px;font-size:14px"><input type="checkbox" id="trAuto"> Podle doporučení Endocrine Society</label>
   <div class="r" style="grid-template-columns:repeat(3,1fr)" id="trBox">
@@ -712,7 +721,7 @@ const BAS={
   tresiba:{n:'Tresiba (degludek)',sn:'Tresiba',ramp:6,flat:30,td:42,src:'Tresiba, SPC: účinek přes 42 h, ustálený stav po 2–3 dnech.'},
   none:{n:'Nepoužívám / nezobrazovat',sn:'–',ramp:0.3,flat:0.6,td:1,src:''}
 };
-const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,pre:8,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
+const DEF={icr:10,isf:2.5,target:6,dia:5,step:0.5,max:15,low:4,high:10,basInt:24,pre:8,hypoG:15,sportPct:25,sickPct:10,tr1:1.5,tr2:2.5,tr3:3.5,trAuto:true};
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 let WATCH=false;
 function save(k,v){if(WATCH)return;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -724,6 +733,7 @@ const okn=x=>Number.isInteger(x)&&x>=0&&x<1440;
 if(!Array.isArray(S.blocks))S.blocks=[];
 S.blocks=S.blocks.filter(b=>b&&okn(b.m)&&okn(b.e)&&b.icr>0&&b.isf>0);
 if(typeof S.useBlocks!=='boolean')S.useBlocks=false;
+if(!['both','carbs','corr'].includes(S.hypoMode))S.hypoMode='both';
 if(typeof S.preOn!=='boolean'){const rp=(load('bc_s',{})||{}).pre;S.preOn=rp>0;if(!(S.pre>0))S.pre=8}
 const hmm=(m,p)=>(p?String(Math.floor(m/60)).padStart(2,'0'):Math.floor(m/60))+':'+String(m%60).padStart(2,'0');
 const inb=(b,m)=>b.m<b.e?(m>=b.m&&m<b.e):(m>=b.m||m<b.e);
@@ -785,7 +795,7 @@ function trUnits(k,isf){return k===0?0:Math.sign(k)*trVals(isf)[Math.abs(k)-1]}
 function recentMeal(){const now=Date.now();return ofType('bolus').some(d=>d.carbs>0&&d.t<=now&&now-d.t<4*36e5)}
 function trSync(){const v=esTable((curBlock()||S).isf);$('trAuto').checked=S.trAuto;['tr1','tr2','tr3'].forEach((k,i)=>{$(k).disabled=S.trAuto;if(S.trAuto)$(k).value=v[i]});
   $('trInfo').textContent=S.trAuto?'Pro tvou citlivost '+fmt((curBlock()||S).isf,1)+' mmol/l: ↗↘ ±'+fmt(v[0])+', ↑↓ ±'+fmt(v[1])+', ⇈⇊ ±'+fmt(v[2])+' j. Pro děti a dospívající platí mírnější schéma.':'Vlastní hodnoty. Doporučení Endocrine Society by pro tvou citlivost bylo ±'+v.map(x=>fmt(x)).join(' / ')+' j.'}
-let lastMods=[];
+let lastMods=[],hypoM=false,hmG=null,lastHM=null;
 function shownDose(){return adj!=null?adj:lastRec}
 function updDose(){const v=shownDose();if(document.activeElement!==$('tot'))$('tot').value=v==null?'–':fmt(v);$('logU').textContent=v?fmt(v)+' j.':'–';$('logBol').disabled=!v;$('logBol').style.opacity=v?1:.45;
   const a=$('adj');if(adj!=null&&lastRec!=null&&Math.abs(adj-lastRec)>1e-9){a.hidden=false;a.innerHTML='Upraveno ručně, návrh '+fmt(lastRec)+' j. <a href="#" id="adjR">vrátit</a>';$('adjR').onclick=e=>{e.preventDefault();adj=null;updDose()};$('totLab').textContent='Aplikovaná dávka'}else{a.hidden=true;$('totLab').textContent='Doporučený bolus'}}
@@ -802,28 +812,38 @@ function calc(){
   if(S.useBlocks&&document.querySelector('#bls .bad')){updDose();msg.innerHTML='<div class="e">Oprav neplatnou hodnotu v časových blocích v Nastavení.</div>';return}
   if(bg===null&&!cb){updDose();return}
   const tgt=(B&&B.tg>0)?B.tg:S.target,meal4=recentMeal(),tu=(trend&&bg!==null&&!meal4)?trUnits(trend,V.isf):0,bgc=bg;
-  const carb=cb/V.icr,corr=bgc!==null?(bgc-tgt)/V.isf:0;
-  let base=carb+corr-I+tu,raw=base;const warn=[];lastMods=[];
+  const lowBg=bg!==null&&bg<S.low;if(!lowBg||!cb){hypoM=false}
+  const hmOn=lowBg&&cb>0&&hypoM,hg=hmOn?Math.min(cb,hmG!=null?hmG:S.hypoG):0,mCarb=hmOn&&S.hypoMode!=='corr'?Math.max(0,cb-hg):cb;
+  lastHM=hmOn?{g:hg,bg}:null;
+  const carb=mCarb/V.icr,corr=bgc!==null?(hmOn&&S.hypoMode==='carbs'?0:(bgc-tgt)/V.isf):0;
+  let base=carb+corr-I+(hmOn?Math.min(0,tu):tu),raw=base;const warn=[];lastMods=[];
+  if(hmOn)lastMods.push('hypo + jídlo: '+fmt(hg,0)+' g bez inzulínu');
   if(raw>0&&sport){raw*=1-S.sportPct/100;lastMods.push('sport −'+fmt(S.sportPct,0)+' %')}
-  if(raw>0&&S.sick){raw*=1+S.sickPct/100;lastMods.push('nemoc +'+fmt(S.sickPct,0)+' %')}
+  if(raw>0&&S.sick&&!hmOn){raw*=1+S.sickPct/100;lastMods.push('nemoc +'+fmt(S.sickPct,0)+' %')}
   if(tu)lastMods.unshift('trend '+TR[trend+3][1]+' '+(tu>0?'+':'')+fmt(tu)+' j.');
   if(trend&&bg!==null&&meal4)warn.push(['w','Šipka se nepoužije: do 4 hodin po bolusu k jídlu se podle trendu dávka neupravuje.']);
   if(trend<=-2&&bg!==null&&bg>=S.low)warn.push(['w','Glykémie rychle klesá. Zvaž odložení bolusu a glykémii za chvíli zkontroluj.']);
-  if(bg!==null&&bg<S.low){raw=0;warn.push(['e','Nízká glykémie: nejdřív řeš hypo, bolus se nedoporučuje.'])}
+  if(lowBg&&!hmOn){raw=0;warn.push(['e','Nízká glykémie: nejdřív řeš hypo, bolus se nedoporučuje.'])}
+  if(hmOn){warn.push(['e','Nízká glykémie: začni jídlem, prvních '+fmt(hg,0)+' g řeší hypo a inzulín se na ně nepočítá.']);warn.push(['w','Píchni až během jídla nebo po jídle (Fiasp lze až 20 min po začátku jídla). Za 15 min zkontroluj glykémii.'])}
   if(bg===null)warn.push(['w','Chybí glykémie, počítá se jen na sacharidy.']);
   raw=Math.max(0,raw);
   let rec=Math.round(raw/S.step)*S.step;
   if(rec>S.max){rec=S.max;warn.push(['w','Překročen maximální bolus, dávka omezena na '+fmt(S.max)+' j.'])}
   if(I>0&&carb+corr>0&&raw===0&&!(bg!==null&&bg<S.low))warn.push(['w','Aktivní bolusový inzulin pokrývá potřebu.']);
   lastRec=rec;
-  const rowsB=[['Na sacharidy',carb],['Korekce',corr],['Aktivní bolus (IOB)',-I]];if(tu)rowsB.push(['Trend '+TR[trend+3][1],tu,'mod']);
+  const rowsB=[[hmOn&&mCarb!==cb?'Na sacharidy ('+fmt(mCarb,0)+' z '+fmt(cb,0)+' g)':'Na sacharidy',carb],['Korekce',corr],['Aktivní bolus (IOB)',-I]];if(tu)rowsB.push(['Trend '+TR[trend+3][1],tu,'mod']);
   if(sport&&base>0)rowsB.push(['Sport −'+fmt(S.sportPct,0)+' %',-base*S.sportPct/100,'mod']);
   if(S.sick&&base>0)rowsB.push(['Nemoc +'+fmt(S.sickPct,0)+' %',raw-(sport?base*(1-S.sportPct/100):base),'mod']);
   rowsB.push(['Před zaokrouhlením',raw,'',1]);
   rowsB.forEach(([a,b,c,last])=>{const d=document.createElement('div');if(c)d.className=c;d.innerHTML='<span>'+a+'</span><span>'+(b>0&&!last?'+':'')+fmt(b)+' j.</span>';bk.appendChild(d)});
   warn.forEach(([c,t])=>{const d=document.createElement('div');d.className=c;d.textContent=t;msg.appendChild(d)});
-  if(bg!==null&&bg<S.low){const h=document.createElement('div');h.className='hyp';h.innerHTML='<span>Zapsat léčbu hypo:</span>';
+  if(lowBg&&!cb){const h=document.createElement('div');h.className='hyp';h.innerHTML='<span>Zapsat léčbu hypo:</span>';
     [10,15,20].forEach(g=>{const b=document.createElement('button');b.className='chip';b.textContent=g+' g';b.onclick=()=>logHypo(bg,g);h.appendChild(b)});msg.appendChild(h)}
+  if(lowBg&&cb){const h=document.createElement('div');h.className='hyp hm';
+    if(!hmOn){h.innerHTML='<span>Jíš a zároveň řešíš hypo?</span>';const b=document.createElement('button');b.className='hmb';b.textContent='🍽 Jím a řeším hypo';b.onclick=()=>{hypoM=true;hmG=null;adj=null;calc()};h.appendChild(b)}
+    else{h.innerHTML='<span>Na hypo (bez inzulínu):</span>';[10,15,20].forEach(g=>{const b=document.createElement('button');b.className='chip'+(g===hg?' on':'');b.textContent=g+' g';b.onclick=()=>{hmG=g;adj=null;calc()};h.appendChild(b)});
+      const x=document.createElement('button');x.className='chip';x.textContent='✕ Zrušit';x.onclick=()=>{hypoM=false;adj=null;calc()};h.appendChild(x)}
+    msg.appendChild(h)}
   updDose();
 }
 function iobVis(I){
@@ -897,13 +917,16 @@ function logDose(type){
   if(type==='bolus'){u=shownDose();if(!u||u<=0){alert('Není co zapsat. Zadej glykémii a sacharidy, nebo dávku nastav tlačítkem +.');return}}
   else{const lb=ofType('basal').sort((a,b)=>b.t-a.t)[0];const r=prompt('Zapsat BAZÁL '+((BAS[S.basins]||{}).sn||'')+' (dlouhodobý inzulin)\n\nDávka v jednotkách:',lb?String(lb.u).replace('.',','):'');if(r===null)return;u=parseFloat(r.replace(',','.'));if(!(u>0)){alert('Neplatná dávka.');return}}
   const t=readTime('when');if(t===null)return;
-  const e={id:uid(),t,type,u};
-  if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
+  const e={id:uid(),t,type,u};const H2=type==='bolus'?lastHM:null;
+  if(H2){const he={id:uid(),t:t-1000,type:'hypo',bg:H2.bg,carbs:H2.g,note:'hypo + jídlo'};L.push(he)}
+  if(type==='bolus'&&H2){const cb=num('cb');if(cb-H2.g>0)e.carbs=cb-H2.g;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
+  else if(type==='bolus'){const bg=num('bg'),cb=num('cb');if(bg!==null)e.bg=bg;if(cb)e.carbs=cb;if(lastRec!=null)e.rec=lastRec;if(lastMods.length)e.mods=lastMods.slice();sport=false;trend=0}
   const n=$('note').value.trim();if(n)e.note=n;
-  if(type==='bolus'&&S.preOn&&S.pre>0)e.pre=S.pre;
+  if(type==='bolus'&&S.preOn&&S.pre>0&&!H2)e.pre=S.pre;
   L.push(e);saveL();
   if(type==='bolus')mealStart(e);
-  if(type==='bolus'){$('bg').value='';$('cb').value=''}
+  if(type==='bolus'){$('bg').value='';$('cb').value='';hypoM=false;hmG=null}
+  if(H2)$('msg').innerHTML='';
   adj=null;$('note').value='';resetTime('when');refresh();
 }
 function renderFoods(){
@@ -1518,6 +1541,7 @@ function beep(){try{if(navigator.audioSession)navigator.audioSession.type='playb
 function beepWA(){try{if(!actx)return;actx.resume();const t0=actx.currentTime+.05;
   [0,.22,.44,1.1,1.32,1.54].forEach((d,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=i%3===2?1175:880;
     g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.35,t0+d+.02);g.gain.exponentialRampToValueAtTime(.001,t0+d+.18);o.connect(g);g.connect(actx.destination);o.start(t0+d);o.stop(t0+d+.2)})}catch(e){}}
+$('hypoMode').value=S.hypoMode;$('hypoMode').addEventListener('change',()=>{S.hypoMode=$('hypoMode').value;save('bc_s',S);calc()});
 function preUi(){$('preOn').checked=!!S.preOn;$('preBox').hidden=!S.preOn}
 $('preOn').addEventListener('change',()=>{S.preOn=$('preOn').checked;if(S.preOn&&!(S.pre>0)){S.pre=8;$('pre').value=8}save('bc_s',S);preUi();audioUnlock()});
 $('preTest').onclick=()=>{audioUnlock();setTimeout(beep,150)};
