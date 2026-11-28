@@ -447,6 +447,12 @@ body.watch #wMeal{margin:0 0 12px}
 .hyp .hmb{width:auto;margin:0;padding:8px 14px;min-height:40px;border-radius:999px;font-size:15px;font-weight:700;background:var(--ac);color:#fff;border:0}
 .hyp .chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 .hyp .chip{min-height:36px}
+.bkst{margin:6px 0 10px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:14px;color:var(--mu)}
+.bkst b{color:var(--tx)}
+.bkst.ok b{color:#1c8a4c}.bkst.err{color:var(--er);background:color-mix(in srgb,var(--er) 8%,var(--bg))}
+.bkcode{font:700 19px/1.3 ui-monospace,Menlo,monospace;letter-spacing:0;white-space:nowrap;text-align:center;padding:14px 8px;margin:10px 0;border-radius:12px;background:var(--bg);border:1px dashed var(--bd);user-select:all;-webkit-user-select:all;word-break:break-all}
+.rban{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--ac) 10%,var(--card));border:1px solid color-mix(in srgb,var(--ac) 35%,var(--bd));font-size:14px}
+.rban span{flex:1}.rban button{width:auto;margin:0;min-height:40px;padding:0 14px;border-radius:999px;background:var(--ac);color:#fff;border:0;font-weight:700;font-size:14px}
 </style>
 </head>
 <body>
@@ -508,7 +514,7 @@ body.watch #wMeal{margin:0 0 12px}
   <div class="lg"><span><i style="background:var(--bol)"></i>Jednotlivé bolusy</span><span style="color:var(--bol)">··· součet</span><span><i style="background:var(--bas);opacity:.5"></i>Bazál</span><span>−12 h až +12 h</span></div>
   <div id="bmsg"></div>
 </div>
-<p class="f" style="text-align:center">Verze 3.3.1 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
+<p class="f" style="text-align:center">Návrh 3.4 · Pomůcka pro osobní použití, nenahrazuje úsudek ani radu lékaře. Křivky působení jsou modelem podle průměrných údajů ze SPC, skutečné působení se liší podle dávky, místa vpichu, pohybu a teploty. Před aplikací dávku vždy zkontroluj.</p>
 </section>
 
 <!-- ============ DENÍK ============ -->
@@ -667,7 +673,14 @@ body.watch #wMeal{margin:0 0 12px}
 <div class="c">
   <h2>Zpráva a záloha</h2>
   <label for="name">Jméno do zprávy (nepovinné)</label><input id="name" class="t" type="text">
-  <p class="f">Data jsou uložená jen v tomto telefonu. Zálohu si občas ulož (např. do iCloudu), při smazání dat prohlížeče by se jinak ztratila.</p>
+  <label class="sw" style="margin-top:12px"><input type="checkbox" id="bkOn"> ☁️ Automatická záloha do cloudu</label>
+  <div id="bkBox" hidden>
+    <div class="bkst" id="bkSt"></div>
+    <div class="r"><button type="button" id="bkCode" class="o">🔑 Kód obnovy</button><button type="button" id="bkNow" class="o">Zálohovat teď</button></div>
+  </div>
+  <p class="f" id="bkInfo">Záloha se dělá sama po každém zápisu, zašifrovaně. Když se data v telefonu smažou, obnovíš je kódem obnovy.</p>
+  <button type="button" id="bkRestore" class="o" style="width:100%;margin:6px 0 12px">☁️ Obnovit z cloudu (kódem obnovy)</button>
+  <p class="f">Ruční záloha do souboru (např. do iCloudu):</p>
   <div class="r"><button id="bak" class="o">Uložit zálohu</button><button id="rst" class="o">Obnovit ze zálohy</button></div>
   <input id="rstFile" type="file" accept=".json,application/json" style="display:none">
 </div>
@@ -1159,7 +1172,7 @@ async function decObj(e,k){const pt=await crypto.subtle.decrypt({name:'AES-GCM',
 const DEFAULT_DB='https://kalkulator---sdileni-default-rtdb.europe-west1.firebasedatabase.app';
 const dbUrl=(db,id)=>db.replace(/\/+$/,'')+'/share/'+id+'.json';
 function normDb(v){v=(v||'').trim();if(!v)return'';if(/^http:\/\/(localhost|127\.0\.0\.1)/.test(v))return v.replace(/\/+$/,'');if(!/^https:\/\//.test(v))v='https://'+v.replace(/^\w+:\/\//,'');return v.replace(/\/+$/,'')}
-const RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "share": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        ".validate": "newData.hasChildren([\'v\', \'iv\', \'ct\']) && newData.child(\'ct\').isString() && newData.child(\'ct\').val().length < 300000"\n      }\n    },\n    "watch": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        "inbox": {\n          "$k": {\n            ".validate": "newData.hasChildren([\'t\'])"\n          }\n        }\n      }\n    }\n  }\n}';
+const RULES='{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "share": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        ".validate": "newData.hasChildren([\'v\', \'iv\', \'ct\']) && newData.child(\'ct\').isString() && newData.child(\'ct\').val().length < 300000"\n      }\n    },\n    "watch": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        "inbox": {\n          "$k": {\n            ".validate": "newData.hasChildren([\'t\'])"\n          }\n        }\n      }\n    },\n    "backup": {\n      "$id": {\n        ".read": "$id.length >= 20",\n        ".write": "$id.length >= 20",\n        ".validate": "newData.hasChildren([\'v\', \'iv\', \'ct\']) && newData.child(\'ct\').isString() && newData.child(\'ct\').val().length < 5000000"\n      }\n    }\n  }\n}';
 
 /* ---- dcera: odesílání ---- */
 let shTimer=null,shBusy=false;
@@ -1576,6 +1589,65 @@ document.addEventListener('pointerdown',()=>{if(MEAL&&!MEAL.beeped)audioUnlock()
 document.addEventListener('touchend',()=>{if(MEAL&&!MEAL.beeped)audioUnlock()},{passive:true});
 {const _wr=watchRender;window.watchRender=watchRender=function(){_wr.apply(this,arguments);mealTick()}}
 mealTick();
+
+/* ===== 3.4 automatická šifrovaná záloha do cloudu ===== */
+const BK_AB='23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+function bkGen(){const r=crypto.getRandomValues(new Uint8Array(20));let c='';r.forEach((x,i)=>{c+=BK_AB[x%32];if(i%5===4&&i<19)c+='-'});return c}
+function bkNorm(c){return String(c||'').toUpperCase().replace(/[^0-9A-Z]/g,'').replace(/O/g,'0').replace(/I/g,'1')}
+async function bkDerive(code){const n=bkNorm(code);if(n.length!==20)throw new Error('code');const te=new TextEncoder();
+  const h=new Uint8Array(await crypto.subtle.digest('SHA-256',te.encode('bolus-zaloha-id:'+n)));const id=[...h.slice(0,16)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  const base=await crypto.subtle.importKey('raw',te.encode(n),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:te.encode('bolus-zaloha-v1'),iterations:150000,hash:'SHA-256'},base,256);
+  return{id,k:b64u(new Uint8Array(bits))}}
+const bkDb=()=>normDb((S.share&&S.share.db)||DEFAULT_DB);
+let bkT=null,bkBusy=false,bkAgain=false;
+function bkSoon(){if(WATCH||!S.bk||!S.bk.on)return;clearTimeout(bkT);bkT=setTimeout(bkPush,6000)}
+async function bkPush(){if(WATCH||!S.bk||!S.bk.on||!S.bk.id)return;if(bkBusy){bkAgain=true;return}bkBusy=true;clearTimeout(bkT);
+  try{const snap={app:'bolus',v:3,ts:Date.now(),S,L,F};const enc=await encObj(snap,S.bk.k);
+    const r=await fetch(bkDb()+'/backup/'+S.bk.id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(enc)});
+    if(!r.ok)throw new Error(r.status===401||r.status===403?'rules':'http '+r.status);
+    S.bk.last=Date.now();S.bk.err='';S.bk.n=L.length}
+  catch(e){S.bk.err=e.message==='rules'?'rules':(navigator.onLine?'net':'off')}
+  bkBusy=false;try{localStorage.setItem('bc_s',JSON.stringify(S))}catch(e){}bkUi();if(bkAgain){bkAgain=false;bkSoon()}}
+{const _s=save;window.save=save=function(k,v){_s(k,v);if(k==='bc_l'||k==='bc_f'||(k==='bc_s'&&!bkBusy))bkSoon()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&bkT){bkPush()}});
+function bkWhen(t){const d=new Date(t),n=new Date(),hmS=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  if(d.toDateString()===n.toDateString())return'dnes '+hmS;const y=new Date(n-864e5);if(d.toDateString()===y.toDateString())return'včera '+hmS;return d.getDate()+'. '+(d.getMonth()+1)+'. '+hmS}
+function bkUi(){const on=!!(S.bk&&S.bk.on);$('bkOn').checked=on;$('bkBox').hidden=!on;$('bkRestore').hidden=false;if(!on)return;
+  const st=$('bkSt');st.className='bkst'+(S.bk.err?' err':S.bk.last?' ok':'');
+  st.innerHTML=S.bk.err==='rules'?'⚠️ Záloha se nepovedla: databáze ji zatím nepovoluje. Doplň pravidla ve Firebase (Sdílení s rodinou → pravidla).':
+    S.bk.err==='off'?'⏸ Bez internetu, zálohuji, až bude připojení.'+(S.bk.last?' Poslední: '+bkWhen(S.bk.last):''):
+    S.bk.err?'⚠️ Záloha se nepovedla, zkusím to znovu.'+(S.bk.last?' Poslední: '+bkWhen(S.bk.last):''):
+    S.bk.last?'Poslední záloha: <b>'+bkWhen(S.bk.last)+' ✓</b> · '+S.bk.n+' záznamů':'Čekám na první zálohu…'}
+function bkShowCode(first){const m=modal('<h2 style="margin:0 0 6px">🔑 Kód obnovy</h2><p class="f" style="text-align:left;margin:0">'+(first?'Ulož si ho <b>mimo kalkulátor</b>, nejlépe do Hesel nebo Poznámek. Bez něj zálohu obnovit nejde.':'S tímto kódem obnovíš data v novém nebo vymazaném telefonu.')+'</p><div class="bkcode" id="bkC">'+S.bk.code+'</div><div class="r"><button type="button" class="o" id="bkCp">📋 Zkopírovat</button><button type="button" id="bkOk">'+(first?'Mám uloženo':'Zavřít')+'</button></div>');
+  m.querySelector('#bkCp').onclick=async()=>{try{await navigator.clipboard.writeText(S.bk.code);m.querySelector('#bkCp').textContent='✓ Zkopírováno'}catch(e){m.querySelector('#bkCp').textContent='Podrž kód a zkopíruj'}};
+  m.querySelector('#bkOk').onclick=closeModal}
+$('bkOn').addEventListener('change',async()=>{if($('bkOn').checked){
+    if(!(S.bk&&S.bk.code)){const code=bkGen();const d=await bkDerive(code);S.bk={on:true,code,id:d.id,k:d.k,last:0,err:''};save('bc_s',S);bkUi();bkShowCode(true);bkPush()}
+    else{S.bk.on=true;save('bc_s',S);bkUi();bkPush()}}
+  else{if(!confirm('Vypnout automatickou zálohu? Poslední záloha zůstane v cloudu a kód obnovy platí dál.')){$('bkOn').checked=true;return}S.bk.on=false;save('bc_s',S);bkUi()}});
+$('bkCode').onclick=()=>bkShowCode(false);
+$('bkNow').onclick=()=>{S.bk.err='';bkUi();bkPush()};
+function bkMerge(j){const ids=new Set(L.map(d=>d.id));let add=0;(j.L||[]).forEach(d=>{if(d&&d.id&&!ids.has(d.id)){L.push(d);ids.add(d.id);add++}});L.sort((a,b)=>a.t-b.t);
+  const fn=new Set(F.map(f=>f.n));(j.F||[]).forEach(f=>{if(f&&f.n&&!fn.has(f.n)){F.push(f);fn.add(f.n)}});return add}
+$('bkRestore').onclick=()=>{const m=modal('<h2 style="margin:0 0 6px">☁️ Obnovit z cloudu</h2><p class="f" style="text-align:left;margin:0 0 8px">Vlož kód obnovy. Záznamy ze zálohy se přidají k těm, které už v telefonu jsou, nic se nesmaže.</p><input id="bkIn" class="t" type="text" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" style="font-size:18px;text-align:center;letter-spacing:1px"><button type="button" class="o" id="bkPaste" style="width:100%;margin:8px 0 0">📋 Vložit zkopírovaný kód</button><div class="f" id="bkMsg" style="min-height:20px;margin:8px 0"></div><div class="r"><button type="button" class="o" id="bkX">Zrušit</button><button type="button" id="bkGo">Obnovit</button></div>');
+  const inp=m.querySelector('#bkIn'),msg=m.querySelector('#bkMsg');
+  m.querySelector('#bkPaste').onclick=async()=>{try{inp.value=(await navigator.clipboard.readText()).trim()}catch(e){msg.textContent='Kód vlož podržením prstu v políčku.'}};
+  m.querySelector('#bkX').onclick=closeModal;
+  m.querySelector('#bkGo').onclick=async()=>{msg.textContent='Načítám zálohu…';
+    try{const d=await bkDerive(inp.value);const r=await fetch(bkDb()+'/backup/'+d.id+'.json',{cache:'no-store'});
+      if(r.status===401||r.status===403)throw new Error('rules');if(!r.ok)throw new Error('net');const e=await r.json();if(!e||!e.ct)throw new Error('none');
+      const j=await decObj(e,d.k);if(!j||!Array.isArray(j.L))throw new Error('bad');
+      const fresh=!L.length;const add=bkMerge(j);
+      if(fresh&&j.S){const keepTheme=S.theme;S=Object.assign({},DEF,j.S);if(!S.theme)S.theme=keepTheme}
+      S.bk={on:true,code:bkNorm(inp.value).replace(/(.{5})(?=.)/g,'$1-'),id:d.id,k:d.k,last:j.ts||0,err:'',n:L.length};
+      save('bc_s',S);saveL();save('bc_f',F);msg.innerHTML='✓ Obnoveno: '+add+' záznamů'+(fresh?' a nastavení':'')+'. Načítám…';setTimeout(()=>location.reload(),1200)}
+    catch(err){msg.innerHTML=err.message==='code'?'Kód má 20 znaků (4 skupiny po 5). Zkontroluj ho.':err.message==='none'?'Pro tento kód žádná záloha není. Zkontroluj kód.':err.message==='rules'?'Databáze zálohy zatím nepovoluje (chybí pravidla ve Firebase).':err.name==='OperationError'?'Kód nesedí k záloze.':'Zálohu se nepodařilo načíst. Zkontroluj internet.'}}};
+// prázdný kalkulátor → nabídka obnovy
+if(!WATCH&&!L.length&&!(S.bk&&S.bk.on)){const b=document.createElement('div');b.className='rban';b.innerHTML='<span>☁️ Ztratila se data? Obnov je ze zálohy kódem obnovy.</span><button type="button">Obnovit</button>';
+  b.querySelector('button').onclick=()=>$('bkRestore').click();const sec=document.getElementById('tCalc'),h=sec.querySelector('.hdr');h.after(b)}
+bkUi();if(S.bk&&S.bk.on&&!WATCH&&(!S.bk.last||Date.now()-S.bk.last>864e5))bkSoon();
+{const _ss=setSums;window.setSums=setSums=function(){_ss();const c=[...document.querySelectorAll('#tSet .fold')].find(x=>x.dataset.ft==='Zpráva a záloha');const el=c&&c.querySelector(':scope>.fh .fs');if(el)el.textContent=S.bk&&S.bk.on?(S.bk.err?'⚠️ záloha nejde':S.bk.last?'☁️ '+bkWhen(S.bk.last)+' ✓':'☁️ zapnuto'):'PDF · záloha · obnova'}}
 </script>
 </body>
 </html>
