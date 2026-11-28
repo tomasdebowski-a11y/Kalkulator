@@ -1,10 +1,10 @@
 // Offline režim pro Bolusový kalkulátor
 // Při každé úpravě aplikace zvyšte číslo verze.
-const CACHE = 'bolus-v26';
+const CACHE = 'bolus-v27';
 const FILES = ['./', './index.html', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'no-cache' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -15,23 +15,18 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Nejdřív síť (aby se načetla nejnovější verze), při výpadku nebo pomalém spojení uložená kopie.
+// Rychlé otevření: aplikace se ukáže hned z uložené kopie a na pozadí se stáhne čerstvá.
+// Nová verze aplikace se nainstaluje sama (změna tohoto souboru) a stránka se po ní jednou obnoví.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  // Jen vlastní soubory aplikace. Data ze sledování (Firebase) jdou vždy přímo ze sítě, nikdy z uložené kopie.
+  // Jen vlastní soubory aplikace. Data ze sledování (Firebase) jdou vždy přímo ze sítě.
   if (new URL(e.request.url).origin !== self.location.origin) return;
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(e.request, { ignoreSearch: true });
-    // Bez HTTP mezipaměti: vždy se zeptat GitHubu, jestli není nová verze (jinak až 10 min stará kopie).
-    const same = new URL(e.request.url).origin === self.location.origin;
-    const req = same ? new Request(e.request.url, { cache: 'no-cache', credentials: 'same-origin' }) : e.request;
-    const network = fetch(req).then(r => {
-      if (r && r.ok) cache.put(e.request, r.clone());
-      return r;
-    });
-    if (!cached) return network;
-    const timeout = new Promise(res => setTimeout(() => res(cached), 3000));
-    return Promise.race([network.catch(() => cached), timeout]);
+    const network = fetch(new Request(e.request.url, { cache: 'no-cache', credentials: 'same-origin' }))
+      .then(r => { if (r && r.ok) cache.put(e.request, r.clone()); return r; });
+    if (cached) { e.waitUntil(network.catch(() => {})); return cached; }
+    return network;
   })());
 });
